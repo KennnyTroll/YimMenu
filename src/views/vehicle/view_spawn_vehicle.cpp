@@ -155,10 +155,8 @@ namespace big
 					}
 					else if (ImGui::IsItemHovered() || ImGui::IsItemFocused())
 					{
-						g_fiber_pool->queue_job([] {
-							g_model_preview_service->show_vehicle(vehicle::get_owned_mods_from_vehicle(self::veh),
-							    g.spawn_vehicle.spawn_maxed);
-						});
+						g_model_preview_service->show_vehicle(vehicle::get_owned_mods_from_vehicle(self::veh),
+						    g.spawn_vehicle.spawn_maxed);
 					}
 				}
 			}
