@@ -344,7 +344,7 @@ namespace big
 
 		ImGui::SetNextWindowPos(ImVec2(500.0f, 10.0f), ImGuiCond_FirstUseEver, ImVec2(0.0f, 0.0f));
 		ImGui::SetNextWindowBgAlpha(0.5f);
-		if (ImGui::Begin("VEHICLE_CONTROLLER"_T.data(), nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav))
+		if (ImGui::Begin("VEHICLE_CONTROLLER"_T.data(), nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoFocusOnAppearing /*| ImGuiWindowFlags_NoNav*/))
 		{
 			if (g_vehicle_control_service.m_controlled_vehicle_exists)
 			{

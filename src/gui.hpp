@@ -39,12 +39,22 @@ namespace big
 		static void script_func();
 
 		void wndproc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
+		bool m_is_active_view_open;
+		int window_focused = 0;	
+		int window_item_focused = -1;
+		bool window_focused_log;
+		bool window_focused_Move;
+		//bool window_focused_Move_plus;
+		int window_Move_focuse_id = 0;
+		bool window_FORCE_focuse_on_Nav;
+		
+		//bool focus_on_select;
 
 	private:
 		void toggle_mouse();
 
 	private:
-		bool m_is_open;
+		bool m_is_open;		
 		bool m_override_mouse;
 
 		ImGuiStyle m_default_config;

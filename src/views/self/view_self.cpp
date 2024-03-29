@@ -24,6 +24,10 @@ namespace big
 		ImGui::SameLine();
 		components::command_button<"fillammo">();
 
+		ImGui::SliderInt("Disable test", &g.self.disable_test, -1, 100);
+		ImGui::SliderInt("Disable plus test", &g.self.disable_plus_test, 0, 300);
+		ImGui::Checkbox("window_focused_log test", &g.self.window_focused_log);
+
 		ImGui::SeparatorText("GENERAL"_T.data());
 
 		ImGui::BeginGroup();

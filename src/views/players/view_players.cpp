@@ -11,6 +11,8 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui_internal.h>
 
+#include "gui.hpp"
+
 namespace big
 {
 	bool has_scrollbar = false;
@@ -110,6 +112,11 @@ namespace big
 
 		if (ImGui::Begin("playerlist", nullptr, window_flags))
 		{
+			if (ImGui::IsWindowFocused())
+			{
+				g_gui->window_focused = 2;
+			}
+
 			const auto style = ImGui::GetStyle();
 			float window_height = (
 				ImGui::CalcTextSize("A").y + style.FramePadding.y * 2.0f + style.ItemSpacing.y) // button size

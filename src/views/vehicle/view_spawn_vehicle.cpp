@@ -5,6 +5,8 @@
 #include "util/vehicle.hpp"
 #include "views/view.hpp"
 
+#include "gui.hpp"
+
 namespace big
 {
 	void render_spawn_new_vehicle()
@@ -147,11 +149,11 @@ namespace big
 						g_model_preview_service->stop_preview();
 					});
 
-					if (!g.spawn_vehicle.preview_vehicle || (g.spawn_vehicle.preview_vehicle && !ImGui::IsAnyItemHovered()))
+					if (!g_gui->m_is_active_view_open || !g.spawn_vehicle.preview_vehicle || (g.spawn_vehicle.preview_vehicle && !ImGui::IsAnyItemHovered() && !ImGui::IsAnyItemFocused())) //IsAnyItemFocused IsAnyItemActive
 					{
 						g_model_preview_service->stop_preview();
 					}
-					else if (ImGui::IsItemHovered())
+					else if (ImGui::IsItemHovered() || ImGui::IsItemFocused())
 					{
 						g_fiber_pool->queue_job([] {
 							g_model_preview_service->show_vehicle(vehicle::get_owned_mods_from_vehicle(self::veh),
@@ -198,11 +200,11 @@ namespace big
 					});
 					ImGui::PopID();
 
-					if (!g.spawn_vehicle.preview_vehicle || (g.spawn_vehicle.preview_vehicle && !ImGui::IsAnyItemHovered()))
+					if (!g_gui->m_is_active_view_open || !g.spawn_vehicle.preview_vehicle || (g.spawn_vehicle.preview_vehicle && !ImGui::IsAnyItemHovered() && !ImGui::IsAnyItemFocused())) 
 					{
 						g_model_preview_service->stop_preview();
 					}
-					else if (ImGui::IsItemHovered())
+					else if (ImGui::IsItemHovered() || ImGui::IsItemFocused())
 					{
 						g_model_preview_service->show_vehicle(vehicle.m_hash, g.spawn_vehicle.spawn_maxed);
 					}

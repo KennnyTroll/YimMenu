@@ -1,6 +1,8 @@
 #include "services/gui/gui_service.hpp"
 #include "views/view.hpp"
 
+#include "gui.hpp"
+
 namespace big
 {
 	void view::navigation()
@@ -10,6 +12,11 @@ namespace big
 
 		if (ImGui::Begin("navigation", 0, window_flags))
 		{
+			if (ImGui::IsWindowFocused())
+			{
+				g_gui->window_focused = 0;
+			}
+
 			g_gui_service->reset_nav_size();
 			for (std::pair<tabs, navigation_struct> nav_item : g_gui_service->get_navigation())
 			{

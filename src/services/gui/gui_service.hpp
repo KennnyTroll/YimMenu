@@ -3,6 +3,70 @@
 
 namespace big
 {
+	struct tabs_ch
+	{
+		const char* tab_name;
+	};
+	const tabs_ch tabs_char_name[] = 
+	{	
+		"NONE",
+
+	    "SELF", 
+	    "WEAPONS", 
+		"MOBILE", 
+	    "TELEPORT", 
+	    "CUSTOM_TELEPORT", 	   
+	    "OUTFIT_EDITOR", 
+	    "OUTFIT_SLOTS", 
+	    "ANIMATIONS", 
+
+	    "VEHICLE", 
+	    "HANDLING", 
+	    "HANDLING_SEARCH", 
+	    "HANDLING_SAVED_PROFILE", 
+	    "HANDLING_MY_PROFILES", 
+	    "HANDLING_CURRENT_PROFILE", 
+	    "LSC", 
+	    "SPAWN_VEHICLE", 
+	    "FUN_VEHICLE", 
+
+	    "WORLD", 
+	    "SPAWN_PED", 
+	    "SQUAD_SPAWNER", 
+	    "CREATOR", 
+	    "TRAIN", 
+	    "BLACKHOLE", 
+	    "MODEL_SWAPPER", 
+	    "VFX", 
+	    "XML_MAPS", 
+
+	    "NETWORK", 
+	    "MISSIONS", 
+	    "SPOOFING", 
+	    "PLAYER_DATABASE", 
+	    "SESSION_BROWSER", 
+	    "STAT_EDITOR", 
+
+	    "SETTINGS", 
+	    "LUA_SCRIPTS", 
+	    "CONTEXT_MENU_SETTINGS", 
+	    "ESP_SETTINGS", 
+	    "GTA_CACHE_SETTINGS", 
+	    "GUI_SETTINGS", 
+	    "HOTKEY_SETTINGS", 
+	    "REACTION_SETTINGS", 
+	    "PROTECTION_SETTINGS", 
+	    "TRANSLATION_SETTINGS", 
+	    "PROXY_SETTINGS", 
+	    "DEBUG", 
+
+	    "PLAYER", 
+
+	    // Added at runtime by things like lua scripts.
+	    "RUNTIME_CUSTOM"
+
+	};
+
 	// Lua API: Tabs
 	enum class tabs
 	{
@@ -10,9 +74,9 @@ namespace big
 
 		SELF,
 		WEAPONS,
-		TELEPORT,
-		CUSTOM_TELEPORT,
 		MOBILE,
+		TELEPORT,
+		CUSTOM_TELEPORT,		
 		OUTFIT_EDITOR,
 		OUTFIT_SLOTS,
 		ANIMATIONS,
@@ -181,7 +245,7 @@ namespace big
 		navigation_struct* get_selected();
 		std::vector<tabs>& get_selected_tab();
 		bool has_switched_view();
-		void set_selected(tabs);
+        void set_selected(tabs);
 		void set_nav_size(int);
 		void increment_nav_size();
 		void reset_nav_size();

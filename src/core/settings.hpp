@@ -352,6 +352,10 @@ namespace big
 			std::string persist_outfit        = "";
 			bool persist_outfits_mis          = false;
 			bool interaction_menu_freedom     = false;
+			int disable_test                  = -1;
+			int disable_plus_test             = 0;
+			bool window_focused_log           = false;
+			
 
 			struct hud
 			{

@@ -2,6 +2,8 @@
 
 #include "services/gui/gui_service.hpp"
 
+#include "gui.hpp"
+
 namespace big
 {
 	void debug::main()
@@ -11,6 +13,11 @@ namespace big
 
 		if (ImGui::Begin("DEBUG_WINDOW"_T.data()))
 		{
+			if (ImGui::IsWindowFocused())
+			{
+				g_gui->window_focused = 3;
+			}
+
 			ImGui::BeginTabBar("debug_tabbar");
 			misc();
 			logs();

@@ -5,10 +5,16 @@
 #include "services/gui/gui_service.hpp"
 #include "services/translation_service/translation_service.hpp"
 
+#include "gui.hpp"
+
 namespace big
 {
 	void view::active_view()
 	{
+		if (!g_gui->m_is_active_view_open || g_gui_service->get_selected_tab().empty())
+		{			
+			return;
+		}
 		const auto selected = g_gui_service->get_selected();
 
 		if (selected->func == nullptr &&
@@ -24,9 +30,29 @@ namespace big
 		ImGui::SetNextWindowSizeConstraints({300.f, 100.f},
 		    {(float)*g_pointers->m_gta.m_resolution_x - 270.f, (float)*g_pointers->m_gta.m_resolution_y - 110.f});
 
-
+		bool FORCE_focuse = false;
 		if (ImGui::Begin("main", nullptr, window_flags))
 		{
+			FORCE_focuse = false;
+			if (ImGui::IsWindowFocused())
+			{
+				if (g_gui->window_FORCE_focuse_on_Nav == true)
+				{
+					FORCE_focuse                      = true;
+
+					g_gui->window_FORCE_focuse_on_Nav = false;
+					LOG(INFO) << "->->-> ACTIVE_VIEW : FORCE_focuse_on_Nav : false";
+
+					ImGui::PopStyleVar();
+					ImGui::End();	
+
+					LOG(INFO) << "->->-> ACTIVE_VIEW : Testtt ??";
+					//return;
+				}
+				else
+					g_gui->window_focused = 1;
+			}
+
 			const char* key = nullptr;
 			if (key = g_translation_service.get_translation(selected->hash).data(); !key)
 				key = selected->name;
@@ -50,5 +76,13 @@ namespace big
 			ImGui::PopStyleVar();
 		}
 		ImGui::End();
+
+		if (FORCE_focuse)
+		{
+			ImGui::SetWindowFocus("navigation");
+			LOG(INFO) << "->->-> ACTIVE_VIEW : FORCE_focuse --> SetWindowFocus( navigation )";
+
+			FORCE_focuse = false;
+		}
 	}
 }

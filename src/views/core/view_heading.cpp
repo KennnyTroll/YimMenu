@@ -8,7 +8,7 @@ namespace big
 	{
 		ImGui::SetNextWindowSize({300.f * g.window.gui_scale, 80.f * g.window.gui_scale});
 		ImGui::SetNextWindowPos({10.f, 10.f});
-		if (ImGui::Begin("menu_heading", nullptr, window_flags | ImGuiWindowFlags_NoScrollbar))
+		if (ImGui::Begin("menu_heading", nullptr, window_flags | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoNav))
 		{
 			ImGui::BeginGroup();
 			ImGui::Text("HEADING_WELCOME"_T.data());
