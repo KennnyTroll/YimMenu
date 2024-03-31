@@ -31,14 +31,13 @@ namespace big
 		void show_vehicle(const std::map<int, int32_t>& owned_mods, bool spawn_max);
 		void show_vehicle_persisted(std::string vehicle_name);
 		void show_vehicle(Vehicle veh);
+		void stop_preview();
+		bool is_runing();
 
 	private:
 		void clear_data();
 		void preview_loop();
 
-	public:
-		void stop_preview();
-		bool is_runing();
 	};
 
 	inline model_preview_service* g_model_preview_service{};
