@@ -63,8 +63,13 @@ namespace big
 		{
 			g_player_service->set_selected(plyr);
 			g_gui_service->set_selected(tabs::PLAYER);
-			g.window.switched_view = true;
+
+			//g.window.switched_view = true;
+			
+			g_gui->m_is_active_view_open = true;
+			LOG(INFO) << "NAV-ITEM : nav_button --> active_view_open = true;";	
 		}
+
 		if (ImGui::IsItemHovered()
 		    && g_player_database_service->get_player_by_rockstar_id(plyr->get_net_data()->m_gamer_handle.m_rockstar_id) != nullptr)
 		{
@@ -112,11 +117,6 @@ namespace big
 
 		if (ImGui::Begin("playerlist", nullptr, window_flags))
 		{
-			if (ImGui::IsWindowFocused())
-			{
-				g_gui->window_focused = 2;
-			}
-
 			const auto style = ImGui::GetStyle();
 			float window_height = (
 				ImGui::CalcTextSize("A").y + style.FramePadding.y * 2.0f + style.ItemSpacing.y) // button size
@@ -131,11 +131,11 @@ namespace big
 
 			ImGui::PushStyleColor(ImGuiCol_FrameBg, {0.f, 0.f, 0.f, 0.f});
 			ImGui::PushStyleColor(ImGuiCol_ScrollbarBg, {0.f, 0.f, 0.f, 0.f});
-
+				
 			if (ImGui::BeginListBox("##players", {ImGui::GetWindowSize().x - ImGui::GetStyle().WindowPadding.x * 2, window_height}))
 			{
 				ImGui::SetScrollX(0);
-				player_button(g_player_service->get_self());
+				player_button(g_player_service->get_self());				
 
 				if (player_count > 1)
 					ImGui::Separator();
@@ -146,6 +146,146 @@ namespace big
 				ImGui::EndListBox();
 			}
 			ImGui::PopStyleColor(2);
+
+			if (ImGui::IsWindowFocused())
+			{
+				if (ImGui::IsKeyPressed(ImGuiKey_GamepadDpadUp))
+				{
+					const auto player_count = g_player_service->players().size() + 1;
+
+					if (player_count <= 1)
+					{
+						g_player_service->set_selected(g_player_service->get_self());
+					}
+					else
+					{
+						int selected_player_index = 0;
+						bool founded              = false;
+						for (const auto& [_, player] : g_player_service->players())
+						{
+							selected_player_index += 1;
+							if (g_player_service->get_selected() == player)
+							{
+								founded = true;
+								//LOG(INFO) << "A-A-A- DPAD_UP : ACTUAL selected() == " << g_player_service->get_selected()->get_name();
+								break;
+							}
+						}
+
+						if (!founded) // set last
+						{
+							//LOG(INFO) << "A-A-A- DPAD_UP : ACTUAL selected() == SELF --> LAST";
+
+							int next_target_player_index = player_count - 1;
+							selected_player_index        = 0;
+							for (const auto& [_, player] : g_player_service->players())
+							{
+								selected_player_index += 1;
+								if (selected_player_index == next_target_player_index)
+								{
+									g_player_service->set_selected(player);
+									break;
+								}
+							}
+						}
+						else if (selected_player_index == 1) // set first get_self
+						{
+							//LOG(INFO) << "A-A-A- DPAD_UP : SET selected() == SELF";
+							g_player_service->set_selected(g_player_service->get_self());
+						}
+						else
+						{
+							int next_target_player_index = selected_player_index - 1;
+							selected_player_index        = 0;
+							for (const auto& [_, player] : g_player_service->players())
+							{
+								selected_player_index += 1;
+								if (selected_player_index == next_target_player_index)
+								{
+									LOG(INFO) << "A-A-A- DPAD_UP : SET selected() == " << player->get_name();
+									g_player_service->set_selected(player);
+									break;
+								}
+							}
+						}
+					}
+				}
+
+				if (ImGui::IsKeyPressed(ImGuiKey_GamepadDpadDown))
+				{
+					const auto player_count = g_player_service->players().size() + 1;
+
+					if (player_count <= 1)
+					{
+						g_player_service->set_selected(g_player_service->get_self());
+					}
+					else
+					{
+						int selected_player_index = 0;
+						bool founded              = false;
+						for (const auto& [_, player] : g_player_service->players())
+						{
+							selected_player_index += 1;
+							if (g_player_service->get_selected() == player)
+							{
+								founded = true;
+								//LOG(INFO) << "V-V-V- DPAD_DOWN : ACTUAL selected() == " << g_player_service->get_selected()->get_name();
+								break;
+							}
+						}
+
+						if (!founded) //
+						{
+							//LOG(INFO) << "V-V-V- DPAD_DOWN : ACTUAL selected() == SELF";
+
+							for (const auto& [_, player] : g_player_service->players())
+							{
+								//LOG(INFO) << "V-V-V- DPAD_DOWN : SET selected() == " << player->get_name();
+								g_player_service->set_selected(player);
+								break;
+							}
+						}
+						else if ((player_count - 1) < selected_player_index + 1) // set first
+						{
+							//LOG(INFO) << "V-V-V- DPAD_DOWN : SET selected() == SELF";
+							g_player_service->set_selected(g_player_service->get_self());
+						}
+						else
+						{
+							int next_target_player_index = selected_player_index + 1;
+							selected_player_index        = 0;
+							for (const auto& [_, player] : g_player_service->players())
+							{
+								selected_player_index += 1;
+								if (selected_player_index == next_target_player_index)
+								{
+									//LOG(INFO) << "V-V-V- DPAD_DOWN : SET selected() == " << player->get_name();
+									g_player_service->set_selected(player);
+									break;
+								}
+							}
+						}
+					}
+				}
+
+				if (ImGui::IsKeyReleased(ImGuiKey_GamepadDpadRight))
+				{
+					g_gui->m_is_active_view_open = true;
+					//LOG(INFO) << "->->->->->-> DPAD_RIGHT : active_view_open = true";
+
+					g_gui->window_FORCE_focuse_on_Nav = false;
+					//LOG(INFO) << "->->->->->-> DPAD_RIGHT : window_FORCE_focuse_on_Nav =  false";
+
+					ImGui::SetWindowFocus("main");
+					//LOG(INFO) << "->->->->->-> DPAD_RIGHT : SetWindowFocus( main )";
+				}
+
+				if (ImGui::IsKeyPressed(ImGuiKey_GamepadDpadLeft))
+				{
+					g_gui->m_is_active_view_open = false;
+					//LOG(INFO) << "<-<-<- DPAD_LEFT : active_view_open = false";
+				}
+			}
 		}
 
 		ImGui::PopStyleVar();

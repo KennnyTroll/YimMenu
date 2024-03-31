@@ -232,4 +232,9 @@ namespace big
 		m_veh_owned_mods.clear();
 		m_running = false;
 	}
+
+	bool model_preview_service::is_runing()
+	{
+		return m_running;
+	}
 }

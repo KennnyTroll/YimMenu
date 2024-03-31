@@ -44,72 +44,33 @@ namespace big
 		return switched_view;
 	}
 
-	void gui_service::set_selected(tabs tab/*, bool focus_on_select*/)
+	
+	void gui_service::set_selected(tabs tab)
 	{
-		LOG(INFO) << "Set_selected : -->";
-		if (!current_tab.empty())
-			LOG(INFO) << "Set_selected : --> ACTUAL : selected --> name : " << get_selected()->name;
+		//LOG(INFO) << "Set_selected : -->";
+		//if (!current_tab.empty())
+		//	LOG(INFO) << "Set_selected : --> ACTUAL : selected --> name : " << get_selected()->name ;
 
 		if (current_tab.empty())
 		{
-			LOG(INFO) << "Set_selected : --> ACTUAL EMPTY : selected : current_tab.push_back(tab)  -->";
-
-			//static navigation_struct tab_none = {"", nullptr};
-			//if (current_tab.empty() || current_tab.at(0) == tabs::NONE)
-			//	return &tab_none;
-
+			//LOG(INFO) << "Set_selected : --> ACTUAL EMPTY : selected : current_tab.push_back(tab)  -->";
 			return current_tab.push_back(tab);
 		}		
 
 		if (auto it = get_selected()->sub_nav.find(tab); it != get_selected()->sub_nav.end())
 		{
-			LOG(INFO) << "Set_selected : --> SUBNAV : get_selected()->sub_nav.find(tab) : current_tab.push_back(tab)  -->";
-			current_tab.push_back(tab);
-
-			//if ((get_selected()->name != "GUI_TAB_SELF") && 
-			//	(get_selected()->name != "GUI_TAB_VEHICLE") && 
-			//	(get_selected()->name != "GUI_TAB_WORLD") && 
-			//	(get_selected()->name != "GUI_TAB_NETWORK") && 
-			//	(get_selected()->name != "GUI_TAB_SETTINGS"))
-			//{
-			//ImGui::SetWindowFocus("main");
-			//g_gui->window_focused = 1;
-			//}
-			
+			//LOG(INFO) << "Set_selected : --> SUBNAV : get_selected()->sub_nav.find(tab) : current_tab.push_back(tab)  -->";
+			current_tab.push_back(tab);		
 		}
 		else
 		{
-			LOG(INFO) << "Set_selected : --> NO SUBNAV : current_tab.pop_back(); set_selected(tab, false)  -->";
+			//LOG(INFO) << "Set_selected : --> NO SUBNAV : current_tab.pop_back();  -->";
 			current_tab.pop_back();
+			//LOG(INFO) << "Set_selected : --> NO SUBNAV : set_selected(tab);  -->";
 			set_selected(tab);				
 		}
 		
-		LOG(INFO) << "Set_selected : --> name : " << get_selected()->name;
-
-		//LOG(INFO) << "set_selected --> g_gui->m_is_active_view_open = true;";
-		//g_gui->m_is_active_view_open = true;
-
-
-
-
-		//g_gui->window_focused = 0;
-		//ImGui::SetWindowFocus("navigation");
-		//LOG(INFO) << "set_selected --> SetWindowFocus(navigation)";
-
-		//if (focus_on_select == true)
-		//{
-		//	LOG(INFO) << "set_selected --> (focus_on_select == true) : ImGui::SetWindowFocus( --> main <-- )  -->";
-		//	ImGui::SetWindowFocus("main");
-		//	g_gui->window_focused = 1;
-		//}
-
-		////g_gui->m_is_active_view_open = true;
-		//ImGui::SetWindowFocus("main");
-		
-		//if (g_gui_service->get_selected()->name)
-		//{
-		//	ImGui::SetWindowFocus("main");
-		//}		
+		//LOG(INFO) << "Set_selected : --> name : " << get_selected()->name;	
 	}
 
 	void gui_service::set_nav_size(int nav_size)

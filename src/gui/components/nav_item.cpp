@@ -19,33 +19,21 @@ namespace big
 		const char* key = nullptr;
 		if (key = g_translation_service.get_translation(navItem.second.name).data(); !key)
 			key = navItem.second.name;
+
 		if (components::nav_button(key))
 		{
 			g_gui_service->set_selected(navItem.first);		
-			//g_gui->window_focused = 1;
 						
 			g_gui->m_is_active_view_open = true;
-			LOG(INFO) << "NAV-ITEM : nav_button --> active_view_open = true;";	
+			//LOG(INFO) << "NAV-ITEM : nav_button --> active_view_open = true;";	
 
 			g_gui->window_FORCE_focuse_on_Nav = false;
-			LOG(INFO) << "NAV-ITEM : nav_button --> window_FORCE_focuse_on_Nav =  false";
+			//LOG(INFO) << "NAV-ITEM : nav_button --> window_FORCE_focuse_on_Nav =  false";
 
 			ImGui::SetWindowFocus("main");
-			LOG(INFO) << "NAV-ITEM : nav_button --> SetWindowFocus( main )";
-			//ImGuiTabItemFlags_SetSelected;
+			//LOG(INFO) << "NAV-ITEM : nav_button --> SetWindowFocus( main )";
 		}
-
-
-
-
-
-
-
-
-
-
-		//if (g_gui->m_is_open)
-		//if (g_gui->window_focused == 0) //"navigation"				
+	
 		if (ImGui::IsItemFocused())
 		{
 			const char* key = nullptr;
@@ -68,51 +56,8 @@ namespace big
 			if (indexx != -1)
 			{
 				g_gui->window_item_focused = indexx;
-
-				//if (g.self.window_focused_log)
-				//	LOG(INFO) << ""NAV-ITEM : -> indexx != -1 : " << indexx;
-
-				if (g_gui->window_focused_Move)
-				{
-					tabs tab_NEXT = static_cast<tabs>(g_gui->window_Move_focuse_id);
-					LOG(INFO) << "NAV-ITEM : focused_id : " << indexx << " NEXT focuse_id : " << (int)tab_NEXT;
-					//g_gui_service->set_selected(tab_actuel, false);
-					//if (g_gui->window_focused_Move_plus)
-					//{
-					//}
-					//else
-					//{
-					//	//tabs tab_actuel = static_cast<tabs>(targ_table);
-					//	//g_gui_service->set_selected(tab_actuel, false);
-					//}
-					g_gui->window_focused_Move = false;
-				}
-
-				//tabs tab_actuel = static_cast<tabs>((int)(g_gui->window_item_focused + 1));
-
-				//if (g_gui->window_focused == 0)
-				//	g_gui_service->set_selected(tab_actuel, false);
 			}
-			//else if (g.self.window_focused_log)
-			//LOG(INFO) << "->->->->->->->->-> focused indexx == " << indexx;
-		}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-			
+		}			
 
 		if (current_tab)
 			ImGui::PopStyleColor();

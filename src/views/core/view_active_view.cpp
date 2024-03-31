@@ -30,27 +30,25 @@ namespace big
 		ImGui::SetNextWindowSizeConstraints({300.f, 100.f},
 		    {(float)*g_pointers->m_gta.m_resolution_x - 270.f, (float)*g_pointers->m_gta.m_resolution_y - 110.f});
 
-		bool FORCE_focuse = false;
 		if (ImGui::Begin("main", nullptr, window_flags))
 		{
-			FORCE_focuse = false;
 			if (ImGui::IsWindowFocused())
 			{
 				if (g_gui->window_FORCE_focuse_on_Nav == true)
 				{
-					FORCE_focuse                      = true;
-
 					g_gui->window_FORCE_focuse_on_Nav = false;
-					LOG(INFO) << "->->-> ACTIVE_VIEW : FORCE_focuse_on_Nav : false";
+					//LOG(INFO) << "->->-> ACTIVE_VIEW : FORCE_focuse_on_Nav : false";
 
 					ImGui::PopStyleVar();
 					ImGui::End();	
+					
+					ImGui::SetWindowFocus("navigation");
+					//LOG(INFO) << "->->-> ACTIVE_VIEW : FORCE_focuse --> SetWindowFocus( navigation )";
+					
+					LOG(INFO) << "->->-> FORCE_focuse navigation : Test ??";
 
-					LOG(INFO) << "->->-> ACTIVE_VIEW : Testtt ??";
-					//return;
+					return;
 				}
-				else
-					g_gui->window_focused = 1;
 			}
 
 			const char* key = nullptr;
@@ -76,13 +74,5 @@ namespace big
 			ImGui::PopStyleVar();
 		}
 		ImGui::End();
-
-		if (FORCE_focuse)
-		{
-			ImGui::SetWindowFocus("navigation");
-			LOG(INFO) << "->->-> ACTIVE_VIEW : FORCE_focuse --> SetWindowFocus( navigation )";
-
-			FORCE_focuse = false;
-		}
 	}
 }

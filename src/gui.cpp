@@ -12,6 +12,9 @@
 #include "services/gui/gui_service.hpp"
 #include "pointers.hpp"
 
+#include "services/model_preview/model_preview_service.hpp"
+#include "imgui_internal.h"
+
 //Gamepad
 #include <XInput.h>
 #pragma comment(lib, "Xinput.lib")
@@ -32,6 +35,14 @@ static bool g_Enable_CONTROL_ACTION = false;
 
 namespace big
 {
+	struct funcs
+	{
+		static bool IsLegacyNativeDupe(ImGuiKey key)
+		{
+			return key < 512 && ImGui::GetIO().KeyMap[key] != -1;
+		}
+	};
+
 	float Get_Stick_Val(SHORT sThumb, int XINPUT__GAMEPAD__TRIGGER__THRESHOLD, int XINPUT__Offset)
 	{
 		float vn = (float)(sThumb - XINPUT__GAMEPAD__TRIGGER__THRESHOLD) / (float)(XINPUT__Offset - XINPUT__GAMEPAD__TRIGGER__THRESHOLD);
@@ -416,7 +427,6 @@ namespace big
 
 			g_Enable_CONTROL_ACTION = false;
 
-
 			//MAP_ANALOG(gamepad.bLeftTrigger, XINPUT_GAMEPAD_TRIGGER_THRESHOLD, 255);
 			//MAP_ANALOG(gamepad.bRightTrigger, XINPUT_GAMEPAD_TRIGGER_THRESHOLD, 255);
 			float LeftTrigger_Val  = Get_Stick_Val(game_pad.bLeftTrigger, XINPUT_GAMEPAD_TRIGGER_THRESHOLD, 255);
@@ -479,7 +489,6 @@ namespace big
 			float LY_moin = Get_Stick_Val(game_pad.sThumbLY, -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE, -32768);
 
 			bool LJ_limit_depasse = false;
-			float LJ_limit        = 0.1f;
 
 			if (LX_moin > 0.1f)
 			{
@@ -517,25 +526,6 @@ namespace big
 
 				g_Enable_CONTROL_ACTION = true;
 			}
-			else
-			{
-			}
-
-
-
-			//if ((
-			//	//(xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_A) ||
-			//	(xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_B) ||
-			//	(xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_X))	&&
-			//	!LJ_limit_depasse)
-			//{
-			//	//if ((io.ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) == 0)
-			//	//{
-			//	//	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;//Enabled
-			//	//	if (g_Log_GamePad_Imput_Stat == true)
-			//	//		LOG(VERBOSE) << "->DPAD Enabled Gamepad ";
-			//	//}
-			//}
 
 			if (((xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) || (xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN)
 			        || (xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) || (xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT))
@@ -549,273 +539,6 @@ namespace big
 				}
 			}
 
-			if (g_gui->m_is_open)
-			{
-				if (g_gui->window_focused == 0) //"navigation"
-				{
-					if (xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP && elapsed_time_in_ms >= 500ms)
-					{
-						//LOG(INFO) << "->->-> _DPAD_UP : active_view_open = false";
-						//g_gui->m_is_active_view_open = false;
-
-						LOG(INFO) << "->->-> DPAD_UP : focused : " << g_gui->window_item_focused
-						          << " : name : " << tabs_char_name[g_gui->window_item_focused].tab_name;
-
-						if (g_gui->window_item_focused != -1)
-						{
-							int targ_table = 0;  
-
-							if (0 < g_gui->window_item_focused - 1)
-							{
-								targ_table = (int)(g_gui->window_item_focused - 1);
-								LOG(INFO) << "->-> focuse - 1 : " << targ_table;
-								//tabs tab_actuel = static_cast<tabs>(g_gui->window_item_focused - 1);
-								//g_gui_service->set_selected(tab_actuel,false);
-							}
-							else
-							{								
-								std::size_t tabs_char_name_size = sizeof(tabs_char_name) / sizeof(tabs_char_name[0]);
-								targ_table                      = (int)(tabs_char_name_size - 1);
-								LOG(INFO) << "->-> focuse LAST TABLE: " << targ_table;
-								//tabs tab_actuel                 = static_cast<tabs>((int)(tabs_char_name_size - 1));								
-								//g_gui_service->set_selected(tab_actuel, false);
-							}
-
-							g_gui->window_focused_Move      = true;
-							//////g_gui->window_focused_Move_plus = true;
-							g_gui->window_Move_focuse_id   = targ_table;
-							LOG(INFO) << "-> focuse FINAL : " << tabs_char_name[targ_table].tab_name;
-
-							
-
-							//tabs tab_actuel = static_cast<tabs>(targ_table);
-							//g_gui_service->set_selected(tab_actuel);
-							//g_gui->m_is_active_view_open = true;
-							//g_gui->window_FORCE_focuse_on_Nav = true;
-							//LOG(INFO) << "->->-> g_gui->window_FORCE_focuse_on_Nav : " << 1;
-
-							
-							 
-						}
-
-						//if (g_gui->m_is_open)
-						//if (g_gui->window_focused == 0) //"navigation"
-						//{
-						//	g_gui->m_is_active_view_open = true;
-						//	int indexx = -1;
-						//	for (size_t i = 0; i < IM_ARRAYSIZE(tabs_char_name); i++)
-						//	{
-						//		std::string finalstr = "GUI_TAB_";
-						//		finalstr += tabs_char_name[i].tab_name;
-						//		if (strcmp(g_gui_service->get_selected()->name, finalstr.c_str()) == 0)
-						//		{
-						//			indexx = i;
-						//			LOG(INFO) << "-> tab_actuel index : " << i << " = " << finalstr.c_str();
-						//			break;
-						//		}
-						//	}
-						//	if (indexx + 1 < IM_ARRAYSIZE(tabs_char_name))
-						//	{
-						//		tabs tab_actuel = static_cast<tabs>(indexx + 1);
-						//		g_gui_service->set_selected(tab_actuel);
-						//		//tab_actuel      = g_gui_service->get_selected_tab().at(0);
-						//		//g_gui_service->set_selected(tab_actuel);
-						//	}
-						//	else
-						//	{
-						//		tabs tab_actuel = static_cast<tabs>(1);
-						//		g_gui_service->set_selected(tab_actuel);
-						//		//tab_actuel      = g_gui_service->get_selected_tab().at(0);
-						//		//g_gui_service->set_selected(tab_actuel);
-						//	}
-						//
-						//}
-
-						last_time = time_now;
-					}
-					if (xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN && elapsed_time_in_ms >= 500ms)
-					{
-						//LOG(INFO) << "->->-> DPAD_DOWN : active_view_open = false";
-						//g_gui->m_is_active_view_open = false;
-
-						LOG(INFO) << "->->-> DPAD_DOWN : focused : " << g_gui->window_item_focused
-						          << " : name : " << tabs_char_name[g_gui->window_item_focused].tab_name;
-
-						if (g_gui->window_item_focused != -1)
-						{
-							std::size_t tabs_char_name_size = sizeof(tabs_char_name) / sizeof(tabs_char_name[0]);
-							//LOG(INFO) << "->-> tabs_char_name_size : " << (int)(tabs_char_name_size);
-							int targ_table = 0;  
-							if (g_gui->window_item_focused + 1 < (int)tabs_char_name_size)
-							{
-								LOG(INFO) << "->-> focuse + 1 : " << (int)(g_gui->window_item_focused + 1);
-								targ_table  = (int)(g_gui->window_item_focused + 1);
-								//tabs tab_actuel = static_cast<tabs>(targ_table);
-								//g_gui_service->set_selected(tab_actuel, false);
-							}
-							else
-							{
-								LOG(INFO) << "->-> focuse FIRST TABLE: " << 1;
-								//tabs tab_actuel = static_cast<tabs>(1);
-								//g_gui_service->set_selected(tab_actuel, false);
-								targ_table = 1;
-
-							}
-							g_gui->window_focused_Move      = true;
-							//////g_gui->window_focused_Move_plus = true;
-							g_gui->window_Move_focuse_id   = targ_table;
-							LOG(INFO) << "-> focuse FINAL : " << tabs_char_name[targ_table].tab_name;
-							
-
-							//tabs tab_actuel = static_cast<tabs>(targ_table);
-							//g_gui_service->set_selected(tab_actuel);
-							//g_gui->window_FORCE_focuse_on_Nav = true;
-							//g_gui->m_is_active_view_open = true;
-							//LOG(INFO) << "->->-> g_gui->window_FORCE_focuse_on_Nav : " << 1;
-
-						}
-
-						//if (g_gui->m_is_open)
-						//if (g_gui->window_focused == 0) //"navigation"
-						//{
-						//	g_gui->m_is_active_view_open = true;
-						//	int indexx = -1;
-						//	for (size_t i = 0; i < IM_ARRAYSIZE(tabs_char_name); i++)
-						//	{
-						//		std::string finalstr = "GUI_TAB_";
-						//		finalstr += tabs_char_name[i].tab_name;
-						//		if (strcmp(g_gui_service->get_selected()->name, finalstr.c_str()) == 0)
-						//		{
-						//			indexx = i;
-						//			LOG(INFO) << "-> tab_actuel index : " << i << " = " << finalstr.c_str();
-						//			break;
-						//		}
-						//	}
-						//	if (0 < indexx - 1)
-						//	{
-						//		tabs tab_actuel = static_cast<tabs>(indexx - 1);
-						//		g_gui_service->set_selected(tab_actuel);
-						//		//tab_actuel      = g_gui_service->get_selected_tab().at(0);
-						//		//g_gui_service->set_selected(tab_actuel);
-						//
-						//	}
-						//	else
-						//	{
-						//		tabs tab_actuel = static_cast<tabs>(IM_ARRAYSIZE(tabs_char_name));
-						//		g_gui_service->set_selected(tab_actuel);
-						//		//tab_actuel      = g_gui_service->get_selected_tab().at(0);
-						//		//g_gui_service->set_selected(tab_actuel);
-						//
-						//	}
-						//
-						//}
-						last_time = time_now;
-					}
-					if (xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT && elapsed_time_in_ms >= 500ms)
-					{
-						LOG(INFO) << "->->-> DPAD_RIGHT : focused : " << g_gui->window_item_focused
-						          << " : name : " << tabs_char_name[g_gui->window_item_focused].tab_name;
-						//int indexx = -1;
-						//for (size_t i = 0; i < IM_ARRAYSIZE(tabs_char_name); i++)
-						//{
-						//	std::string finalstr = "GUI_TAB_";
-						//	finalstr += tabs_char_name[i].tab_name;
-						//	if (strcmp(get_selected()->name, finalstr.c_str()) == 0)
-						//	{
-						//		indexx = i;
-						//		LOG(INFO) << "-> tab_actuel index : " << i << " = " << finalstr.c_str();
-						//		break;
-						//	}
-						//}
-						////tabs tab_actuel = static_cast<tabs>(indexx);
-						////g_gui_service->set_selected(tab_actuel);
-						//if (indexx != -1)
-						//{
-						//	g_gui->window_item_focused = indexx;
-						//	LOG(INFO) << "-> indexx != -1 : " << indexx;
-						//}
-						//else
-						//	LOG(INFO) << "-> indexx ============= -1 : !!" << indexx;
-	
-						if (g_gui->window_item_focused != -1)
-						{	
-							//LOG(INFO) << "->->-> DPAD_RIGHT : g_gui->window_item_focused : " << g_gui->window_item_focused;
-
-							
-
-
-							tabs tab_actuel = static_cast<tabs>(g_gui->window_item_focused);
-							g_gui_service->set_selected(tab_actuel);
-
-							g_gui->m_is_active_view_open = true;
-							LOG(INFO) << "->->-> DPAD_RIGHT : active_view_open = true";
-
-							g_gui->window_FORCE_focuse_on_Nav = true;
-							LOG(INFO) << "->->-> DPAD_RIGHT : window_FORCE_focuse_on_Nav =  true";
-
-							//ImGui::SetWindowFocus("navigation");
-							//LOG(INFO) << "->->-> DPAD_RIGHT : SetWindowFocus( navigation )";
-
-							//ImGui::SetWindowFocus("main");// window_focused = 1
-							//LOG(INFO) << "->->-> DPAD_RIGHT : SetWindowFocus( main )";
-							 
-							//g_gui->window_focused = 0;
-							//ImGui::SetWindowFocus("navigation");
-						}
-						else
-							LOG(INFO) << "->->-> DPAD_RIGHT : window_item_focused ===================== -1";
-
-						//LOG(VERBOSE) << "-> ImGui::IsAnyItemFocused() : " << ImGui::IsAnyItemFocused();
-						//int indexx = -1;
-						//for (size_t i = 0; i < IM_ARRAYSIZE(tabs_char_name); i++)
-						//{
-						//	std::string finalstr = "GUI_TAB_";
-						//	finalstr += tabs_char_name[i].tab_name;
-						//	if (strcmp(g_gui_service->get_selected()->name, finalstr.c_str()) == 0)
-						//	{
-						//		indexx = i;
-						//		LOG(INFO) << "-> tab_actuel index : " << i << " = " << finalstr.c_str();
-						//		break;
-						//	}
-						//}
-						////tabs tab_actuel = static_cast<tabs>(indexx);
-						////g_gui_service->set_selected(tab_actuel);					
-						//if (indexx != -1)
-						//{
-						//	g_gui->m_is_active_view_open = true;
-						//	//g_gui_service->set_selected(g_gui_service->get_selected()->name);
-						//	ImGui::SetWindowFocus("main");
-						//	g_gui->window_focused = 1;
-						//}
-							
-						last_time = time_now;
-					}
-
-					if (xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT && elapsed_time_in_ms >= 500ms)
-					{						
-						g_gui->m_is_active_view_open = false;
-						LOG(INFO) << "->->-> DPAD_LEFT : active_view_open = false";
-
-						// player count does not include ourself that's why +1
-						const auto player_count = g_player_service->players().size() + 1;
-						if (!*g_pointers->m_gta.m_is_session_started && player_count < 2)
-							return;
-
-						//g_gui->m_is_active_view_open = false;						
-
-						if (g_gui->window_focused != 2) //!playerlist
-						{
-							g_gui->window_focused = 2;
-							ImGui::SetWindowFocus("playerlist");
-							LOG(INFO) << "->->-> DPAD_LEFT : SetWindowFocus(playerlist)";
-						}
-
-						last_time = time_now;
-					}
-				}
-			}
-
-
 			if ((xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) && (xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_B) && elapsed_time_in_ms >= 500ms)
 			{
 				g_gui->m_is_open = !g_gui->m_is_open;
@@ -825,7 +548,6 @@ namespace big
 				static POINT cursor_coords{};
 				if (g_gui->m_is_open == true)
 				{
-
 					if ((io.ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) == 0)
 					{
 						io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad; //Enabled
@@ -865,53 +587,22 @@ namespace big
 
 			else if (xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_B && elapsed_time_in_ms >= 500ms)
 			{
-				LOG(INFO) << "->->-> GAMEPAD_B : active_view_open = false";
 				g_gui->m_is_active_view_open = false;
-
+				//LOG(INFO) << "->->-> GAMEPAD_B : active_view_open = false";
+				
+				if (g_model_preview_service->is_runing()) //IsAnyItemFocused IsAnyItemActive
+				{
+					g_model_preview_service->stop_preview();
+					LOG(INFO) << "->->-> GAMEPAD_B : g_model_preview_service->stop_preview()";
+				}
 				if (g_gui->m_is_open)
 				{
-					//if (g_gui->m_is_active_view_open)
-					if (g_gui->window_focused != 0)//!navigation
-					{
-						g_gui->window_focused = 0;
-						ImGui::SetWindowFocus("navigation");
-						LOG(INFO) << "->->-> GAMEPAD_B : SetWindowFocus(navigation)";
-					}
-
-					
-
-					
-					////ImGui::SetTabItemClosed(g_gui_service->get_selected()->name);
-
-					////if (!g_gui_service->get_selected_tab().empty() || g_gui_service->get_selected_tab().at(0) != tabs::NONE)
-					////	g_gui_service->set_selected(tabs::NONE);
-				
-
-
-					////LOG(INFO) << "-> g_gui_service->get_selected_tab().at(0) : "
-					////          << (int)g_gui_service->get_selected_tab().at(0);
-					////LOG(INFO) << "-> g_gui_service->get_selected()->name : " << g_gui_service->get_selected()->name;
-
-
-					//int indexx = -1;
-					//for (size_t i = 0; i < IM_ARRAYSIZE(tabs_char_name); i++)
-					//{
-					//	std::string finalstr = "GUI_TAB_";
-					//	finalstr += tabs_char_name[i].tab_name;
-					//	if (strcmp(g_gui_service->get_selected()->name, finalstr.c_str()) == 0)
-					//	{
-					//		indexx = i;
-					//		LOG(INFO) << "-> tab_actuel index : " << i << " = " << finalstr.c_str();
-					//		break;
-					//	}
-					//}
-					//tabs tab_actuel = static_cast<tabs>(indexx);
-					//g_gui_service->set_selected(tab_actuel);
-					////tab_actuel      = g_gui_service->get_selected_tab().at(0);
-					////g_gui_service->set_selected(tab_actuel);
+					ImGui::SetWindowFocus("navigation");
+					//LOG(INFO) << "->->-> GAMEPAD_B : SetWindowFocus(navigation)";
 				}
 				last_time = time_now;
 			}
+			
 			if (xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_A)
 			{
 			}
@@ -928,13 +619,6 @@ namespace big
 				//}
 				//g_Enable_CONTROL_ACTION = true;
 			}
-
-
-
-
-
-
-
 		}
 
 

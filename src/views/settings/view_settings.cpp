@@ -66,5 +66,8 @@ namespace big
 			g.write_default_config();
 			g.load();
 		}
+
+		ImGui::SeparatorText("Dev Test");
+		ImGui::Checkbox("View Imputs", &g.settings.view_imputs);
 	}
 }

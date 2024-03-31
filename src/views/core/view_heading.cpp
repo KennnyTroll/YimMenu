@@ -2,16 +2,37 @@
 #include "views/view.hpp"
 #include "script_mgr.hpp"
 
+#include "gui.hpp"
+#include "imgui_internal.h"
+
 namespace big
 {
+	struct funcs
+	{
+		static bool IsLegacyNativeDupe(ImGuiKey key)
+		{
+			return key < 512 && ImGui::GetIO().KeyMap[key] != -1;
+		}
+	};
+
 	void view::heading()
 	{
-		ImGui::SetNextWindowSize({300.f * g.window.gui_scale, 80.f * g.window.gui_scale});
-		ImGui::SetNextWindowPos({10.f, 10.f});
-		if (ImGui::Begin("menu_heading", nullptr, window_flags | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoNav))
+		if (!g.settings.view_imputs)
+		{
+			ImGui::SetNextWindowSize({300.f * g.window.gui_scale, 80.f * g.window.gui_scale});
+			ImGui::SetNextWindowPos({10.f, 10.f});
+		}
+		else
+		{
+			//ImGui::SetNextWindowSize({300.f * g.window.gui_scale, 80.f * g.window.gui_scale});
+			ImGui::SetNextWindowPos({1200.f, 10.f});
+		}
+		
+		if (ImGui::Begin("menu_heading", nullptr, window_flags | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_AlwaysAutoResize))
 		{
 			ImGui::BeginGroup();
 			ImGui::Text("HEADING_WELCOME"_T.data());
+
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.172f, 0.380f, 0.909f, 1.f));
 			ImGui::Text(g_local_player == nullptr || g_local_player->m_player_info == nullptr ?
 			        "UNKNOWN_USERNAME"_T.data() :
@@ -46,6 +67,39 @@ namespace big
 				}
 			}
 			ImGui::PopStyleColor();
+
+			if (g.settings.view_imputs)
+			{				
+				ImGui::Text("Keys down:");
+				for (ImGuiKey key = ImGuiKey_KeysData_OFFSET; key < ImGuiKey_COUNT; key = (ImGuiKey)(key + 1))
+				{
+					if (funcs::IsLegacyNativeDupe(key) || !ImGui::IsKeyDown(key))
+						continue;
+					ImGui::SameLine();
+					ImGui::Text(ImGui::IsNamedKey(key) ? "\"%s\"" : "\"%s\" %d", ImGui::GetKeyName(key), key);
+					ImGui::SameLine();
+					ImGui::Text("(%.02f)", ImGui::GetKeyData(key)->DownDuration);
+				}
+
+				ImGui::Text("Keys pressed:");
+				for (ImGuiKey key = ImGuiKey_KeysData_OFFSET; key < ImGuiKey_COUNT; key = (ImGuiKey)(key + 1))
+				{
+					if (funcs::IsLegacyNativeDupe(key) || !ImGui::IsKeyPressed(key))
+						continue;
+					ImGui::SameLine();
+					ImGui::Text(ImGui::IsNamedKey(key) ? "\"%s\"" : "\"%s\" %d", ImGui::GetKeyName(key), key);
+				}
+
+				ImGui::Text("Keys released:");
+				for (ImGuiKey key = ImGuiKey_KeysData_OFFSET; key < ImGuiKey_COUNT; key = (ImGuiKey)(key + 1))
+				{
+					if (funcs::IsLegacyNativeDupe(key) || !ImGui::IsKeyReleased(key))
+						continue;
+					ImGui::SameLine();
+					ImGui::Text(ImGui::IsNamedKey(key) ? "\"%s\"" : "\"%s\" %d", ImGui::GetKeyName(key), key);
+				}
+			}
+         
 		}
 		ImGui::End();
 	}
