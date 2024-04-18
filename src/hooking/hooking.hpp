@@ -98,6 +98,7 @@ namespace big
 		//SYNC
 		static void received_clone_create(CNetworkObjectMgr* mgr, CNetGamePlayer* src, CNetGamePlayer* dst, eNetObjType object_type, int32_t object_id, int32_t object_flag, rage::datBitBuffer* buffer, int32_t timestamp);
 		static eAckCode received_clone_sync(CNetworkObjectMgr* mgr, CNetGamePlayer* src, CNetGamePlayer* dst, eNetObjType object_type, uint16_t object_id, rage::datBitBuffer* bufer, uint16_t unk, uint32_t timestamp);
+		static eAckCode send_clone_sync(CNetworkObjectMgr* mgr, CNetGamePlayer* player, rage::netObject* pObject, rage::datBitBuffer* msgBuffer, unsigned __int16* seqNum, bool sendImmediately);
 		static bool can_apply_data(rage::netSyncTree* tree, rage::netObject* object);
 
 		static void write_player_gamer_data_node(rage::netObject* player, CPlayerGamerDataNode* node);

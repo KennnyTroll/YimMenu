@@ -17,7 +17,7 @@ namespace big::protection
 		return false;
 	}
 
-	constexpr auto crash_peds = {"slod_human"_J, "slod_small_quadped"_J, "slod_large_quadped"_J};
+	constexpr auto crash_peds = {"slod_human"_J, "slod_small_quadped"_J, "slod_large_quadped"_J, "p_franklin_02"_J};//0x3F039CBA ,0x2D7030F3 ,0x856CFB02 ,0xAF10BD56 
 	bool is_crash_ped(rage::joaat_t model)
 	{
 		for (auto iterator : crash_peds)

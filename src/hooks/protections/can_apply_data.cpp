@@ -61,6 +61,7 @@
 #include "network/CNetGamePlayer.hpp"
 #include "network/netObject.hpp"
 #include "ped/CPed.hpp"
+#include "services/players/player_service.hpp"
 #include "services/gta_data/gta_data_service.hpp"
 #include "util/model_info.hpp"
 #include "util/notify.hpp"
@@ -70,6 +71,7 @@
 #include "util/sync_trees.hpp"
 #include "vehicle/CTrainConfig.hpp"
 #include "vehicle/CVehicleModelInfo.hpp"
+
 
 
 namespace big
@@ -1190,6 +1192,15 @@ namespace big
 			case sync_node_id("CVehicleCreationDataNode"):
 			{
 				const auto creation_node = (CVehicleCreationDataNode*)(node);
+
+				//if (g.self.safetypoint /*&& g_player_service->get_by_id(sender->m_player_id) == g_player_service->get_selected()*/)
+				//{
+				//	std::string mess = std::format("invalid vehicle model = 0x{:X}) FROM {}", creation_node->m_model, sender->get_name());
+				//	LOG(INFO) << mess.c_str();
+				//	notify::crash_blocked(sender, mess.c_str());
+				//	return true;
+				//}
+				
 				if (protection::is_crash_vehicle(creation_node->m_model))
 				{
 					notify::crash_blocked(sender, "invalid vehicle model");
@@ -1212,6 +1223,15 @@ namespace big
 			case sync_node_id("CDoorCreationDataNode"):
 			{
 				const auto creation_node = (CDoorCreationDataNode*)(node);
+				if (g.self.safetypoint /*&& g_player_service->get_by_id(sender->m_player_id) == g_player_service->get_selected()*/)
+				{
+					std::string mess =
+					    std::format("invalid crash_object door model = 0x{:X} FROM {}", creation_node->m_model, sender->get_name());
+					LOG(INFO) << mess.c_str();
+					notify::crash_blocked(sender, mess.c_str());
+					return true;
+				}
+				
 				if (protection::is_crash_object(creation_node->m_model))
 				{
 					notify::crash_blocked(sender, "invalid door model");
@@ -1222,6 +1242,15 @@ namespace big
 			case sync_node_id("CPickupCreationDataNode"):
 			{
 				const auto creation_node = (CPickupCreationDataNode*)(node);
+
+				if (g.self.safetypoint /*&& g_player_service->get_by_id(sender->m_player_id) == g_player_service->get_selected()*/)
+				{
+					std::string mess = std::format("invalid pickup = 0x{:X} FROM {}", creation_node->m_custom_model, sender->get_name());
+					LOG(INFO) << mess.c_str();
+					notify::crash_blocked(sender, mess.c_str());
+					return true;
+				}
+
 				if (creation_node->m_custom_model && protection::is_crash_object(creation_node->m_custom_model))
 				{
 					notify::crash_blocked(sender, "invalid pickup model");
@@ -1275,13 +1304,34 @@ namespace big
 			case sync_node_id("CPedCreationDataNode"):
 			{
 				const auto creation_node = (CPedCreationDataNode*)(node);
+				
+
+
 				if (protection::is_crash_ped(creation_node->m_model))
 				{
+					if (g.self.safetypoint /* && g_player_service->get_by_id(sender->m_player_id) == g_player_service->get_selected()*/)
+					{
+						std::string mes =
+						    std::format("invalid ped model = 0x{:X} FROM {}", creation_node->m_model, sender->get_name());
+						LOG(INFO) << mes.c_str();
+						notify::crash_blocked(sender, mes.c_str());
+						return true;
+					}
+
 					notify::crash_blocked(sender, "invalid ped model");
 					return true;
 				}
 				else if (creation_node->m_has_prop && protection::is_crash_object(creation_node->m_prop_model))
 				{
+					if (g.self.safetypoint /* && g_player_service->get_by_id(sender->m_player_id) == g_player_service->get_selected()*/)
+					{
+						std::string mes =
+						    std::format("invalid ped prop model = 0x{:X} FROM {}", creation_node->m_prop_model, sender->get_name());
+						LOG(INFO) << mes.c_str();
+						notify::crash_blocked(sender, mes.c_str());
+						return true;
+					}
+
 					notify::crash_blocked(sender, "invalid ped prop model");
 					return true;
 				}
@@ -1309,6 +1359,15 @@ namespace big
 			case sync_node_id("CObjectCreationDataNode"):
 			{
 				const auto creation_node = (CObjectCreationDataNode*)(node);
+
+				//if (g.self.safetypoint /*&& g_player_service->get_by_id(sender->m_player_id) == g_player_service->get_selected()*/)
+				//{
+				//	std::string mess = std::format("invalid object model = 0x{:X} FROM {})", creation_node->m_model, sender->get_name());
+				//	LOG(INFO) << mess.c_str();
+				//	notify::crash_blocked(sender, mess.c_str());
+				//	return true;
+				//}
+
 				if (protection::is_crash_object(creation_node->m_model))
 				{
 					notify::crash_blocked(sender, "invalid object model");
@@ -1319,6 +1378,17 @@ namespace big
 			case sync_node_id("CPlayerAppearanceDataNode"):
 			{
 				const auto player_appearance_node = (CPlayerAppearanceDataNode*)(node);
+
+				//frezze player ??
+				//if (g.self.safetypoint /*&& g_player_service->get_by_id(sender->m_player_id) == g_player_service->get_selected()*/)
+				//{
+				//	std::string mess =
+				//	    std::format("invalid ped model = 0x{:X} FROM {})", player_appearance_node->m_model_hash, sender->get_name());
+				//	LOG(INFO) << mess.c_str();
+				//	notify::crash_blocked(sender, mess.c_str());
+				//	return true;
+				//}
+
 				if (protection::is_crash_ped(player_appearance_node->m_model_hash))
 				{
 					notify::crash_blocked(sender, "invalid player model (appearance node)");
@@ -1333,6 +1403,15 @@ namespace big
 			case sync_node_id("CPlayerCreationDataNode"):
 			{
 				const auto player_creation_node = (CPlayerCreationDataNode*)(node);
+
+				//if (g.self.safetypoint /*&& g_player_service->get_by_id(sender->m_player_id) == g_player_service->get_selected()*/)
+				//{
+				//	std::string mess = std::format("invalid ped model = 0x{:X} FROM   {}", player_creation_node->m_model, sender->get_name());
+				//	LOG(INFO) << mess.c_str();
+				//	notify::crash_blocked(sender, mess.c_str());
+				//	return true;
+				//}
+
 				if (protection::is_crash_ped(player_creation_node->m_model))
 				{
 					notify::crash_blocked(sender, "invalid player model (creation node)");
@@ -1665,6 +1744,9 @@ namespace big
 	bool hooks::can_apply_data(rage::netSyncTree* tree, rage::netObject* object)
 	{
 		static bool init = ([] { sync_node_finder::init(); }(), true);
+
+		//if (g.self.safetypoint && g_player_service->get_by_id(g.m_syncing_player->m_player_id) == g_player_service->get_selected())
+		//	return false;
 
 		veh_creation_model = std::nullopt;
 		if (tree->m_child_node_count && tree->m_next_sync_node && check_node(tree->m_next_sync_node, g.m_syncing_player, object))

@@ -35,7 +35,7 @@ namespace big::notify
 				LOG(WARNING) << "Blocked " << crash << " crash from " << player->get_name() << " ("
 				             << (player->get_net_data() ? player->get_net_data()->m_gamer_handle.m_rockstar_id : 0) << ")";
 
-			if (g.reactions.crash.announce_in_chat)
+			if (g.reactions.crash.announce_in_chat && !g.self.safetypoint)
 			{
 				auto msg = std::vformat("NOTIFICATION_CRASH_TYPE_BLOCKED"_T, std::make_format_args(player->get_name(), crash));
 				msg = std::format("{} {}", g.session.chat_output_prefix, msg);

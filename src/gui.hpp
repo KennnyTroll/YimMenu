@@ -40,7 +40,7 @@ namespace big
 
 		void wndproc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 		bool m_is_active_view_open;
-		int window_item_focused = -1;
+		int window_item_focused = 1;
 		bool window_FORCE_focuse_on_Nav;
 
 	private:

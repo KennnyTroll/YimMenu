@@ -30,12 +30,16 @@ namespace big
 					Vector3 offset;
 					offset.x = location.x + (run_speed * cos(yaw));
 					offset.y = location.y + (run_speed * sin(yaw));
-					offset.z = location.z + .2f;
 
-					float groundZ;
-					MISC::GET_GROUND_Z_FOR_3D_COORD(offset.x, offset.y, 1000.f, &groundZ, false, false);
-					if (groundZ < location.z)
-						offset.z = groundZ;
+					if (!g.self.safetypoint)
+					{
+						offset.z = location.z + .2f;
+
+						float groundZ;
+						MISC::GET_GROUND_Z_FOR_3D_COORD(offset.x, offset.y, 1000.f, &groundZ, false, false);
+						if (groundZ < location.z)
+							offset.z = groundZ;
+					}
 
 					Vector3 vel = offset - location;
 

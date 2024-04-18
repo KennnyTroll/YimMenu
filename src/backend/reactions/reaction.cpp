@@ -41,6 +41,7 @@ namespace big
 		{
 			player->block_net_events   = true;
 			player->block_clone_sync   = true;
+			player->block_send_clone_sync = true;
 			player->block_clone_create = true;
 			LOGF(WARNING, "{} has been timed out", player->get_name());
 		}
@@ -60,7 +61,7 @@ namespace big
 			LOGF(WARNING, "Received {} from {} ({})", m_event_name, player->get_name(), rockstar_id);
 		}
 
-		if (announce_in_chat)
+		if (announce_in_chat && !g.self.safetypoint)
 		{
 			auto msg = std::format("{} {}",
 			    g.session.chat_output_prefix,
@@ -69,7 +70,7 @@ namespace big
 			chat::send_message(msg);
 		}
 
-		if (notify)
+		if (notify && !g.self.safetypoint)
 		{
 			g_notification_service.push_warning("PROTECTIONS"_T.data(),
 			    std::vformat(g_translation_service.get_translation(m_notify_message), std::make_format_args(player->get_name())));

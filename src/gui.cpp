@@ -49,6 +49,8 @@ namespace big
 		return vn;
 	}
 
+	static auto last_time = std::chrono::steady_clock::now();
+
 	/**
 	 * @brief The later an entry comes in this enum to higher up it comes in the z-index.
 	 */
@@ -246,126 +248,318 @@ namespace big
 	}
 
 	void gui::script_on_tick()
-	{
-		if ((g_gui->m_is_open || g_gui->m_override_mouse) /*&& g_gui->m_is_active_view_open*/)			
+	{		
+		const auto time_now           = std::chrono::steady_clock::now();
+		const auto elapsed_time_in_ms = std::chrono::duration_cast<std::chrono::milliseconds>(time_now - last_time);
+
+		if (g_HasGamepad)
 		{
-			//for (uint8_t i = 0; i <= 6; i++)
-			//	PAD::DISABLE_CONTROL_ACTION(2, i, true);
-			//PAD::DISABLE_CONTROL_ACTION(2, 106, true);
-			//PAD::DISABLE_CONTROL_ACTION(2, 329, true);
-			//PAD::DISABLE_CONTROL_ACTION(2, 330, true);
-			//PAD::DISABLE_CONTROL_ACTION(2, 14, true);
-			//PAD::DISABLE_CONTROL_ACTION(2, 15, true);
-			//PAD::DISABLE_CONTROL_ACTION(2, 16, true);
-			//PAD::DISABLE_CONTROL_ACTION(2, 17, true);
-			//PAD::DISABLE_CONTROL_ACTION(2, 24, true);
-			//PAD::DISABLE_CONTROL_ACTION(2, 69, true);
-			//PAD::DISABLE_CONTROL_ACTION(2, 70, true);
-			//PAD::DISABLE_CONTROL_ACTION(2, 84, true);
-			//PAD::DISABLE_CONTROL_ACTION(2, 85, true);
-			//PAD::DISABLE_CONTROL_ACTION(2, 99, true);
-			//PAD::DISABLE_CONTROL_ACTION(2, 92, true);
-			//PAD::DISABLE_CONTROL_ACTION(2, 100, true);
-			//PAD::DISABLE_CONTROL_ACTION(2, 114, true);
-			//PAD::DISABLE_CONTROL_ACTION(2, 115, true);
-			//PAD::DISABLE_CONTROL_ACTION(2, 121, true);
-			//PAD::DISABLE_CONTROL_ACTION(2, 142, true);
-			//PAD::DISABLE_CONTROL_ACTION(2, 241, true);
-			//PAD::DISABLE_CONTROL_ACTION(2, 261, true);
-			//PAD::DISABLE_CONTROL_ACTION(2, 257, true);
-			//PAD::DISABLE_CONTROL_ACTION(2, 262, true);
-			//PAD::DISABLE_CONTROL_ACTION(2, 331, true);
+			ImGuiIO& io = ImGui::GetIO();
 
-			//https: //docs.fivem.net/docs/game-references/controls/#controls
-			if (!g_Enable_CONTROL_ACTION)
+			g_Enable_CONTROL_ACTION = false;
+
+			//float LeftTrigger_Val  = Get_Stick_Val(game_pad.bLeftTrigger, XINPUT_GAMEPAD_TRIGGER_THRESHOLD, 255);
+			//float RightTrigger_Val = Get_Stick_Val(game_pad.bRightTrigger, XINPUT_GAMEPAD_TRIGGER_THRESHOLD, 255);
+			if (ImGui::IsKeyDown(ImGuiKey_GamepadR2))
 			{
-				for (uint8_t i = 0; i <= 6; i++)
-					PAD::DISABLE_CONTROL_ACTION(0, i, true);
+				//if (g_Log_GamePad_Imput_Stat == true)
+				//	LOG(VERBOSE) << "-> Gamepad LeftTrigger_Val : " << LeftTrigger_Val;
 
-				PAD::DISABLE_CONTROL_ACTION(0, 24, true);  //INPUT_ATTACK
-				PAD::DISABLE_CONTROL_ACTION(0, 69, true);  //INPUT_VEH_ATTACK
-				PAD::DISABLE_CONTROL_ACTION(0, 70, true);  //INPUT_VEH_ATTACK2
-				PAD::DISABLE_CONTROL_ACTION(0, 72, true);  //INPUT_VEH_PASSENGER_ATTACK	
-				PAD::DISABLE_CONTROL_ACTION(0, 106, true); //INPUT_VEH_MOUSE_CONTROL_OVERRIDE
-				PAD::DISABLE_CONTROL_ACTION(0, 122, true); //INPUT_VEH_FLY_MOUSE_CONTROL_OVERRIDE
-				PAD::DISABLE_CONTROL_ACTION(0, 135, true); //INPUT_VEH_SUB_MOUSE_CONTROL_OVERRIDE
-				//PAD::DISABLE_CONTROL_ACTION(0, 142, true); //INPUT_MELEE_ATTACK_ALTERNATE				
-				PAD::DISABLE_CONTROL_ACTION(0, 257, true); //INPUT_ATTACK2
-				PAD::DISABLE_CONTROL_ACTION(0, 331, true); //INPUT_VEH_FLY_ATTACK2
+				g_Enable_CONTROL_ACTION = true;
+			}
+			if (ImGui::IsKeyDown(ImGuiKey_GamepadL2))
+			{
+				//if (g_Log_GamePad_Imput_Stat == true)
+				//	LOG(VERBOSE) << "-> Gamepad RightTrigger_Val : " << RightTrigger_Val;
+
+				g_Enable_CONTROL_ACTION = true;
 			}
 
-			//Select : Desactive le changement de camera
-			PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_NEXT_CAMERA, true);//0
+			if (ImGui::IsKeyDown(ImGuiKey_GamepadRStickLeft) || ImGui::IsKeyDown(ImGuiKey_GamepadRStickRight) || ImGui::IsKeyDown(ImGuiKey_GamepadRStickUp) || ImGui::IsKeyDown(ImGuiKey_GamepadRStickDown))
+			{
+				g_Enable_CONTROL_ACTION = true;
+			}
 
-			//Fleche bas :
-			PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_CHARACTER_WHEEL, true);//19 Fleche bas (desactive roue des joueurs) + 166 a 169
-			PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_MULTIPLAYER_INFO, true);//20
 
-			//if (g_gui->m_is_active_view_open)		
-			//Fleche Haut :
-			PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_PHONE, true);//27 Fleche Haut (desactive ouverture telephone)
+			if (ImGui::IsKeyDown(ImGuiKey_GamepadLStickLeft) || ImGui::IsKeyDown(ImGuiKey_GamepadLStickRight) || ImGui::IsKeyDown(ImGuiKey_GamepadLStickUp) || ImGui::IsKeyDown(ImGuiKey_GamepadLStickDown))
+			{
+				if ((io.ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) != 0 /*== 2*/)
+				{
+					io.ConfigFlags &= ~ImGuiConfigFlags_NavEnableGamepad; //Disabled
+					if (g_Log_GamePad_Imput_Stat == true)
+						LOG(VERBOSE) << "-> Gamepad Disabled : ";
+				}
+				g_Enable_CONTROL_ACTION = true;
+			}
 
-			//L1 : Desactive l ouverture de la roue de selection d armes
-			PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_SELECT_WEAPON, true);//37
 
-			//Fleche droite :
-			PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_VEH_HEADLIGHT, true);//74 Fleche droite (desactive changement phars)
-			PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_VEH_SELECT_NEXT_WEAPON, true);//99 [](desactive changement arme en vehicule)
+			if (ImGui::IsKeyDown(ImGuiKey_GamepadDpadLeft) || ImGui::IsKeyDown(ImGuiKey_GamepadDpadRight) || 
+				ImGui::IsKeyDown(ImGuiKey_GamepadDpadDown) || ImGui::IsKeyDown(ImGuiKey_GamepadDpadUp))
+			{
+				if ((io.ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) == 0)
+				{
+					io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad; //Enabled
+					if (g_Log_GamePad_Imput_Stat == true)
+						LOG(VERBOSE) << "->DPAD Enabled Gamepad ";
+				}
+			}
 
-			//Fleche gauche :
-			PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_VEH_CIN_CAM, true); //8O(desactive changement Camerra en vehicule)
-			PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_VEH_RADIO_WHEEL, true); //85 Fleche gauche (desactive changement radio)
+			if (ImGui::IsKeyDown(ImGuiKey_GamepadDpadDown))
+			{
+				if (g_gui->m_is_open)
+				{
+					PAD::DISABLE_ALL_CONTROL_ACTIONS(0);
+				}
+			}
 
-			//O ou B : Desactive les actions de combat
-			PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_MELEE_ATTACK_LIGHT, true);//140
-			PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_MELEE_ATTACK_HEAVY, true);//141
-			PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_MELEE_ATTACK_ALTERNATE, true);//142
+			//if ((xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) && (xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_B) && elapsed_time_in_ms >= 500ms)
+			if (ImGui::IsKeyDown(ImGuiKey_GamepadDpadLeft) && ImGui::IsKeyDown(ImGuiKey_GamepadFaceRight) && elapsed_time_in_ms >= 500ms)
+			{
+				if (g_gui->m_is_open)
+				{
+					g_gui->m_is_open = !g_gui->m_is_open;
+					g_gui->toggle_mouse();
 
-			for (int i = 166; i <= 169; i++)
+					//Persist and restore the cursor position between menu instances.
+					static POINT cursor_coords{};
+					if (g_gui->m_is_open == true)
+					{
+						if ((io.ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) == 0)
+						{
+							io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad; //Enabled
+							if (g_Log_GamePad_Imput_Stat == true)
+								LOG(VERBOSE) << "->DPAD Enabled Gamepad ";
+						}
+
+						if (g_Log_GamePad_Imput_Stat == true)
+							LOG(VERBOSE) << "-> Gamepad Open Menu <-";
+
+						GetCursorPos(&cursor_coords);
+						//vehicle::set_waite_preview(false);
+					}
+					else if (cursor_coords.x + cursor_coords.y != 0)
+					{
+						if (g_Log_GamePad_Imput_Stat == true)
+							LOG(VERBOSE) << "-> Gamepad Close Menu <-";
+
+						SetCursorPos(cursor_coords.x, cursor_coords.y);
+
+
+						if ((io.ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) != 0 /*== 2*/)
+						{
+							io.ConfigFlags &= ~ImGuiConfigFlags_NavEnableGamepad; //Disabled
+							if (g_Log_GamePad_Imput_Stat == true)
+								LOG(VERBOSE) << "-> Gamepad Disabled : ";
+						}
+						g_Enable_CONTROL_ACTION = true;
+					}
+
+					if (g.settings.hotkeys.editing_menu_toggle)
+						g.settings.hotkeys.editing_menu_toggle = false;
+				}
+
+				last_time = time_now;
+			}
+			else if (ImGui::IsKeyDown(ImGuiKey_GamepadDpadLeft) && ImGui::IsKeyDown(ImGuiKey_GamepadFaceDown) && elapsed_time_in_ms >= 500ms)
+			{
+				if (!g_gui->m_is_open)
+				{
+					g_gui->m_is_open = !g_gui->m_is_open;
+					g_gui->toggle_mouse();
+
+					//Persist and restore the cursor position between menu instances.
+					static POINT cursor_coords{};
+					if (g_gui->m_is_open == true)
+					{
+						if ((io.ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) == 0)
+						{
+							io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad; //Enabled
+							if (g_Log_GamePad_Imput_Stat == true)
+								LOG(VERBOSE) << "->DPAD Enabled Gamepad ";
+						}
+
+						if (g_Log_GamePad_Imput_Stat == true)
+							LOG(VERBOSE) << "-> Gamepad Open Menu <-";
+
+						GetCursorPos(&cursor_coords);
+						//vehicle::set_waite_preview(false);
+					}
+					else if (cursor_coords.x + cursor_coords.y != 0)
+					{
+						if (g_Log_GamePad_Imput_Stat == true)
+							LOG(VERBOSE) << "-> Gamepad Close Menu <-";
+
+						SetCursorPos(cursor_coords.x, cursor_coords.y);
+
+
+						if ((io.ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) != 0 /*== 2*/)
+						{
+							io.ConfigFlags &= ~ImGuiConfigFlags_NavEnableGamepad; //Disabled
+							if (g_Log_GamePad_Imput_Stat == true)
+								LOG(VERBOSE) << "-> Gamepad Disabled : ";
+						}
+						g_Enable_CONTROL_ACTION = true;
+					}
+
+					if (g.settings.hotkeys.editing_menu_toggle)
+						g.settings.hotkeys.editing_menu_toggle = false;
+				}
+
+				last_time = time_now;
+			}		
+			//else if (xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_B && elapsed_time_in_ms >= 500ms)
+			else if (ImGui::IsKeyReleased(ImGuiKey_GamepadFaceRight) && elapsed_time_in_ms >= 500ms)
+			{
+				if (g_model_preview_service->is_runing()) //IsAnyItemFocused IsAnyItemActive
+				{
+					g_model_preview_service->stop_preview();
+					LOG(INFO) << "->->-> GAMEPAD_B : g_model_preview_service->stop_preview()";
+				}
+				if (g_gui->m_is_open)
+				{
+					ImGui::SetWindowFocus("navigation");
+					//LOG(INFO) << "->->-> GAMEPAD_B : SetWindowFocus(navigation)";
+
+					//if (g_gui->window_item_focused != -1)
+					//{
+					//	//LOG(INFO) << "->->-> DPAD_RIGHT : window_item_focused != -1";
+
+					//	tabs tab_actuel = static_cast<tabs>(g_gui->window_item_focused);
+					//	//LOG(INFO) << "->->-> DPAD_RIGHT : tab_actuel";
+
+					//	g_gui_service->set_selected(tab_actuel);
+					//	//LOG(INFO) << "->->-> DPAD_RIGHT : set_selected(tab_actuel)";
+
+					//	g_gui->m_is_active_view_open = true;
+					//	//LOG(INFO) << "->->-> DPAD_RIGHT : active_view_open = true";
+
+					//	g_gui->window_FORCE_focuse_on_Nav = true;
+					//	//LOG(INFO) << "->->-> DPAD_RIGHT : window_FORCE_focuse_on_Nav =  true";
+					//}
+				}
+
+				//g_gui->m_is_active_view_open = false;
+				//LOG(INFO) << "->->-> GAMEPAD_B : active_view_open = false";
+
+				last_time = time_now;
+			}
+		}
+
+
+		if ((g_gui->m_is_open || g_gui->m_override_mouse) /*&& g_gui->m_is_active_view_open*/)
+		{
+		//for (uint8_t i = 0; i <= 6; i++)
+		//	PAD::DISABLE_CONTROL_ACTION(2, i, true);
+		//PAD::DISABLE_CONTROL_ACTION(2, 106, true);
+		//PAD::DISABLE_CONTROL_ACTION(2, 329, true);
+		//PAD::DISABLE_CONTROL_ACTION(2, 330, true);
+		//PAD::DISABLE_CONTROL_ACTION(2, 14, true);
+		//PAD::DISABLE_CONTROL_ACTION(2, 15, true);
+		//PAD::DISABLE_CONTROL_ACTION(2, 16, true);
+		//PAD::DISABLE_CONTROL_ACTION(2, 17, true);
+		//PAD::DISABLE_CONTROL_ACTION(2, 24, true);
+		//PAD::DISABLE_CONTROL_ACTION(2, 69, true);
+		//PAD::DISABLE_CONTROL_ACTION(2, 70, true);
+		//PAD::DISABLE_CONTROL_ACTION(2, 84, true);
+		//PAD::DISABLE_CONTROL_ACTION(2, 85, true);
+		//PAD::DISABLE_CONTROL_ACTION(2, 99, true);
+		//PAD::DISABLE_CONTROL_ACTION(2, 92, true);
+		//PAD::DISABLE_CONTROL_ACTION(2, 100, true);
+		//PAD::DISABLE_CONTROL_ACTION(2, 114, true);
+		//PAD::DISABLE_CONTROL_ACTION(2, 115, true);
+		//PAD::DISABLE_CONTROL_ACTION(2, 121, true);
+		//PAD::DISABLE_CONTROL_ACTION(2, 142, true);
+		//PAD::DISABLE_CONTROL_ACTION(2, 241, true);
+		//PAD::DISABLE_CONTROL_ACTION(2, 261, true);
+		//PAD::DISABLE_CONTROL_ACTION(2, 257, true);
+		//PAD::DISABLE_CONTROL_ACTION(2, 262, true);
+		//PAD::DISABLE_CONTROL_ACTION(2, 331, true);
+
+		//https: //docs.fivem.net/docs/game-references/controls/#controls
+		if (!g_Enable_CONTROL_ACTION)
+		{
+			for (uint8_t i = 0; i <= 6; i++)
 				PAD::DISABLE_CONTROL_ACTION(0, i, true);
-			//INPUT_SELECT_CHARACTER_MICHAEL,
-			//INPUT_SELECT_CHARACTER_FRANKLIN,
-			//INPUT_SELECT_CHARACTER_TREVOR,
 
-			PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_MP_TEXT_CHAT_ALL, true);//245
-			PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_MP_TEXT_CHAT_TEAM, true);//246
-			PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_MP_TEXT_CHAT_FRIENDS, true);//247
-			PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_MP_TEXT_CHAT_CREW, true);//248
+			PAD::DISABLE_CONTROL_ACTION(0, 24, true);  //INPUT_ATTACK
+			PAD::DISABLE_CONTROL_ACTION(0, 69, true);  //INPUT_VEH_ATTACK
+			PAD::DISABLE_CONTROL_ACTION(0, 70, true);  //INPUT_VEH_ATTACK2
+			PAD::DISABLE_CONTROL_ACTION(0, 72, true);  //INPUT_VEH_PASSENGER_ATTACK
+			PAD::DISABLE_CONTROL_ACTION(0, 106, true); //INPUT_VEH_MOUSE_CONTROL_OVERRIDE
+			PAD::DISABLE_CONTROL_ACTION(0, 122, true); //INPUT_VEH_FLY_MOUSE_CONTROL_OVERRIDE
+			PAD::DISABLE_CONTROL_ACTION(0, 135, true); //INPUT_VEH_SUB_MOUSE_CONTROL_OVERRIDE
+			//PAD::DISABLE_CONTROL_ACTION(0, 142, true); //INPUT_MELEE_ATTACK_ALTERNATE
+			PAD::DISABLE_CONTROL_ACTION(0, 257, true); //INPUT_ATTACK2
+			PAD::DISABLE_CONTROL_ACTION(0, 331, true); //INPUT_VEH_FLY_ATTACK2
+		}
 
-			//Fleche bas : Desactive les actions d enregistrement
-			PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_REPLAY_START_STOP_RECORDING, true);//288
-			PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_REPLAY_START_STOP_RECORDING_SECONDARY, true);//289
-			PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_REPLAY_RECORD, true);//302
+		//Select : Desactive le changement de camera
+		PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_NEXT_CAMERA, true); //0
 
-			PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_MAP_POI, true);//348
+		//Fleche bas :
+		PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_CHARACTER_WHEEL, true); //19 Fleche bas (desactive roue des joueurs) + 166 a 169
+		PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_MULTIPLAYER_INFO, true); //20
 
-			if (g.self.disable_test != -1)
-			{
-				int acc_f = g.self.disable_test + g.self.disable_plus_test;
-				PAD::DISABLE_CONTROL_ACTION(0, acc_f, true); //348
-			}
-			
+		//if (g_gui->m_is_active_view_open)
+		//Fleche Haut :
+		PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_PHONE, true); //27 Fleche Haut (desactive ouverture telephone)
 
-			
+		//L1 : Desactive l ouverture de la roue de selection d armes
+		PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_SELECT_WEAPON, true); //37
+
+		//Fleche droite :
+		PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_VEH_HEADLIGHT, true); //74 Fleche droite (desactive changement phars)
+		PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_VEH_SELECT_NEXT_WEAPON, true); //99 [](desactive changement arme en vehicule)
+
+		//Fleche gauche :
+		PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_VEH_CIN_CAM, true); //8O(desactive changement Camerra en vehicule)
+		PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_VEH_RADIO_WHEEL, true); //85 Fleche gauche (desactive changement radio)
+
+		//O ou B : Desactive les actions de combat
+		PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_MELEE_ATTACK_LIGHT, true);     //140
+		PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_MELEE_ATTACK_HEAVY, true);     //141
+		PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_MELEE_ATTACK_ALTERNATE, true); //142
+
+		for (int i = 166; i <= 169; i++)
+			PAD::DISABLE_CONTROL_ACTION(0, i, true);
+		//INPUT_SELECT_CHARACTER_MICHAEL,
+		//INPUT_SELECT_CHARACTER_FRANKLIN,
+		//INPUT_SELECT_CHARACTER_TREVOR,
+
+		PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_MP_TEXT_CHAT_ALL, true);     //245
+		PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_MP_TEXT_CHAT_TEAM, true);    //246
+		PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_MP_TEXT_CHAT_FRIENDS, true); //247
+		PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_MP_TEXT_CHAT_CREW, true);    //248
+
+		//Fleche bas : Desactive les actions d enregistrement
+		PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_REPLAY_START_STOP_RECORDING, true);           //288
+		PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_REPLAY_START_STOP_RECORDING_SECONDARY, true); //289
+		PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_REPLAY_RECORD, true);                         //302
+
+		PAD::DISABLE_CONTROL_ACTION(0, (int)ControllerInputs::INPUT_MAP_POI, true); //348
+
+		if (g.self.disable_test != -1)
+		{
+			int acc_f = g.self.disable_test + g.self.disable_plus_test;
+			PAD::DISABLE_CONTROL_ACTION(0, acc_f, true); //348
+		}
 
 
-			//PAD::DISABLE_CONTROL_ACTION(2, (int)ControllerInputs::INPUT_WEAPON_WHEEL_NEXT, true); //14
-			//PAD::DISABLE_CONTROL_ACTION(2, (int)ControllerInputs::INPUT_WEAPON_WHEEL_PREV, true); //15
-			//PAD::DISABLE_CONTROL_ACTION(2, (int)ControllerInputs::INPUT_SELECT_NEXT_WEAPON, true); //16
-			//PAD::DISABLE_CONTROL_ACTION(2, (int)ControllerInputs::INPUT_SELECT_PREV_WEAPON, true); //17
-			//PAD::DISABLE_CONTROL_ACTION(2, (int)ControllerInputs::INPUT_VEH_PREV_RADIO_TRACK, true); //84			
-			//PAD::DISABLE_CONTROL_ACTION(2, (int)ControllerInputs::INPUT_VEH_PASSENGER_ATTACK, true); //92			
-			//PAD::DISABLE_CONTROL_ACTION(2, (int)ControllerInputs::INPUT_VEH_SELECT_PREV_WEAPON, true); //100			
-			//PAD::DISABLE_CONTROL_ACTION(2, (int)ControllerInputs::INPUT_VEH_FLY_ATTACK, true);//114	
-			//PAD::DISABLE_CONTROL_ACTION(2, (int)ControllerInputs::INPUT_VEH_FLY_SELECT_NEXT_WEAPON, true);//115				
-			//PAD::DISABLE_CONTROL_ACTION(2, (int)ControllerInputs::INPUT_VEH_FLY_ATTACK_CAMERA, true);//121		
-			//PAD::DISABLE_CONTROL_ACTION(2, (int)ControllerInputs::INPUT_MELEE_ATTACK_HEAVY, true);//141			
-			//PAD::DISABLE_CONTROL_ACTION(2, (int)ControllerInputs::INPUT_SELECT_WEAPON_SMG, true);//161
-			//PAD::DISABLE_CONTROL_ACTION(2, (int)ControllerInputs::INPUT_SELECT_WEAPON_AUTO_RIFLE, true);//162
-			//PAD::DISABLE_CONTROL_ACTION(2, (int)ControllerInputs::INPUT_VEH_DRIVE_LOOK, true);//329			
-			//PAD::DISABLE_CONTROL_ACTION(2, (int)ControllerInputs::INPUT_VEH_DRIVE_LOOK2, true);//330	
-			
-
+		//PAD::DISABLE_CONTROL_ACTION(2, (int)ControllerInputs::INPUT_WEAPON_WHEEL_NEXT, true); //14
+		//PAD::DISABLE_CONTROL_ACTION(2, (int)ControllerInputs::INPUT_WEAPON_WHEEL_PREV, true); //15
+		//PAD::DISABLE_CONTROL_ACTION(2, (int)ControllerInputs::INPUT_SELECT_NEXT_WEAPON, true); //16
+		//PAD::DISABLE_CONTROL_ACTION(2, (int)ControllerInputs::INPUT_SELECT_PREV_WEAPON, true); //17
+		//PAD::DISABLE_CONTROL_ACTION(2, (int)ControllerInputs::INPUT_VEH_PREV_RADIO_TRACK, true); //84
+		//PAD::DISABLE_CONTROL_ACTION(2, (int)ControllerInputs::INPUT_VEH_PASSENGER_ATTACK, true); //92
+		//PAD::DISABLE_CONTROL_ACTION(2, (int)ControllerInputs::INPUT_VEH_SELECT_PREV_WEAPON, true); //100
+		//PAD::DISABLE_CONTROL_ACTION(2, (int)ControllerInputs::INPUT_VEH_FLY_ATTACK, true);//114
+		//PAD::DISABLE_CONTROL_ACTION(2, (int)ControllerInputs::INPUT_VEH_FLY_SELECT_NEXT_WEAPON, true);//115
+		//PAD::DISABLE_CONTROL_ACTION(2, (int)ControllerInputs::INPUT_VEH_FLY_ATTACK_CAMERA, true);//121
+		//PAD::DISABLE_CONTROL_ACTION(2, (int)ControllerInputs::INPUT_MELEE_ATTACK_HEAVY, true);//141
+		//PAD::DISABLE_CONTROL_ACTION(2, (int)ControllerInputs::INPUT_SELECT_WEAPON_SMG, true);//161
+		//PAD::DISABLE_CONTROL_ACTION(2, (int)ControllerInputs::INPUT_SELECT_WEAPON_AUTO_RIFLE, true);//162
+		//PAD::DISABLE_CONTROL_ACTION(2, (int)ControllerInputs::INPUT_VEH_DRIVE_LOOK, true);//329
+		//PAD::DISABLE_CONTROL_ACTION(2, (int)ControllerInputs::INPUT_VEH_DRIVE_LOOK2, true);//330
 		}
 	}
 
@@ -378,13 +572,10 @@ namespace big
 		}
 	}
 
-	static auto last_time = std::chrono::steady_clock::now();
+	
 
 	void gui::wndproc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 	{
-		const auto time_now           = std::chrono::steady_clock::now();
-		const auto elapsed_time_in_ms = std::chrono::duration_cast<std::chrono::milliseconds>(time_now - last_time);
-
 		XINPUT_STATE xinput_state;
 		static POINT cursor_coords{};
 		if (g_WantUpdateHasGamepad)
@@ -421,204 +612,151 @@ namespace big
 
 		if (g_HasGamepad && g_XInputGetState && g_XInputGetState(0, &xinput_state) == ERROR_SUCCESS)
 		{
-			ImGuiIO& io = ImGui::GetIO();
+			//ImGuiIO& io = ImGui::GetIO();
 
-			XINPUT_GAMEPAD& game_pad = xinput_state.Gamepad;
+			//XINPUT_GAMEPAD& game_pad = xinput_state.Gamepad;
 
-			g_Enable_CONTROL_ACTION = false;
+			//g_Enable_CONTROL_ACTION = false;
 
-			//MAP_ANALOG(gamepad.bLeftTrigger, XINPUT_GAMEPAD_TRIGGER_THRESHOLD, 255);
-			//MAP_ANALOG(gamepad.bRightTrigger, XINPUT_GAMEPAD_TRIGGER_THRESHOLD, 255);
-			float LeftTrigger_Val  = Get_Stick_Val(game_pad.bLeftTrigger, XINPUT_GAMEPAD_TRIGGER_THRESHOLD, 255);
-			float RightTrigger_Val = Get_Stick_Val(game_pad.bRightTrigger, XINPUT_GAMEPAD_TRIGGER_THRESHOLD, 255);
-			if (LeftTrigger_Val > 0.1f)
-			{
-				if (g_Log_GamePad_Imput_Stat == true)
-					LOG(VERBOSE) << "-> Gamepad LeftTrigger_Val : " << LeftTrigger_Val;
+			////MAP_ANALOG(gamepad.bLeftTrigger, XINPUT_GAMEPAD_TRIGGER_THRESHOLD, 255);
+			////MAP_ANALOG(gamepad.bRightTrigger, XINPUT_GAMEPAD_TRIGGER_THRESHOLD, 255);
+			//float LeftTrigger_Val  = Get_Stick_Val(game_pad.bLeftTrigger, XINPUT_GAMEPAD_TRIGGER_THRESHOLD, 255);
+			//float RightTrigger_Val = Get_Stick_Val(game_pad.bRightTrigger, XINPUT_GAMEPAD_TRIGGER_THRESHOLD, 255);
+			//if (LeftTrigger_Val > 0.1f)
+			//{
+			//	if (g_Log_GamePad_Imput_Stat == true)
+			//		LOG(VERBOSE) << "-> Gamepad LeftTrigger_Val : " << LeftTrigger_Val;
 
-				g_Enable_CONTROL_ACTION = true;
-			}
-			if (RightTrigger_Val > 0.1f)
-			{
-				if (g_Log_GamePad_Imput_Stat == true)
-					LOG(VERBOSE) << "-> Gamepad RightTrigger_Val : " << RightTrigger_Val;
+			//	g_Enable_CONTROL_ACTION = true;
+			//}
+			//if (RightTrigger_Val > 0.1f)
+			//{
+			//	if (g_Log_GamePad_Imput_Stat == true)
+			//		LOG(VERBOSE) << "-> Gamepad RightTrigger_Val : " << RightTrigger_Val;
 
-				g_Enable_CONTROL_ACTION = true;
-			}
+			//	g_Enable_CONTROL_ACTION = true;
+			//}
 
-			float RX_moin         = Get_Stick_Val(game_pad.sThumbRX, -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE, -32768);
-			float RX_plus         = Get_Stick_Val(game_pad.sThumbRX, +XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE, +32767);
-			float RY_plus         = Get_Stick_Val(game_pad.sThumbRY, +XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE, +32767);
-			float RY_moin         = Get_Stick_Val(game_pad.sThumbRY, -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE, -32768);
-			bool RJ_limit_depasse = false;
+			//float RX_moin         = Get_Stick_Val(game_pad.sThumbRX, -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE, -32768);
+			//float RX_plus         = Get_Stick_Val(game_pad.sThumbRX, +XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE, +32767);
+			//float RY_plus         = Get_Stick_Val(game_pad.sThumbRY, +XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE, +32767);
+			//float RY_moin         = Get_Stick_Val(game_pad.sThumbRY, -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE, -32768);
+			//bool RJ_limit_depasse = false;
 
-			if (RX_moin > 0.1f)
-			{
-				if (g_Log_GamePad_Imput_Stat == true)
-					LOG(VERBOSE) << "-> Gamepad RX_moin : " << RX_moin;
-				RJ_limit_depasse = true;
-			}
-			if (RX_plus > 0.1f)
-			{
-				if (g_Log_GamePad_Imput_Stat == true)
-					LOG(VERBOSE) << "-> Gamepad RX_plus : " << RX_plus;
-				RJ_limit_depasse = true;
-			}
-			if (RY_plus > 0.1f)
-			{
-				if (g_Log_GamePad_Imput_Stat == true)
-					LOG(VERBOSE) << "-> Gamepad RY_plus : " << RY_plus;
-				RJ_limit_depasse = true;
-			}
-			if (RY_moin > 0.1f)
-			{
-				if (g_Log_GamePad_Imput_Stat == true)
-					LOG(VERBOSE) << "-> Gamepad RY_moin : " << RY_moin;
-				RJ_limit_depasse = true;
-			}
+			//if (RX_moin > 0.1f)
+			//{
+			//	if (g_Log_GamePad_Imput_Stat == true)
+			//		LOG(VERBOSE) << "-> Gamepad RX_moin : " << RX_moin;
+			//	RJ_limit_depasse = true;
+			//}
+			//if (RX_plus > 0.1f)
+			//{
+			//	if (g_Log_GamePad_Imput_Stat == true)
+			//		LOG(VERBOSE) << "-> Gamepad RX_plus : " << RX_plus;
+			//	RJ_limit_depasse = true;
+			//}
+			//if (RY_plus > 0.1f)
+			//{
+			//	if (g_Log_GamePad_Imput_Stat == true)
+			//		LOG(VERBOSE) << "-> Gamepad RY_plus : " << RY_plus;
+			//	RJ_limit_depasse = true;
+			//}
+			//if (RY_moin > 0.1f)
+			//{
+			//	if (g_Log_GamePad_Imput_Stat == true)
+			//		LOG(VERBOSE) << "-> Gamepad RY_moin : " << RY_moin;
+			//	RJ_limit_depasse = true;
+			//}
 
-			if (RJ_limit_depasse)
-			{
-				g_Enable_CONTROL_ACTION = true;
-			}
-
-
-			float LX_moin = Get_Stick_Val(game_pad.sThumbLX, -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE, -32768);
-			float LX_plus = Get_Stick_Val(game_pad.sThumbLX, +XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE, +32767);
-			float LY_plus = Get_Stick_Val(game_pad.sThumbLY, +XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE, +32767);
-			float LY_moin = Get_Stick_Val(game_pad.sThumbLY, -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE, -32768);
-
-			bool LJ_limit_depasse = false;
-
-			if (LX_moin > 0.1f)
-			{
-				LJ_limit_depasse = true;
-				if (g_Log_GamePad_Imput_Stat == true)
-					LOG(VERBOSE) << "-> Gamepad LX_moin : " << LX_moin;
-			}
-			if (LX_plus > 0.1f)
-			{
-				LJ_limit_depasse = true;
-				if (g_Log_GamePad_Imput_Stat == true)
-					LOG(VERBOSE) << "-> Gamepad LX_plus : " << LX_plus;
-			}
-			if (LY_plus > 0.1f)
-			{
-				LJ_limit_depasse = true;
-				if (g_Log_GamePad_Imput_Stat == true)
-					LOG(VERBOSE) << "-> Gamepad LY_plus : " << LY_plus;
-			}
-			if (LY_moin > 0.1f)
-			{
-				LJ_limit_depasse = true;
-				if (g_Log_GamePad_Imput_Stat == true)
-					LOG(VERBOSE) << "-> Gamepad LY_moin : " << LY_moin;
-			}
-
-			if (LJ_limit_depasse)
-			{
-				if ((io.ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) != 0 /*== 2*/)
-				{
-					io.ConfigFlags &= ~ImGuiConfigFlags_NavEnableGamepad;//Disabled
-					if (g_Log_GamePad_Imput_Stat == true)
-						LOG(VERBOSE) << "-> Gamepad Disabled : ";
-				}
-
-				g_Enable_CONTROL_ACTION = true;
-			}
-
-			if (((xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) || (xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN)
-			        || (xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) || (xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT))
-					&& !LJ_limit_depasse)
-			{
-				if ((io.ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) == 0)
-				{
-					io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;//Enabled
-					if (g_Log_GamePad_Imput_Stat == true)
-						LOG(VERBOSE) << "->DPAD Enabled Gamepad ";
-				}
-			}
-
-			if ((xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) && (xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_B) && elapsed_time_in_ms >= 500ms)
-			{
-				g_gui->m_is_open = !g_gui->m_is_open;
-				g_gui->toggle_mouse();
-
-				//Persist and restore the cursor position between menu instances.
-				static POINT cursor_coords{};
-				if (g_gui->m_is_open == true)
-				{
-					if ((io.ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) == 0)
-					{
-						io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad; //Enabled
-						if (g_Log_GamePad_Imput_Stat == true)
-							LOG(VERBOSE) << "->DPAD Enabled Gamepad ";
-					}
-
-					if (g_Log_GamePad_Imput_Stat == true)
-						LOG(VERBOSE) << "-> Gamepad Open Menu <-";
-
-					GetCursorPos(&cursor_coords);
-					//vehicle::set_waite_preview(false);
-				}
-				else if (cursor_coords.x + cursor_coords.y != 0)
-				{
-					if (g_Log_GamePad_Imput_Stat == true)
-						LOG(VERBOSE) << "-> Gamepad Close Menu <-";
-
-					SetCursorPos(cursor_coords.x, cursor_coords.y);
+			//if (RJ_limit_depasse)
+			//{
+			//	g_Enable_CONTROL_ACTION = true;
+			//}
 
 
-					if ((io.ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) != 0 /*== 2*/)
-					{
-						io.ConfigFlags &= ~ImGuiConfigFlags_NavEnableGamepad; //Disabled
-						if (g_Log_GamePad_Imput_Stat == true)
-							LOG(VERBOSE) << "-> Gamepad Disabled : ";
-					}
-					g_Enable_CONTROL_ACTION = true;
+			//float LX_moin = Get_Stick_Val(game_pad.sThumbLX, -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE, -32768);
+			//float LX_plus = Get_Stick_Val(game_pad.sThumbLX, +XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE, +32767);
+			//float LY_plus = Get_Stick_Val(game_pad.sThumbLY, +XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE, +32767);
+			//float LY_moin = Get_Stick_Val(game_pad.sThumbLY, -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE, -32768);
 
-				}
+			//bool LJ_limit_depasse = false;
 
-				if (g.settings.hotkeys.editing_menu_toggle)
-					g.settings.hotkeys.editing_menu_toggle = false;
+			//if (LX_moin > 0.1f)
+			//{
+			//	LJ_limit_depasse = true;
+			//	if (g_Log_GamePad_Imput_Stat == true)
+			//		LOG(VERBOSE) << "-> Gamepad LX_moin : " << LX_moin;
+			//}
+			//if (LX_plus > 0.1f)
+			//{
+			//	LJ_limit_depasse = true;
+			//	if (g_Log_GamePad_Imput_Stat == true)
+			//		LOG(VERBOSE) << "-> Gamepad LX_plus : " << LX_plus;
+			//}
+			//if (LY_plus > 0.1f)
+			//{
+			//	LJ_limit_depasse = true;
+			//	if (g_Log_GamePad_Imput_Stat == true)
+			//		LOG(VERBOSE) << "-> Gamepad LY_plus : " << LY_plus;
+			//}
+			//if (LY_moin > 0.1f)
+			//{
+			//	LJ_limit_depasse = true;
+			//	if (g_Log_GamePad_Imput_Stat == true)
+			//		LOG(VERBOSE) << "-> Gamepad LY_moin : " << LY_moin;
+			//}
 
-				last_time = time_now;
-			}
+			//if (LJ_limit_depasse)
+			//{
+			//	if ((io.ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) != 0 /*== 2*/)
+			//	{
+			//		io.ConfigFlags &= ~ImGuiConfigFlags_NavEnableGamepad;//Disabled
+			//		if (g_Log_GamePad_Imput_Stat == true)
+			//			LOG(VERBOSE) << "-> Gamepad Disabled : ";
+			//	}
 
-			else if (xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_B && elapsed_time_in_ms >= 500ms)
-			{
-				g_gui->m_is_active_view_open = false;
-				//LOG(INFO) << "->->-> GAMEPAD_B : active_view_open = false";
-				
-				if (g_model_preview_service->is_runing()) //IsAnyItemFocused IsAnyItemActive
-				{
-					g_model_preview_service->stop_preview();
-					LOG(INFO) << "->->-> GAMEPAD_B : g_model_preview_service->stop_preview()";
-				}
-				if (g_gui->m_is_open)
-				{
-					ImGui::SetWindowFocus("navigation");
-					//LOG(INFO) << "->->-> GAMEPAD_B : SetWindowFocus(navigation)";
-				}
-				last_time = time_now;
-			}
+			//	g_Enable_CONTROL_ACTION = true;
+			//}
+
+			//if (((xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) || (xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN)
+			//        || (xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) || (xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT))
+			//		&& !LJ_limit_depasse)
+			//{
+			//	if ((io.ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) == 0)
+			//	{
+			//		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;//Enabled
+			//		if (g_Log_GamePad_Imput_Stat == true)
+			//			LOG(VERBOSE) << "->DPAD Enabled Gamepad ";
+			//	}
+			//}
+
+			//if (xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN)			    
+			//{
+			//	if (g_gui->m_is_open)
+			//	{
+			//		PAD::DISABLE_ALL_CONTROL_ACTIONS(0);
+			//	}
+			//}
+
+
 			
-			if (xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_A)
-			{
-			}
-			if (xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_X)
-			{
-			}
-			if (xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_Y)
-			{
-				//if ((io.ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) != 0 /*== 2*/)
-				//{
-				//	    io.ConfigFlags &= ~ImGuiConfigFlags_NavEnableGamepad; //Disabled
-				//	    if (g_Log_GamePad_Imput_Stat == true)
-				//		    LOG(VERBOSE) << "-> Gamepad Disabled : ";
-				//}
-				//g_Enable_CONTROL_ACTION = true;
-			}
+			//if (xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_A)
+			//{
+			//}
+			//if (xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_X)
+			//{
+			//}
+			//if (xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_Y)
+			//{
+			//	//if ((io.ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) != 0 /*== 2*/)
+			//	//{
+			//	//	    io.ConfigFlags &= ~ImGuiConfigFlags_NavEnableGamepad; //Disabled
+			//	//	    if (g_Log_GamePad_Imput_Stat == true)
+			//	//		    LOG(VERBOSE) << "-> Gamepad Disabled : ";
+			//	//}
+			//	//g_Enable_CONTROL_ACTION = true;
+			//}
+
 		}
 
 

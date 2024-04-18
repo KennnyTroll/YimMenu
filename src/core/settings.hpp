@@ -353,6 +353,8 @@ namespace big
 			bool persist_outfits_mis          = false;
 			bool interaction_menu_freedom     = false;
 
+			bool safetypoint				  = false;
+
 			int disable_test                  = -1;
 			int disable_plus_test             = 0;
 			bool window_focused_log           = false;
@@ -493,8 +495,9 @@ namespace big
 				int open_vehicle_controller = 0;
 				int clear_wanted            = 0;
 				int random_ped_components   = 0;
+				int safety_point            = 0;
 
-				NLOHMANN_DEFINE_TYPE_INTRUSIVE(hotkeys, editing_menu_toggle, menu_toggle, teleport_waypoint, teleport_objective, teleport_selected, teleport_pv, noclip, vehicle_flymode, bringvehicle, invis, heal, fill_inventory, skip_cutscene, freecam, superrun, passive, superjump, beastjump, invisveh, localinvisveh, fill_ammo, fast_quit, cmd_excecutor, repairpv, open_vehicle_controller, clear_wanted, random_ped_components)
+				NLOHMANN_DEFINE_TYPE_INTRUSIVE(hotkeys, editing_menu_toggle, menu_toggle, teleport_waypoint, teleport_objective, teleport_selected, teleport_pv, noclip, vehicle_flymode, bringvehicle, invis, heal, fill_inventory, skip_cutscene, freecam, superrun, passive, superjump, beastjump, invisveh, localinvisveh, fill_ammo, fast_quit, cmd_excecutor, repairpv, open_vehicle_controller, clear_wanted, random_ped_components, safety_point)
 			} hotkeys{};
 
 			NLOHMANN_DEFINE_TYPE_INTRUSIVE(settings, hotkeys, dev_dlc, onboarding_complete)
@@ -777,6 +780,7 @@ namespace big
 			bool unlimited_weapons                      = false;
 			bool siren_mute                             = false;
 			bool all_vehs_in_heists                     = false;
+			bool vehicle_cool                           = false;
 
 			struct abilities
 			{

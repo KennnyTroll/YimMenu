@@ -12,7 +12,6 @@ namespace big
 									g_gui_service->get_selected_tab().size() > nested &&
 									navItem.first == g_gui_service->get_selected_tab().at(nested);
 
-
 		if (current_tab)
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.29f, 0.45f, 0.69f, 1.f));
 

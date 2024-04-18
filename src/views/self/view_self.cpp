@@ -225,6 +225,8 @@ namespace big
 			}
 		});
 
+		components::command_checkbox<"safetypointtp">();
+
 		ImGui::EndGroup();
 
 		ImGui::SeparatorText("PROOFS"_T.data());

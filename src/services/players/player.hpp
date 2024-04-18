@@ -94,6 +94,7 @@ namespace big
 		bool block_explosions   = false;
 		bool block_clone_create = false;
 		bool block_clone_sync   = false;
+		bool block_send_clone_sync   = false;
 		bool block_net_events   = false;
 		bool log_clones         = false;
 		bool log_network_events = false;

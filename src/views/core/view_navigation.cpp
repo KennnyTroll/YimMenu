@@ -7,6 +7,8 @@
 
 namespace big
 {
+	static auto last_time = std::chrono::steady_clock::now();
+
 	void view::navigation()
 	{
 		ImGui::SetNextWindowPos({10.f, 100.f * g.window.gui_scale}, ImGuiCond_Always);
@@ -26,7 +28,18 @@ namespace big
 			}
 
 			if (ImGui::IsWindowFocused())
-			{			
+			{	
+				const auto time_now = std::chrono::steady_clock::now();
+				const auto elapsed_time_in_ms = std::chrono::duration_cast<std::chrono::milliseconds>(time_now - last_time);
+
+				if (ImGui::IsKeyDown(ImGuiKey_GamepadR1) && ImGui::IsKeyDown(ImGuiKey_GamepadL1) && elapsed_time_in_ms >= 500ms)
+				{
+					g_gui->m_is_active_view_open = !g_gui->m_is_active_view_open;
+					LOG(INFO) << "<-<-<- DPAD_LEFT : active_view_open = " << g_gui->m_is_active_view_open;
+					last_time = time_now;
+				}
+				else
+
 				if (ImGui::IsKeyReleased(ImGuiKey_GamepadDpadRight))
 				{
 					//LOG(INFO) << "->->-> DPAD_RIGHT : focused window item : " << g_gui->window_item_focused
@@ -57,6 +70,25 @@ namespace big
 					if (!*g_pointers->m_gta.m_is_session_started && player_count < 2)
 						return;
 
+					//g_gui->window_FORCE_focuse_on_Nav = false;
+					////LOG(INFO) << "<-<-<- DPAD_LEFT : window_FORCE_focuse_on_Nav =  false";
+
+					//if (g_player_service->get_selected()->get_name() == "")
+					//{
+					//	g_player_service->set_selected(g_player_service->get_self());
+					//}
+					////LOG(INFO) << "<-<-<- DPAD_LEFT : get_selected() == " << g_player_service->get_selected()->get_name();
+
+					//g_gui_service->set_selected(tabs::PLAYER);
+					////LOG(INFO) << "<-<-<- DPAD_LEFT : set_selected(tabs::PLAYER)";
+
+					//g_gui->m_is_active_view_open = true;
+					////LOG(INFO) << "<-<-<- DPAD_LEFT : active_view_open = true";
+
+					//ImGui::SetWindowFocus("playerlist");
+					////LOG(INFO) << "<-<-<- DPAD_LEFT : SetWindowFocus(playerlist)";
+
+
 					g_gui->window_FORCE_focuse_on_Nav = false;
 					//LOG(INFO) << "<-<-<- DPAD_LEFT : window_FORCE_focuse_on_Nav =  false";
 
@@ -70,10 +102,13 @@ namespace big
 					//LOG(INFO) << "<-<-<- DPAD_LEFT : set_selected(tabs::PLAYER)";
 
 					g_gui->m_is_active_view_open = true;
-					//LOG(INFO) << "<-<-<- DPAD_LEFT : active_view_open = true";
+					//LOG(INFO) << "->->->->->-> DPAD_RIGHT : active_view_open = true";
 
-					ImGui::SetWindowFocus("playerlist");
-					//LOG(INFO) << "<-<-<- DPAD_LEFT : SetWindowFocus(playerlist)";
+					g_gui->window_FORCE_focuse_on_Nav = false;
+					//LOG(INFO) << "->->->->->-> DPAD_RIGHT : window_FORCE_focuse_on_Nav =  false";
+
+					ImGui::SetWindowFocus("main");
+					//LOG(INFO) << "->->->->->-> DPAD_RIGHT : SetWindowFocus( main )";
 				}
 			}
 		}

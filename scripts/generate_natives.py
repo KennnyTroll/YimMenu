@@ -103,7 +103,7 @@ def write_natives_header():
     
     natives_buf = natives_buf[:-2]
 
-    open("../natives.hpp", "w+").write(f"""#pragma once
+    open("natives.hpp", "w+").write(f"""#pragma once
 #include "invoker/invoker.hpp"
 
 // clang-format off

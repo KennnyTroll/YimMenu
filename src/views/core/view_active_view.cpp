@@ -7,8 +7,11 @@
 
 #include "gui.hpp"
 
+
 namespace big
-{
+{	
+	static auto last_time         = std::chrono::steady_clock::now();
+
 	void view::active_view()
 	{
 		if (!g_gui->m_is_active_view_open || g_gui_service->get_selected_tab().empty())
@@ -73,6 +76,144 @@ namespace big
 
 			ImGui::PopStyleVar();
 		}
+
+		if (ImGui::IsWindowFocused())
+		{
+			const auto time_now           = std::chrono::steady_clock::now();
+			const auto elapsed_time_in_ms = std::chrono::duration_cast<std::chrono::milliseconds>(time_now - last_time);
+
+			if (g_gui_service->get_selected_tab().at(0) == tabs::PLAYER)
+			{
+				if (ImGui::IsKeyDown(ImGuiKey_GamepadR1) && ImGui::IsKeyDown(ImGuiKey_GamepadL1) && elapsed_time_in_ms >= 500ms)
+				{
+					g_gui->m_is_active_view_open = !g_gui->m_is_active_view_open;
+					//LOG(INFO) << "<-<-<- DPAD_LEFT : active_view_open = " << g_gui->m_is_active_view_open;
+					last_time = time_now;
+				}
+				else
+				if (ImGui::IsKeyPressed(ImGuiKey_GamepadL1))
+				{
+					const auto player_count = g_player_service->players().size() + 1;
+
+					if (player_count <= 1)
+					{
+						g_player_service->set_selected(g_player_service->get_self());
+					}
+					else
+					{
+						int selected_player_index = 0;
+						bool founded              = false;
+						for (const auto& [_, player] : g_player_service->players())
+						{
+							selected_player_index += 1;
+							if (g_player_service->get_selected() == player)
+							{
+								founded = true;
+								//LOG(INFO) << "A-A-A- DPAD_UP : ACTUAL selected() == " << g_player_service->get_selected()->get_name();
+								break;
+							}
+						}
+
+						if (!founded) // set last
+						{
+							//LOG(INFO) << "A-A-A- DPAD_UP : ACTUAL selected() == SELF --> LAST";
+
+							int next_target_player_index = player_count - 1;
+							selected_player_index        = 0;
+							for (const auto& [_, player] : g_player_service->players())
+							{
+								selected_player_index += 1;
+								if (selected_player_index == next_target_player_index)
+								{
+									g_player_service->set_selected(player);
+									break;
+								}
+							}
+						}
+						else if (selected_player_index == 1) // set first get_self
+						{
+							//LOG(INFO) << "A-A-A- DPAD_UP : SET selected() == SELF";
+							g_player_service->set_selected(g_player_service->get_self());
+						}
+						else
+						{
+							int next_target_player_index = selected_player_index - 1;
+							selected_player_index        = 0;
+							for (const auto& [_, player] : g_player_service->players())
+							{
+								selected_player_index += 1;
+								if (selected_player_index == next_target_player_index)
+								{
+									//LOG(INFO) << "A-A-A- DPAD_UP : SET selected() == " << player->get_name();
+									g_player_service->set_selected(player);
+									break;
+								}
+							}
+						}
+					}
+				}
+				else
+				if (ImGui::IsKeyPressed(ImGuiKey_GamepadR1))
+				{
+					const auto player_count = g_player_service->players().size() + 1;
+
+					if (player_count <= 1)
+					{
+						g_player_service->set_selected(g_player_service->get_self());
+					}
+					else
+					{
+						int selected_player_index = 0;
+						bool founded              = false;
+						for (const auto& [_, player] : g_player_service->players())
+						{
+							selected_player_index += 1;
+							if (g_player_service->get_selected() == player)
+							{
+								founded = true;
+								//LOG(INFO) << "V-V-V- DPAD_DOWN : ACTUAL selected() == " << g_player_service->get_selected()->get_name();
+								break;
+							}
+						}
+
+						if (!founded) //
+						{
+							//LOG(INFO) << "V-V-V- DPAD_DOWN : ACTUAL selected() == SELF";
+
+							for (const auto& [_, player] : g_player_service->players())
+							{
+								//LOG(INFO) << "V-V-V- DPAD_DOWN : SET selected() == " << player->get_name();
+								g_player_service->set_selected(player);
+								break;
+							}
+						}
+						else if ((player_count - 1) < selected_player_index + 1) // set first
+						{
+							//LOG(INFO) << "V-V-V- DPAD_DOWN : SET selected() == SELF";
+							g_player_service->set_selected(g_player_service->get_self());
+						}
+						else
+						{
+							int next_target_player_index = selected_player_index + 1;
+							selected_player_index        = 0;
+							for (const auto& [_, player] : g_player_service->players())
+							{
+								selected_player_index += 1;
+								if (selected_player_index == next_target_player_index)
+								{
+									//LOG(INFO) << "V-V-V- DPAD_DOWN : SET selected() == " << player->get_name();
+									g_player_service->set_selected(player);
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
 		ImGui::End();
+
+
 	}
 }

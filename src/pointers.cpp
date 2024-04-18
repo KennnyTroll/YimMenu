@@ -459,6 +459,15 @@ namespace big
                 g_pointers->m_gta.m_get_sync_type_info = ptr.add(0x11F).add(1).rip().as<decltype(gta_pointers::m_get_sync_type_info)>(); // 44 0F B7 C1 4C 8D 0D .as()
             }
         },
+        // Send clone sync
+        {
+            "SCS",
+            "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 54 41 55 41 56 41 57 48 83 EC 40 0F B6 72",
+            [](memory::handle ptr) 
+            {
+                g_pointers->m_gta.m_send_clone_sync = ptr.as<decltype(gta_pointers::m_send_clone_sync)>();
+            }
+        },
         // Read Bitbuffer Into Sync Tree
         {
             "RBIST",
