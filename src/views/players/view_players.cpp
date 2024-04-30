@@ -13,8 +13,30 @@
 
 #include "gui.hpp"
 
+#include "util/blip.hpp"
+#include "renderer/renderer.hpp"
+
+#include <math.h>
+
+#include "util/math.hpp"
+
 namespace big
 {
+	//void ImageRotated(ImTextureID tex_id, ImVec2 center, ImVec2 size, float angle)
+	//{
+	//	ImDrawList* draw_list = ImGui::GetWindowDrawList();
+	//	float cos_a = cosf(angle);
+	//	float sin_a = sinf(angle);
+	//	ImVec2 pos[4] = {
+	//		center + ImRotate(ImVec2(-size.x * 0.5f, -size.y * 0.5f), cos_a, sin_a),
+	//		center + ImRotate(ImVec2(+size.x * 0.5f, -size.y * 0.5f), cos_a, sin_a),
+	//		center + ImRotate(ImVec2(+size.x * 0.5f, +size.y * 0.5f), cos_a, sin_a),
+	//		center + ImRotate(ImVec2(-size.x * 0.5f, +size.y * 0.5f), cos_a, sin_a)
+	//	};
+	//	ImVec2 uvs[4] = {ImVec2(0.0f, 0.0f), ImVec2(1.0f, 0.0f), ImVec2(1.0f, 1.0f), ImVec2(0.0f, 1.0f)};
+	//	draw_list->AddImageQuad(tex_id, pos[0], pos[1], pos[2], pos[3], uvs[0], uvs[1], uvs[2], uvs[3], IM_COL32_WHITE);
+	//}
+
 	//static auto last_time = std::chrono::steady_clock::now();
 
 	bool has_scrollbar = false;
@@ -41,10 +63,98 @@ namespace big
 		const auto window = ImGui::GetCurrentWindow();
 		ImGui::PushFont(g.window.font_icon);
 		const auto icons_size = ImGui::CalcTextSize(player_iconsc, player_icons_end);
-		const ImVec2 icons_pos(window->DC.CursorPos.x + 300.0f - 32.0f - icons_size.x, window->DC.CursorPos.y + 2.0f);
+		const ImVec2 icons_pos(window->DC.CursorPos.x + 300.0f - 32.0f - icons_size.x, window->DC.CursorPos.y + 2.0f);		
 		const ImRect icons_box(icons_pos, icons_pos + icons_size);
-		ImGui::PopFont();
 
+		ImGui::PopFont();
+				
+		std::string player_name = plyr->get_name();
+		rage::Blip_t* blip      = big::blip::get_player_blip(player_name);
+		int player_blip_id      = -1;
+		BYTE* btIP              = 0;		
+		if (blip != nullptr)
+		{
+			player_blip_id = (int)blip->m_icon;
+			btIP     = reinterpret_cast<BYTE*>(&blip->m_color);
+		}
+		float image_height = .0f;
+		if (player_blip_id != -1)
+		{
+			bool imgfnd    = false;
+			int key_second = -1;
+			for (const auto& paire : g_renderer.blip_P_textures)
+			{
+				key_second += 1;
+				if (paire.second == std::to_string(player_blip_id))
+				{
+					ID3D11ShaderResourceView* premiere_valeur = paire.first;
+					imgfnd                                    = true;
+					break;
+				}
+			}
+
+			if (key_second != -1 && imgfnd)
+			{
+				ImVec4 color((int)*(btIP + 3) * (1.0f / 255.0f), (int)*(btIP + 2) * (1.0f / 255.0f), (int)*(btIP + 1) * (1.0f / 255.0f), (int)*btIP * (1.0f / 255.0f)); // Rouge semi-transparent
+				//float rotationAngleRadians = 0.785398f; // 45 degres en radians
+			
+				if (CPed* ped = plyr->get_ped(); ped != nullptr &&
+					ped->m_damage_bits & (uint32_t)eEntityProofs::GOD &&
+					player_blip_id != 417)					
+				{
+					ImGui::Image((void*)g_renderer.blip_P_textures[key_second].first,
+					    ImVec2(g.window.blip_size, g.window.blip_size),
+					    ImVec2(0, 0),
+					    ImVec2(1, 1),
+					    color,
+					    ImVec4(245 * (1.0f / 255.0f), 66 * (1.0f / 255.0f), 66 * (1.0f / 255.0f), 1));	
+				}
+				else if (auto vehicle = plyr->get_current_vehicle(); vehicle != nullptr && vehicle->m_damage_bits & (uint32_t)eEntityProofs::GOD)
+				{
+					ImGui::Image((void*)g_renderer.blip_P_textures[key_second].first,
+					    ImVec2(g.window.blip_size, g.window.blip_size),
+					    ImVec2(0, 0),
+					    ImVec2(1, 1),
+					    color,
+					    ImVec4(16 * (1.0f / 255.0f), 227 * (1.0f / 255.0f), 72 * (1.0f / 255.0f), 1));
+				}
+				else	
+					ImGui::Image((void*)g_renderer.blip_P_textures[key_second].first, ImVec2(g.window.blip_size, g.window.blip_size), ImVec2(0, 0), ImVec2(1, 1), color);
+
+				image_height = ImGui::GetItemRectSize().y;
+			}
+			else
+			{
+				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4((int)*(btIP + 3) * (1.0f / 255.0f), (int)*(btIP + 2) * (1.0f / 255.0f), (int)*(btIP + 1) * (1.0f / 255.0f), (int)*btIP * (1.0f / 255.0f)));
+				ImGui::Text(std::to_string((int)player_blip_id).c_str());
+				ImGui::PopStyleColor();
+				image_height = g.window.blip_size;
+			}
+
+			ImGui::SameLine();
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + (image_height - ImGui::GetFontSize()) / 2);
+		}
+		else
+		{
+			int key_second = -1;
+			for (const auto& paire : g_renderer.blip_P_textures)
+			{
+				key_second += 1;
+				std::string cmpr = "36";
+				if (paire.second == cmpr)
+				{					
+					break;
+				}
+			}
+
+			ImGui::Image((void*)g_renderer.blip_P_textures[key_second].first, ImVec2(g.window.blip_size, g.window.blip_size));	
+			//ImageRotated(ImTextureID tex_id, ImVec2 center, ImVec2 size, float angle)
+			image_height = ImGui::GetItemRectSize().y;
+
+			ImGui::SameLine();
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + (image_height - ImGui::GetFontSize()) / 2);
+		}	
+		
 		if (plyr->is_admin)
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.f, 0.67f, 0.f, 1.f));
 		else if (plyr->is_modder)
@@ -53,7 +163,32 @@ namespace big
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.67f, 0.1f, 1.f));
 
 		if (selected_player)
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.29f, 0.45f, 0.69f, 1.f));
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.29f, 0.45f, 0.69f, 1.f));	
+		
+		float dist_p = -1.0f;
+		if (const auto ped = plyr->get_ped(); ped != nullptr && math::distance_between_vectors(*plyr->get_ped()->get_position(), *g_local_player->get_position()) < 900.0f)
+		{
+			dist_p = math::distance_between_vectors(*plyr->get_ped()->get_position(), *g_local_player->get_position());
+
+			if (dist_p < 900.0f)
+			{
+				if (dist_p < 100.0f)
+				{
+					ImVec4 border_color = ImVec4(255 * (1.0f / 255.0f), 0 * (1.0f / 255.0f), 0 * (1.0f / 255.0f), 1); // Rouge vif (RGBA)
+					ImGui::PushStyleColor(ImGuiCol_Text, border_color);
+				}
+				else if (dist_p < 500.0f)
+				{
+					ImVec4 border_color = ImVec4(255 * (1.0f / 255.0f), 255 * (1.0f / 255.0f), 0 * (1.0f / 255.0f), 1); // Jaune vif (RGBA)
+					ImGui::PushStyleColor(ImGuiCol_Text, border_color);
+				}
+				else
+				{
+					ImVec4 border_color = ImVec4(0 * (1.0f / 255.0f), 255 * (1.0f / 255.0f), 0 * (1.0f / 255.0f), 1); // Vert vif (RGBA)
+					ImGui::PushStyleColor(ImGuiCol_Text, border_color);
+				}
+			}
+		}
 
 		ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, {0.0, 0.5});
 		ImGui::PushID(plyr->id());
@@ -61,21 +196,13 @@ namespace big
 		const auto style = ImGui::GetStyle();
 		// branchless conditional calculation
 		const auto plyr_btn_width = 300.f - (style.ItemInnerSpacing.x * 2) - (has_scrollbar * style.ScrollbarSize);
+
 		if (ImGui::Button(plyr->get_name(), { plyr_btn_width, 0.f}))
 		{
 			g_player_service->set_selected(plyr);
 			g_gui_service->set_selected(tabs::PLAYER);
 
-			//g.window.switched_view = true;
-			
-			//g_gui->m_is_active_view_open = true;
-			//LOG(INFO) << "Button : --> active_view_open = true;";
-
-			//g_gui->window_FORCE_focuse_on_Nav = false;
-			////LOG(INFO) << "->->->->->-> DPAD_RIGHT : window_FORCE_focuse_on_Nav =  false";
-
-			//ImGui::SetWindowFocus("main");
-			////LOG(INFO) << "->->->->->-> DPAD_RIGHT : SetWindowFocus( main )";
+			//g.window.switched_view = true;			
 		}
 
 		if (ImGui::IsItemHovered()
@@ -92,6 +219,9 @@ namespace big
 				ImGui::EndTooltip();
 			}
 		}
+
+		if (dist_p < 900.0f && dist_p != -1.0f)
+			ImGui::PopStyleColor();
 
 		ImGui::PopID();
 		ImGui::PopStyleVar();
@@ -154,157 +284,6 @@ namespace big
 				ImGui::EndListBox();
 			}
 			ImGui::PopStyleColor(2);
-
-			//if (ImGui::IsWindowFocused())
-			//{
-			//	const auto time_now = std::chrono::steady_clock::now();
-			//	const auto elapsed_time_in_ms = std::chrono::duration_cast<std::chrono::milliseconds>(time_now - last_time);
-
-			//	if (ImGui::IsKeyDown(ImGuiKey_GamepadR1) && ImGui::IsKeyDown(ImGuiKey_GamepadL1) && elapsed_time_in_ms >= 500ms)
-			//	{
-			//		g_gui->m_is_active_view_open = !g_gui->m_is_active_view_open;
-			//		LOG(INFO) << "<-<-<- DPAD_LEFT : active_view_open = " << g_gui->m_is_active_view_open;
-			//		last_time = time_now;
-			//	}
-			//	else
-			//	if (ImGui::IsKeyPressed(ImGuiKey_GamepadDpadUp) || ImGui::IsKeyPressed(ImGuiKey_GamepadL1))
-			//	{
-			//		const auto player_count = g_player_service->players().size() + 1;
-
-			//		if (player_count <= 1)
-			//		{
-			//			g_player_service->set_selected(g_player_service->get_self());
-			//		}
-			//		else
-			//		{
-			//			int selected_player_index = 0;
-			//			bool founded              = false;
-			//			for (const auto& [_, player] : g_player_service->players())
-			//			{
-			//				selected_player_index += 1;
-			//				if (g_player_service->get_selected() == player)
-			//				{
-			//					founded = true;
-			//					//LOG(INFO) << "A-A-A- DPAD_UP : ACTUAL selected() == " << g_player_service->get_selected()->get_name();
-			//					break;
-			//				}
-			//			}
-
-			//			if (!founded) // set last
-			//			{
-			//				//LOG(INFO) << "A-A-A- DPAD_UP : ACTUAL selected() == SELF --> LAST";
-
-			//				int next_target_player_index = player_count - 1;
-			//				selected_player_index        = 0;
-			//				for (const auto& [_, player] : g_player_service->players())
-			//				{
-			//					selected_player_index += 1;
-			//					if (selected_player_index == next_target_player_index)
-			//					{
-			//						g_player_service->set_selected(player);
-			//						break;
-			//					}
-			//				}
-			//			}
-			//			else if (selected_player_index == 1) // set first get_self
-			//			{
-			//				//LOG(INFO) << "A-A-A- DPAD_UP : SET selected() == SELF";
-			//				g_player_service->set_selected(g_player_service->get_self());
-			//			}
-			//			else
-			//			{
-			//				int next_target_player_index = selected_player_index - 1;
-			//				selected_player_index        = 0;
-			//				for (const auto& [_, player] : g_player_service->players())
-			//				{
-			//					selected_player_index += 1;
-			//					if (selected_player_index == next_target_player_index)
-			//					{
-			//						LOG(INFO) << "A-A-A- DPAD_UP : SET selected() == " << player->get_name();
-			//						g_player_service->set_selected(player);
-			//						break;
-			//					}
-			//				}
-			//			}
-			//		}
-			//	}
-			//	else
-			//	if (ImGui::IsKeyPressed(ImGuiKey_GamepadDpadDown) || ImGui::IsKeyPressed(ImGuiKey_GamepadR1))
-			//	{
-			//		const auto player_count = g_player_service->players().size() + 1;
-
-			//		if (player_count <= 1)
-			//		{
-			//			g_player_service->set_selected(g_player_service->get_self());
-			//		}
-			//		else
-			//		{
-			//			int selected_player_index = 0;
-			//			bool founded              = false;
-			//			for (const auto& [_, player] : g_player_service->players())
-			//			{
-			//				selected_player_index += 1;
-			//				if (g_player_service->get_selected() == player)
-			//				{
-			//					founded = true;
-			//					//LOG(INFO) << "V-V-V- DPAD_DOWN : ACTUAL selected() == " << g_player_service->get_selected()->get_name();
-			//					break;
-			//				}
-			//			}
-
-			//			if (!founded) //
-			//			{
-			//				//LOG(INFO) << "V-V-V- DPAD_DOWN : ACTUAL selected() == SELF";
-
-			//				for (const auto& [_, player] : g_player_service->players())
-			//				{
-			//					//LOG(INFO) << "V-V-V- DPAD_DOWN : SET selected() == " << player->get_name();
-			//					g_player_service->set_selected(player);
-			//					break;
-			//				}
-			//			}
-			//			else if ((player_count - 1) < selected_player_index + 1) // set first
-			//			{
-			//				//LOG(INFO) << "V-V-V- DPAD_DOWN : SET selected() == SELF";
-			//				g_player_service->set_selected(g_player_service->get_self());
-			//			}
-			//			else
-			//			{
-			//				int next_target_player_index = selected_player_index + 1;
-			//				selected_player_index        = 0;
-			//				for (const auto& [_, player] : g_player_service->players())
-			//				{
-			//					selected_player_index += 1;
-			//					if (selected_player_index == next_target_player_index)
-			//					{
-			//						//LOG(INFO) << "V-V-V- DPAD_DOWN : SET selected() == " << player->get_name();
-			//						g_player_service->set_selected(player);
-			//						break;
-			//					}
-			//				}
-			//			}
-			//		}
-			//	}
-
-			//	if (ImGui::IsKeyReleased(ImGuiKey_GamepadDpadRight))
-			//	{
-			//		g_gui->m_is_active_view_open = true;
-			//		//LOG(INFO) << "->->->->->-> DPAD_RIGHT : active_view_open = true";
-
-			//		g_gui->window_FORCE_focuse_on_Nav = false;
-			//		//LOG(INFO) << "->->->->->-> DPAD_RIGHT : window_FORCE_focuse_on_Nav =  false";
-
-			//		ImGui::SetWindowFocus("main");
-			//		//LOG(INFO) << "->->->->->-> DPAD_RIGHT : SetWindowFocus( main )";
-			//	}
-
-			//	if (ImGui::IsKeyPressed(ImGuiKey_GamepadDpadLeft))
-			//	{
-			//		//g_gui->m_is_active_view_open = false;
-			//		//LOG(INFO) << "<-<-<- DPAD_LEFT : active_view_open = false";
-			//	}
-			//}
-
 		}
 
 		ImGui::PopStyleVar();

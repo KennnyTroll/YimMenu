@@ -4,6 +4,8 @@
 #include "util/vehicle.hpp"
 #include "views/view.hpp"
 
+#include "util/troll.hpp"
+
 namespace big
 {
 	void view::player_misc()
@@ -27,10 +29,35 @@ namespace big
 			ImGui::SameLine();
 			components::player_command_button<"giveweaps">(g_player_service->get_selected(), {});
 
+			//ImGui::SameLine();
+			ImGui::PushID("winbounty");
+			components::button("Win 10K Bounty", [] {
+				troll::win_bounty_on_player(g_player_service->get_selected(), 10000, false); //1
+				troll::win_bounty_on_player(g_player_service->get_selected(), 10000, false); //1
+				troll::win_bounty_on_player(g_player_service->get_selected(), 10000, false); //1
+				//troll::win_bounty_on_player(g_player_service->get_selected(), 10000, false); //1
+				//troll::win_bounty_on_player(g_player_service->get_selected(), 10000, false); //1
+			});
+			ImGui::PopID();
+
+			components::button("Win Ceo Pay", [] {
+				troll::ceo_payement(g_player_service->get_selected(), 30000, false);        
+			});
+			components::button("Win Ceo Pay 2", [] {
+				troll::ceo_payement_2(g_player_service->get_selected(), 10000, false);
+			});
+			components::button("Win Ceo Pay 3", [] {
+				troll::ceo_payement_3(g_player_service->get_selected(), 10000, false);
+			});
+
 			ImGui::BeginGroup();
 			ImGui::Checkbox("OFF_THE_RADAR"_T.data(), &g_player_service->get_selected()->off_radar);
 			ImGui::Checkbox("NEVER_WANTED"_T.data(), &g_player_service->get_selected()->never_wanted);
 			ImGui::Checkbox("SEMI_GODMODE"_T.data(), &g_player_service->get_selected()->semi_godmode);
+			ImGui::Checkbox("Give pointing money", &g_player_service->get_selected()->pickup_gun);
+			ImGui::Checkbox("Give spend holdup money", &g_player_service->get_selected()->spend_holdup);
+			ImGui::Checkbox("Win 10K Bounty", &g_player_service->get_selected()->win_10k_bounty);
+			ImGui::Checkbox("Win ceo", &g_player_service->get_selected()->win_ceo_payement);
 			ImGui::EndGroup();
 
 			ImGui::SameLine();

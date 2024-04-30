@@ -77,6 +77,8 @@ namespace big
 	inline std::atomic_bool g_running{false};
 
 	inline CPed* g_local_player;
+
+	inline char menu_DLL_Path[MAX_PATH];
 }
 
 namespace self

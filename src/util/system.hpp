@@ -5,8 +5,6 @@
 
 namespace big::system
 {
-
-
 	inline void dump_entry_points()
 	{
 
@@ -6599,9 +6597,50 @@ namespace big::system
 
 		//file.close();
 
+
 		DWORD64 base_address = memory::module("GTA5.exe").begin().as<DWORD64>();
 
+		
+		const auto file_path_ = g_file_manager.get_project_file("./entrypointDump/entrypoints.txt");
+		auto file_            = std::ofstream(file_path_.get_path(), std::ios::out | std::ios::trunc);
+
+		file_ << std::format("{}: {}", "VIEW_OVERLAY_GAME_VERSION"_T, g_pointers->m_gta.m_game_version).c_str() << std::endl;
+		file_ << std::format("{}: {}", "VIEW_OVERLAY_GAME_VERSION"_T, g_pointers->m_gta.m_online_version).c_str() << std::endl;
+		file_ << std::format("Base_address = {}", base_address).c_str() << std::endl;
+
+		for (int i = 0; i < g_crossmap.size(); i++)
+		{
+			auto address_ = g_pointers->m_gta.m_get_native_handler(g_pointers->m_gta.m_native_registration_table, g_crossmap[i]);
+
+			for (const auto& pair_ : native_dump_list)
+			{
+				if (pair_.second == i)
+				{
+					char big_buffer_[300];
+					sprintf_s(big_buffer_,
+					    "0x%llX 0x%llX %i %s",
+					    (unsigned long long)((DWORD64)address_ - base_address),
+					    (unsigned long long)((DWORD64)address_),
+					    i,
+					    (char*)pair_.first.c_str());
+
+					file_ << big_buffer_ << std::endl;
+
+					break;
+				}
+			}
+		}
+		file_.close();
+
+
+		//bool base_address_GameBase = false;
+		if (g.debug.base_address_GameBase)
+		{
+			base_address = 0;
+		}
+
 		const auto file_path = g_file_manager.get_project_file("./entrypointDump/IDA_entrypoints_Base0_script.idc");
+
 		auto file            = std::ofstream(file_path.get_path(), std::ios::out | std::ios::trunc);
 
 		file << "#include  <idc.idc>" << std::endl;
@@ -6630,39 +6669,6 @@ namespace big::system
 		}
 		file << "}" << std::endl;
 		file.close();
-
-
-
-		const auto file_path_ = g_file_manager.get_project_file("./entrypointDump/entrypoints.txt");
-		auto file_            = std::ofstream(file_path_.get_path(), std::ios::out | std::ios::trunc);
-
-		file_ << std::format("{}: {}", "VIEW_OVERLAY_GAME_VERSION"_T, g_pointers->m_gta.m_game_version).c_str() << std::endl;
-		file_ << std::format("{}: {}", "VIEW_OVERLAY_GAME_VERSION"_T, g_pointers->m_gta.m_online_version).c_str() << std::endl;
-		file_ << std::format("Base_address = {}", base_address).c_str() << std::endl;
-
-		for (int i = 0; i < g_crossmap.size(); i++)
-		{
-			auto address_ = g_pointers->m_gta.m_get_native_handler(g_pointers->m_gta.m_native_registration_table, g_crossmap[i]);
-
-			for (const auto& pair_ : native_dump_list)
-			{
-				if (pair_.second == i)
-				{
-					char big_buffer_[300];
-					sprintf_s(big_buffer_,
-					    "0x%llX 0x%llX %i %s",
-					    (unsigned long long)((DWORD64)address_ - base_address),
-					    (unsigned long long)((DWORD64)address_),
-					    i,
-					    (char*)pair_.first.c_str());
-
-					file_ << big_buffer_ << std::endl;
-
-					break; 
-				}
-			}
-		}
-		file_.close();
 
 #endif
 	}

@@ -38,6 +38,8 @@ namespace big
 			{
 				system::dump_entry_points();
 			}
+			ImGui::SameLine();
+			ImGui::Checkbox(g.debug.base_address_GameBase ? "Base address GameBase" : "Base address 0", &g.debug.base_address_GameBase);			
 
 			components::button("NETWORK_BAIL"_T, [] {
 				NETWORK::NETWORK_BAIL(16, 0, 0);

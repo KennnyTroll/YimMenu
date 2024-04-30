@@ -38,7 +38,7 @@ namespace big
 
 	eAckCode hooks::send_clone_sync(CNetworkObjectMgr* mgr, CNetGamePlayer* player, rage::netObject* pObject, rage::datBitBuffer* msgBuffer, unsigned __int16* seqNum, bool sendImmediately)
 	{
-		if (g.self.safetypoint)
+		if (/*g.self.safetypoint &&*/ g.session.block_send_clone_sync_all)
 		{
 			return eAckCode::ACKCODE_FAIL;
 		}

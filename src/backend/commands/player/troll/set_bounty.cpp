@@ -18,4 +18,20 @@ namespace big
 
 	set_bounty g_bounty("bounty", "BOUNTY", "BOUNTY_DESC", 0);
 	bool_command g_anonymous_bounty("anonbounty", "BOUNTY_ANON", "BOUNTY_ANON_DESC", g.session.anonymous_bounty);
+
+	class win_bounty : player_command
+	{
+		using player_command::player_command;
+
+		virtual CommandAccessLevel get_access_level() override
+		{
+			return CommandAccessLevel::FRIENDLY;
+		}
+
+		virtual void execute(player_ptr player, const command_arguments& _args, const std::shared_ptr<command_context> ctx) override
+		{
+			troll::win_bounty_on_player(player, 10000, false);
+		}
+	};
+	win_bounty g_winbounty("winbounty", "WIN_BOUNTY", "WIN_BOUNTY_DESC", 0);
 }

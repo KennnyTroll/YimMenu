@@ -62,4 +62,21 @@ namespace big::blip
 		}
 		return nullptr;
 	}
+
+	inline rage::Blip_t* get_player_blip(std::string player_name)
+	{
+		for (int i = 0; i < 1500; i++)
+		{
+			auto blip = g_pointers->m_gta.m_blip_list->m_Blips[i].m_pBlip;
+			if (blip && (blip->m_message != NULL))
+			{
+				std::string s_blip_m_message = blip->m_message;
+				if (s_blip_m_message == player_name)
+				{	
+					return blip;
+				}
+			}
+		}
+		return nullptr;
+	}
 }

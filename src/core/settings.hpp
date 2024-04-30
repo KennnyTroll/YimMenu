@@ -126,6 +126,8 @@ namespace big
 			bool external_console = true;
 			bool window_hook = false;
 
+			bool base_address_GameBase = false;
+
 			NLOHMANN_DEFINE_TYPE_INTRUSIVE(debug, logs, external_console, window_hook)
 		} debug{};
 
@@ -450,6 +452,12 @@ namespace big
 			bool semi_godmode_all = false;
 			bool wanted_level_all = false;
 			bool vehicle_fix_all  = false;
+			bool pickup_gun_all   = false;
+			bool win_10k_bounty_all = false;
+
+			bool block_send_clone_sync_all = false;	
+			bool block_cad_receiv_custom_all = false;	
+		
 
 			bool show_cheating_message = false;
 			bool anonymous_bounty      = true;
@@ -906,6 +914,7 @@ namespace big
 			ImU32 button_color     = 2947901213;
 			ImU32 frame_color      = 2942518340;
 			float gui_scale        = 1.f;
+			float blip_size		   = 18.0f;
 
 			ImFont* font_title     = nullptr;
 			ImFont* font_sub_title = nullptr;

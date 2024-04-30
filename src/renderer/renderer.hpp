@@ -44,7 +44,13 @@ namespace big
 		void pre_reset();
 		void post_reset();
 
-		void wndproc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
+		void wndproc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);		
+
+		std::vector<std::pair<ID3D11ShaderResourceView*, std::string>> blip_P_textures;		
+		int blip_P_textures_number_total;
+		bool LoadTextureFromFile(const char* filename, ID3D11ShaderResourceView** out_srv, int* out_width, int* out_height);
+		bool LoadTextureFromFile_S(std::string& Image_Name_s , ID3D11ShaderResourceView** ID3D11ShaderResource_View);
+		bool LoadTextureFrom_Gif_Files_Folder(std::string& Imagegif_Folder_Name, std::vector<std::pair<ID3D11ShaderResourceView*, std::string>>& gif_W_textures, int* gif_textures_number_total);
 
 	private:
 		static void new_frame();

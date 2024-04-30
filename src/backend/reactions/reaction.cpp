@@ -39,6 +39,8 @@ namespace big
 
 		if (timeout)
 		{
+			player->block_explosions      = true;
+			player->block_wapons_damage   = true;
 			player->block_net_events   = true;
 			player->block_clone_sync   = true;
 			player->block_send_clone_sync = true;

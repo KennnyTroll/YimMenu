@@ -1193,13 +1193,21 @@ namespace big
 			{
 				const auto creation_node = (CVehicleCreationDataNode*)(node);
 
-				//if (g.self.safetypoint /*&& g_player_service->get_by_id(sender->m_player_id) == g_player_service->get_selected()*/)
-				//{
-				//	std::string mess = std::format("invalid vehicle model = 0x{:X}) FROM {}", creation_node->m_model, sender->get_name());
-				//	LOG(INFO) << mess.c_str();
-				//	notify::crash_blocked(sender, mess.c_str());
-				//	return true;
-				//}
+				if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
+				{
+					std::string mess = std::format("CVehicleCreationDataNode Vehicle model = 0x{:X}) | pop_type {} | random_seed {} | vehicle_status {} | max_health {} | creation_token {} | car_budget {} | needs_to_be_hotwired {} | tires_dont_burst {} => FROM {}",
+						creation_node->m_model,
+					    creation_node->m_pop_type,
+					    creation_node->m_random_seed,
+					    creation_node->m_vehicle_status,
+					    creation_node->m_max_health,
+					    creation_node->m_creation_token,
+					    creation_node->m_car_budget,
+					    creation_node->m_needs_to_be_hotwired,
+					    creation_node->m_tires_dont_burst,
+						sender->get_name());
+					LOG(INFO) << mess.c_str();
+				}
 				
 				if (protection::is_crash_vehicle(creation_node->m_model))
 				{
@@ -1216,20 +1224,28 @@ namespace big
 					}
 				}
 
-				veh_creation_model = creation_node->m_model;
+				if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
+					return true;	
+
+				veh_creation_model = creation_node->m_model;			
 
 				break;
 			}
 			case sync_node_id("CDoorCreationDataNode"):
 			{
 				const auto creation_node = (CDoorCreationDataNode*)(node);
-				if (g.self.safetypoint /*&& g_player_service->get_by_id(sender->m_player_id) == g_player_service->get_selected()*/)
+				if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
 				{
 					std::string mess =
-					    std::format("invalid crash_object door model = 0x{:X} FROM {}", creation_node->m_model, sender->get_name());
+					    std::format("CDoorCreationDataNode door object model = 0x{:X} | pos {} {} {} | is_script_door {} | m_player_wants_control {} => FROM {}",
+						creation_node->m_model,
+					    creation_node->m_pos.x,
+					    creation_node->m_pos.y,
+					    creation_node->m_pos.z,
+					    creation_node->m_is_script_door,
+					    creation_node->m_player_wants_control,
+						sender->get_name());
 					LOG(INFO) << mess.c_str();
-					notify::crash_blocked(sender, mess.c_str());
-					return true;
 				}
 				
 				if (protection::is_crash_object(creation_node->m_model))
@@ -1237,18 +1253,27 @@ namespace big
 					notify::crash_blocked(sender, "invalid door model");
 					return true;
 				}
+
+				if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
+					return true;	
+
 				break;
 			}
 			case sync_node_id("CPickupCreationDataNode"):
 			{
 				const auto creation_node = (CPickupCreationDataNode*)(node);
 
-				if (g.self.safetypoint /*&& g_player_service->get_by_id(sender->m_player_id) == g_player_service->get_selected()*/)
+				if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
 				{
-					std::string mess = std::format("invalid pickup = 0x{:X} FROM {}", creation_node->m_custom_model, sender->get_name());
+					std::string mess = std::format("PickupCreationDataNode pickup hash 0x{:X} | amount {} | model 0x{:X} | life_time {} | num_weapon_components {} | tint_index {} => FROM {}",
+					    creation_node->m_pickup_hash,					    
+					    creation_node->m_amount,					   
+					    creation_node->m_custom_model,
+					    creation_node->m_life_time,
+					    creation_node->m_num_weapon_components,
+					    creation_node->m_tint_index,
+					    sender->get_name());
 					LOG(INFO) << mess.c_str();
-					notify::crash_blocked(sender, mess.c_str());
-					return true;
 				}
 
 				if (creation_node->m_custom_model && protection::is_crash_object(creation_node->m_custom_model))
@@ -1263,9 +1288,21 @@ namespace big
 					if (!WEAPON::GET_WEAPON_COMPONENT_HUD_STATS(creation_node->m_weapon_component[i], (Any*)buffer)) // trying to save a pointer here
 					{
 						notify::crash_blocked(sender, "invalid pickup weapon component hash");
+
+						if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
+						{
+							std::string mess = std::format("PickupCreationDataNode INVALIDE weapon_component hash 0x{:X} => FROM {}",
+							    creation_node->m_weapon_component[i],
+							    sender->get_name());
+							LOG(INFO) << mess.c_str();
+						}
 						return true;
 					}
 				}
+
+				if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
+					return true;	
+
 				break;
 			}
 			case sync_node_id("CPhysicalAttachDataNode"):
@@ -1305,36 +1342,42 @@ namespace big
 			{
 				const auto creation_node = (CPedCreationDataNode*)(node);
 				
-
+				if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
+				{
+					std::string mes = std::format("PedCreationDataNode ped model = 0x{:X} | pop_type {} | random_seed {} | max_health {} | in_vehicle {} | vehicle_id {} | vehicle_seat {} | m_has_prop {} | m_prop_model 0x{:X}  | m_is_standing {} | m_is_respawn_object_id {} | m_is_respawn_flagged_for_removal {} | m_has_attr_damage_to_player {} | m_attribute_damage_to_player {} | m_voice_hash 0x{:X} => FROM {}",
+					    creation_node->m_model,
+					    creation_node->m_pop_type,
+					    creation_node->m_random_seed,
+					    creation_node->m_max_health,
+					    creation_node->m_in_vehicle,
+					    creation_node->m_vehicle_id,
+					    creation_node->m_vehicle_seat,
+					    creation_node->m_has_prop,
+					    creation_node->m_prop_model,
+					    creation_node->m_is_standing,
+					    creation_node->m_is_respawn_object_id,
+					    creation_node->m_is_respawn_flagged_for_removal,
+					    creation_node->m_has_attr_damage_to_player,					    
+						creation_node->m_attribute_damage_to_player,
+					    creation_node->m_voice_hash,
+					    sender->get_name());
+					LOG(INFO) << mes.c_str();
+				}
 
 				if (protection::is_crash_ped(creation_node->m_model))
 				{
-					if (g.self.safetypoint /* && g_player_service->get_by_id(sender->m_player_id) == g_player_service->get_selected()*/)
-					{
-						std::string mes =
-						    std::format("invalid ped model = 0x{:X} FROM {}", creation_node->m_model, sender->get_name());
-						LOG(INFO) << mes.c_str();
-						notify::crash_blocked(sender, mes.c_str());
-						return true;
-					}
-
 					notify::crash_blocked(sender, "invalid ped model");
 					return true;
 				}
 				else if (creation_node->m_has_prop && protection::is_crash_object(creation_node->m_prop_model))
 				{
-					if (g.self.safetypoint /* && g_player_service->get_by_id(sender->m_player_id) == g_player_service->get_selected()*/)
-					{
-						std::string mes =
-						    std::format("invalid ped prop model = 0x{:X} FROM {}", creation_node->m_prop_model, sender->get_name());
-						LOG(INFO) << mes.c_str();
-						notify::crash_blocked(sender, mes.c_str());
-						return true;
-					}
-
 					notify::crash_blocked(sender, "invalid ped prop model");
 					return true;
 				}
+
+				if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
+					return true;	
+
 				break;
 			}
 			case sync_node_id("CPedAttachDataNode"):
@@ -1360,40 +1403,62 @@ namespace big
 			{
 				const auto creation_node = (CObjectCreationDataNode*)(node);
 
-				//if (g.self.safetypoint /*&& g_player_service->get_by_id(sender->m_player_id) == g_player_service->get_selected()*/)
-				//{
-				//	std::string mess = std::format("invalid object model = 0x{:X} FROM {})", creation_node->m_model, sender->get_name());
-				//	LOG(INFO) << mess.c_str();
-				//	notify::crash_blocked(sender, mess.c_str());
-				//	return true;
-				//}
+				if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
+				{
+					std::string mess = std::format("ObjectCreationDataNode object model = 0x{:X} | position {} {} {} | m_created_by {} | m_script_grab_radius {} | m_frag_group_index {} | m_ownership_token {} | m_no_reassign {} | m_player_wants_control {} | m_has_init_physics {} | m_script_grabbed_from_world {} | m_has_frag_group {} | m_is_broken {} | m_has_exploded {} | m_keep_registered {} | unk_0169 {} | unk_016A {} | unk_016B {} => FROM {}",
+						creation_node->m_model,
+					    creation_node->m_object_position.x,
+					    creation_node->m_object_position.y,
+					    creation_node->m_object_position.z,
+					    creation_node->m_created_by,
+						creation_node->m_script_grab_radius,
+					    creation_node->m_frag_group_index,
+					    creation_node->m_ownership_token,
+					    creation_node->m_no_reassign,
+					    creation_node->m_player_wants_control,
+					    creation_node->m_has_init_physics,
+					    creation_node->m_script_grabbed_from_world,
+					    creation_node->m_has_frag_group,
+					    creation_node->m_is_broken,
+					    creation_node->m_has_exploded,
+					    creation_node->m_keep_registered,
+					    creation_node->unk_0169,
+					    creation_node->unk_016A,
+					    creation_node->unk_016B,
+						sender->get_name());
+					LOG(INFO) << mess.c_str();
+				}
 
 				if (protection::is_crash_object(creation_node->m_model))
 				{
 					notify::crash_blocked(sender, "invalid object model");
 					return true;
 				}
+
+				if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
+					return true;	
+
 				break;
 			}
 			case sync_node_id("CPlayerAppearanceDataNode"):
 			{
 				const auto player_appearance_node = (CPlayerAppearanceDataNode*)(node);
-
-				//frezze player ??
-				//if (g.self.safetypoint /*&& g_player_service->get_by_id(sender->m_player_id) == g_player_service->get_selected()*/)
-				//{
-				//	std::string mess =
-				//	    std::format("invalid ped model = 0x{:X} FROM {})", player_appearance_node->m_model_hash, sender->get_name());
-				//	LOG(INFO) << mess.c_str();
-				//	notify::crash_blocked(sender, mess.c_str());
-				//	return true;
-				//}
+				
+				if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
+				{
+					std::string mess =
+					    std::format("PlayerAppearanceDataNode player model = 0x{:X} FROM {})", player_appearance_node->m_model_hash, sender->get_name());
+					LOG(INFO) << mess.c_str();
+				}
 
 				if (protection::is_crash_ped(player_appearance_node->m_model_hash))
 				{
 					notify::crash_blocked(sender, "invalid player model (appearance node)");
 					return true;
 				}
+
+				if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
+					return true;	
 
 				player_appearance_node->m_mobile_phone_gesture_active = false; // There is a crash with the anim dict index here, but it's difficult to detect. Phone gestures are unused and can be safely disabled
 
@@ -1404,19 +1469,21 @@ namespace big
 			{
 				const auto player_creation_node = (CPlayerCreationDataNode*)(node);
 
-				//if (g.self.safetypoint /*&& g_player_service->get_by_id(sender->m_player_id) == g_player_service->get_selected()*/)
-				//{
-				//	std::string mess = std::format("invalid ped model = 0x{:X} FROM   {}", player_creation_node->m_model, sender->get_name());
-				//	LOG(INFO) << mess.c_str();
-				//	notify::crash_blocked(sender, mess.c_str());
-				//	return true;
-				//}
+				if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
+				{
+					std::string mess = std::format("PlayerCreationDataNode player model = 0x{:X} FROM {}", player_creation_node->m_model, sender->get_name());
+					LOG(INFO) << mess.c_str();
+				}
 
 				if (protection::is_crash_ped(player_creation_node->m_model))
 				{
 					notify::crash_blocked(sender, "invalid player model (creation node)");
 					return true;
 				}
+
+				if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
+					return true;	
+
 				check_player_model(sender_plyr, player_creation_node->m_model);
 				break;
 			}
@@ -1621,20 +1688,32 @@ namespace big
 				}
 				break;
 			}
+
+
 			case sync_node_id("CVehicleControlDataNode"):
 			{
 				const auto control_node = (CVehicleControlDataNode*)(node);
+
 				if (control_node->m_is_submarine_car)
 				{
 					if (auto vehicle = (CVehicle*)object->GetGameObject())
 					{
 						if (auto model_info = static_cast<CVehicleModelInfo*>(vehicle->m_model_info))
 						{
+							if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
+							{
+								std::string mess = std::format("CVehicleControlDataNode object->GetGameObject Vehicle type = {} FROM {}", (int)model_info->m_vehicle_type, sender->get_name());
+								LOG(INFO) << mess.c_str();
+							}
+
 							if (model_info->m_vehicle_type != eVehicleType::VEHICLE_TYPE_SUBMARINECAR)
 							{
 								notify::crash_blocked(sender, "submarine car (sync)");
 								return true;
 							}
+
+							if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
+								return true;	
 						}
 					}
 					else if (veh_creation_model != std::nullopt) 
@@ -1642,17 +1721,57 @@ namespace big
 						// object hasn't been created yet, but we have the model hash from the creation node
 						if (auto model_info = model_info::get_vehicle_model(veh_creation_model.value()))
 						{
+							if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
+							{
+								std::string mess = std::format("CVehicleControlDataNode veh_creation_model Vehicle type = {} | veh_creation_model 0x{:X} FROM {}",
+								    (int)model_info->m_vehicle_type,
+								    veh_creation_model.value(),
+								    sender->get_name());
+								LOG(INFO) << mess.c_str();
+							}
+
 							if (model_info->m_vehicle_type != eVehicleType::VEHICLE_TYPE_SUBMARINECAR)
 							{
+		
+
 								notify::crash_blocked(sender, "submarine car (creation)");
 								return true;
 							}
+							
+							if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
+								return true;	
 						}
 					}
 					else // should (probably) never reach here
 					{
 						control_node->m_is_submarine_car = false; // safe
 					}
+				}
+				else if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
+				{
+					if (auto vehicle = (CVehicle*)object->GetGameObject())					
+						if (auto model_info = static_cast<CVehicleModelInfo*>(vehicle->m_model_info))
+						{
+							std::string mess = std::format("CVehicleControlDataNode object->GetGameObject Vehicle type = {} FROM {}",
+							    (int)model_info->m_vehicle_type,
+							    sender->get_name());
+
+							LOG(INFO) << mess.c_str();
+						}
+
+					if (veh_creation_model != std::nullopt)
+						// object hasn't been created yet, but we have the model hash from the creation node
+						if (auto model_info = model_info::get_vehicle_model(veh_creation_model.value()))
+						{
+							std::string mess = std::format("CVehicleControlDataNode veh_creation_model Vehicle type = {} | veh_creation_model 0x{:X} FROM {}",
+							    (int)model_info->m_vehicle_type,
+							    veh_creation_model.value(),
+							    sender->get_name());
+							LOG(INFO) << mess.c_str();
+						}
+
+					if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
+						return true;	
 				}
 
 				break;

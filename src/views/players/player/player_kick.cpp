@@ -2,6 +2,8 @@
 #include "util/toxic.hpp"
 #include "views/view.hpp"
 
+#include "util/troll.hpp"
+
 namespace big
 {
 	void view::player_kick()
@@ -38,6 +40,16 @@ namespace big
 			components::player_command_button<"endkick">(g_player_service->get_selected());
 			ImGui::SameLine();
 			components::player_command_button<"desync">(g_player_service->get_selected());
+
+			if (ImGui::Button("freeze game"))
+			{
+				troll::crash_invalid_model_hash(g_player_service->get_selected(), g_player_service->get_selected()->id());
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Tazz player"))
+			{
+				troll::tazze_player(g_player_service->get_selected());
+			}	
 
 			ImGui::EndListBox();
 		}

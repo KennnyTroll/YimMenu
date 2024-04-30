@@ -393,6 +393,21 @@ namespace big
 
 		auto plyr = g_player_service->get_by_id(source_player->m_player_id);
 
+		//if (plyr && plyr->log_net_events)
+		//{
+		//	uint8_t source_player_id = source_player->m_player_id;
+		//	uint8_t target_player_id = target_player->m_player_id;
+		//	std::string message("Received Event :\n");
+		//	message += std::format("\tEvent Name: {}\n", event_name);
+		//	message += std::format("\tEvent Id: {}\n", event_id);
+		//	message += std::format("\tEvent Index: {}\n", event_index);
+		//	message += std::format("\tEvent Bitset: {}\n", event_handled_bitset);
+		//	message += std::format("\tBuffer Size: {}\n", buffer_size);
+		//	message += std::format("\tFrom Player: {} ({})\n", plyr->get_name(), source_player_id);
+		//	message += std::format("\tTo Player Id: {}\n", target_player_id);
+		//	LOG(INFO) << message.c_str();
+		//}
+
 		if (plyr && plyr->block_net_events)
 		{
 			g_pointers->m_gta.m_send_event_ack(event_manager, source_player, target_player, event_index, event_handled_bitset);
@@ -642,7 +657,7 @@ namespace big
 			break;
 		}
 		case eNetworkEvents::GIVE_CONTROL_EVENT:
-		{
+		{			
 			uint32_t timestamp                = buffer->Read<uint32_t>(32);
 			int count                         = buffer->Read<int>(2);
 			bool all_objects_migrate_together = buffer->Read<bool>(1);
@@ -732,6 +747,12 @@ namespace big
 		}
 		case eNetworkEvents::WEAPON_DAMAGE_EVENT:
 		{
+			if (plyr && plyr->block_wapons_damage)
+			{
+				//g_pointers->m_gta.m_send_event_ack(event_manager, source_player, target_player, event_index, event_handled_bitset);
+				return;
+			}
+
 			if (scan_weapon_damage_event(event_manager, source_player, target_player, event_index, event_handled_bitset, buffer))
 			{
 				return;

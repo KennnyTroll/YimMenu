@@ -116,7 +116,7 @@ namespace big
 			components::button("SET"_T, [] {
 				troll::set_bounty_on_player(g_player_service->get_selected(), bounty_value, g.session.anonymous_bounty);
 			});
-			ImGui::PopID();
+			ImGui::PopID();	
 			ImGui::EndListBox();
 		}
 		ImGui::EndGroup();

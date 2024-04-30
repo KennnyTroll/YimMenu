@@ -40,6 +40,29 @@
 
 namespace big
 {
+	void Get_Menu_DLL_Path(const HMODULE& hmod)
+	{
+		static char g_logFilePath[MAX_PATH];
+		memset(g_logFilePath, 0, sizeof(g_logFilePath));
+		if (GetModuleFileNameA(hmod, g_logFilePath, MAX_PATH) != 0)
+		{
+			size_t slash = -1;
+
+			for (size_t i = 0; i < strlen(g_logFilePath); i++)
+			{
+				if (g_logFilePath[i] == '/' || g_logFilePath[i] == '\\')
+				{
+					slash = i;
+				}
+			}
+			if (slash != -1)
+			{
+				g_logFilePath[slash + 1] = '\0';
+				strcpy_s(menu_DLL_Path, g_logFilePath);
+			}
+		}
+	}
+
 	bool disable_anticheat_skeleton()
 	{
 		bool patched = false;
@@ -137,6 +160,7 @@ BOOL APIENTRY DllMain(HMODULE hmod, DWORD reason, PVOID)
 	{
 		DisableThreadLibraryCalls(hmod);
 		g_hmodule     = hmod;
+		Get_Menu_DLL_Path(hmod);
 		g_main_thread = CreateThread(
 		    nullptr,
 		    0,

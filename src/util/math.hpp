@@ -63,4 +63,51 @@ namespace big::math
 		SHAPETEST::GET_SHAPE_TEST_RESULT(ray, &hit, &end_coords, &surface_normal, &hit_entity);
 		return end_coords;
 	}
+
+	inline bool ray_cast_hitCords(Vector3* endcoor, Vector3 startCoords, Vector3 dir, Entity ent_to_ignore = 0)
+	{
+		Entity ent;
+		BOOL hit;
+		Vector3 surfaceNormal;
+
+		Vector3 camCoords = CAM::GET_GAMEPLAY_CAM_COORD();
+		//Vector3 dir       = math::rotation_to_direction(CAM::GET_GAMEPLAY_CAM_ROT(2));
+		Vector3 farCoords;
+
+		farCoords.x = startCoords.x + dir.x * 1000;
+		farCoords.y = startCoords.y + dir.y * 1000;
+		farCoords.z = startCoords.z + dir.z * 1000;
+
+		int ray = SHAPETEST::START_EXPENSIVE_SYNCHRONOUS_SHAPE_TEST_LOS_PROBE(startCoords.x,
+		    startCoords.y,
+		    startCoords.z,
+		    farCoords.x,
+		    farCoords.y,
+		    farCoords.z,
+		    -1,
+		    ent_to_ignore,
+		    7);
+		SHAPETEST::GET_SHAPE_TEST_RESULT(ray, &hit, endcoor, &surfaceNormal, &ent);
+
+		return (bool)hit;
+	}
+
+	inline Vector3 VecteurDirection(const Vector3& start, const Vector3& end)
+	{
+		Vector3 direction;
+		direction.x = end.x - start.x;
+		direction.y = end.y - start.y;
+		direction.z = end.z - start.z;
+		return direction;
+	}
+
+	inline Vector3 normaliserVecteur(const Vector3& v)
+	{
+		float magnitude = std::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+		Vector3 normalisedVector;
+		normalisedVector.x = v.x / magnitude;
+		normalisedVector.y = v.y / magnitude;
+		normalisedVector.z = v.z / magnitude;
+		return normalisedVector;
+	}
 }

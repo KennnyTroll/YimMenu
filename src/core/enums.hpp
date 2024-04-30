@@ -153,6 +153,7 @@ namespace big
 
 	enum class eRemoteEvent
 	{
+		WinBounty = 2098360921,
 		Bounty   = 1517551547, // (137, "FM_TXT_BNTY0", iVar1, PLAYER::GET_PLAYER_NAME(Var2.f_1), "", 5000, Var2.f_6);
 		CeoBan   = 1531565154, // mpply_vipgameplaydisabledtimer
 		CeoKick  = -11681548,

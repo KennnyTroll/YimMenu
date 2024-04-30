@@ -242,7 +242,9 @@ namespace big
 		if (ImGui::BeginListBox("##globals", get_listbox_dimensions()))
 		{
 			static int global_wanted_level = 0;
-
+			
+			ImGui::Checkbox("Block send clone sync all", &g.session.block_send_clone_sync_all);
+			ImGui::Checkbox("Block CAD receiv custom all", &g.session.block_cad_receiv_custom_all);
 			ImGui::Checkbox("OFF_THE_RADAR"_T.data(), &g.session.off_radar_all);
 			ImGui::Checkbox("NEVER_WANTED"_T.data(), &g.session.never_wanted_all);
 			ImGui::Checkbox("SEMI_GODMODE"_T.data(), &g.session.semi_godmode_all);
@@ -252,6 +254,8 @@ namespace big
 			ImGui::Checkbox("DISABLE_PEDS"_T.data(), &g.session.disable_peds);
 			ImGui::Checkbox("DISABLE_TRAFFIC"_T.data(), &g.session.disable_traffic);
 			ImGui::Checkbox("FORCE_THUNDER"_T.data(), &g.session.force_thunder);
+			ImGui::Checkbox("PICKUP_POINT", &g.session.pickup_gun_all);
+			ImGui::Checkbox("Win 10k Bounty", &g.session.win_10k_bounty_all);
 
 			components::small_text("WANTED_LVL"_T);
 			ImGui::SetNextItemWidth(150);

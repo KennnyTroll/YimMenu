@@ -1,6 +1,10 @@
 #include "services/gui/gui_service.hpp"
 #include "views/view.hpp"
 
+#include "core/scr_globals.hpp"
+#include <script/globals/GPBD_FM.hpp>
+#include <script/globals/GPBD_FM_3.hpp>
+
 namespace big
 {
 	void view::view_player()
@@ -37,7 +41,19 @@ namespace big
 			{
 				name_appendage += std::format(" [{}]", "TRUST"_T);
 			}
-			strcpy(player_tab.name, std::format("{} ({}){}", current_player->get_name(), current_player->id(), name_appendage).c_str());
+
+			auto& stats     = scr_globals::gpbd_fm_1.as<GPBD_FM*>()->Entries[current_player->id()].PlayerStats;
+			//auto& boss_goon = scr_globals::gpbd_fm_3.as<GPBD_FM_3*>()->Entries[current_player->id()].BossGoon;
+			const auto money  = reinterpret_cast<uint64_t&>(stats.Money);
+			const auto wallet = reinterpret_cast<uint64_t&>(stats.WalletBalance);			
+
+			//ImGui::Text(std::format("{}: {}", "PLAYER_INFO_WALLET"_T, wallet).c_str());
+			//ImGui::Text(std::format("{}: {}", "PLAYER_INFO_BANK"_T, money - wallet).c_str());
+			//ImGui::Text(std::format("{}: {}", "PLAYER_INFO_TOTAL_MONEY"_T, money).c_str());
+
+			strcpy(player_tab.name,
+			    std::format("{} ({}){} {} {}", current_player->get_name(), current_player->id(), name_appendage, /*wallet, money - wallet,*/ money, wallet)
+			        .c_str());
 
 			view::player_info();
 			ImGui::SameLine();

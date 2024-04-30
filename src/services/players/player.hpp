@@ -68,6 +68,24 @@ namespace big
 		bool ragdoll_loop    = false;
 		bool rotate_cam_loop = false;
 
+		bool pickup_gun = false;
+		std::chrono::time_point<std::chrono::steady_clock> pickup_gun_time_now;
+		std::chrono::time_point<std::chrono::steady_clock> pickup_gun_last_time;
+		std::chrono::milliseconds pickup_gun_elapsed_time_in_ms;
+
+		bool spend_holdup = false;
+		std::chrono::time_point<std::chrono::steady_clock> spend_holdup_time_now;
+		std::chrono::time_point<std::chrono::steady_clock> spend_holdup_last_time;
+		std::chrono::milliseconds spend_holdup_elapsed_time_in_ms;
+
+		bool win_10k_bounty = false;
+		long long last_bounty_time_save;
+
+		bool win_ceo_payement = false;
+		std::chrono::time_point<std::chrono::steady_clock> win_ceo_time_now;
+		std::chrono::time_point<std::chrono::steady_clock> win_ceo_last_time;
+		std::chrono::milliseconds win_ceo_elapsed_time_in_ms;
+
 		rate_limiter m_host_migration_rate_limit{2s, 15};
 		rate_limiter m_play_sound_rate_limit{1s, 10};
 		rate_limiter m_invites_rate_limit{10s, 2};
@@ -92,12 +110,14 @@ namespace big
 		uint32_t num_time_syncs_sent = 9999;
 
 		bool block_explosions   = false;
+		bool block_wapons_damage = false;
 		bool block_clone_create = false;
 		bool block_clone_sync   = false;
 		bool block_send_clone_sync   = false;
 		bool block_net_events   = false;
 		bool log_clones         = false;
 		bool log_network_events = false;
+		bool log_test_events      = false;
 
 		int spectating_player = -1;
 
