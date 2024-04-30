@@ -378,36 +378,20 @@ namespace big
 
 	void hooks::received_event(rage::netEventMgr* event_manager, CNetGamePlayer* source_player, CNetGamePlayer* target_player, uint16_t event_id, int event_index, int event_handled_bitset, int buffer_size, rage::datBitBuffer* buffer)
 	{
-		if (event_id > 91u)
+		if (event_id > 91u) [[unlikely]]
 		{
 			g_pointers->m_gta.m_send_event_ack(event_manager, source_player, target_player, event_index, event_handled_bitset);
 			return;
 		}
 
 		const auto event_name = *(char**)((DWORD64)event_manager + 8i64 * event_id + 243376);
-		if (event_name == nullptr || source_player == nullptr || source_player->m_player_id < 0 || source_player->m_player_id >= 32)
+		if (event_name == nullptr || source_player == nullptr || source_player->m_player_id < 0 || source_player->m_player_id >= 32) [[unlikely]]
 		{
 			g_pointers->m_gta.m_send_event_ack(event_manager, source_player, target_player, event_index, event_handled_bitset);
 			return;
 		}
 
 		auto plyr = g_player_service->get_by_id(source_player->m_player_id);
-
-		//if (plyr && plyr->log_net_events)
-		//{
-		//	uint8_t source_player_id = source_player->m_player_id;
-		//	uint8_t target_player_id = target_player->m_player_id;
-		//	std::string message("Received Event :\n");
-		//	message += std::format("\tEvent Name: {}\n", event_name);
-		//	message += std::format("\tEvent Id: {}\n", event_id);
-		//	message += std::format("\tEvent Index: {}\n", event_index);
-		//	message += std::format("\tEvent Bitset: {}\n", event_handled_bitset);
-		//	message += std::format("\tBuffer Size: {}\n", buffer_size);
-		//	message += std::format("\tFrom Player: {} ({})\n", plyr->get_name(), source_player_id);
-		//	message += std::format("\tTo Player Id: {}\n", target_player_id);
-		//	LOG(INFO) << message.c_str();
-		//}
-
 		if (plyr && plyr->block_net_events)
 		{
 			g_pointers->m_gta.m_send_event_ack(event_manager, source_player, target_player, event_index, event_handled_bitset);
