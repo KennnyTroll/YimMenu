@@ -67,5 +67,7 @@ namespace big
 			ImGui::SameLine();
 			view::player_vehicle();
 		}
+		else
+			g_gui_service->set_selected(tabs::NONE);
 	}
 }
