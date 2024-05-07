@@ -27,6 +27,7 @@ namespace big
 	    {big::CustomWeapon::VEHICLE_GUN, "BACKEND_LOOPED_WEAPONS_VEHICLE_GUN"},
 	    {big::CustomWeapon::TP_GUN, "VIEW_SELF_WEAPONS_TP_GUN"},
 	    {big::CustomWeapon::PAINT_GUN, "VIEW_SELF_WEAPONS_PAINT_GUN"},
+	    {big::CustomWeapon::INFO_GUN, "VIEW_SELF_WEAPONS_INFO_GUN"}
 	});
 
 	void view::weapons()

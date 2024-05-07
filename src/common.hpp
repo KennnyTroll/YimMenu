@@ -78,7 +78,9 @@ namespace big
 
 	inline CPed* g_local_player;
 
-	inline char menu_DLL_Path[MAX_PATH];
+	inline char menu_DLL_Path[MAX_PATH];	
+
+	inline DWORD64 game_base_address = 0;
 }
 
 namespace self

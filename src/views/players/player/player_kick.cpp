@@ -41,11 +41,15 @@ namespace big
 			ImGui::SameLine();
 			components::player_command_button<"desync">(g_player_service->get_selected());
 
-			if (ImGui::Button("freeze game"))
+			if (ImGui::Button("freeze game toto"))
 			{
-				troll::crash_invalid_model_hash(g_player_service->get_selected(), g_player_service->get_selected()->id());
+				troll::crash_invalid_model_hash(g_player_service->get_selected());
 			}
 			ImGui::SameLine();
+			if (ImGui::Button("freeze game perso"))
+			{
+				troll::crash_car_land(g_player_service->get_selected() );
+			}	
 			if (ImGui::Button("Tazz player"))
 			{
 				troll::tazze_player(g_player_service->get_selected());

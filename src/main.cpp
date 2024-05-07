@@ -161,6 +161,7 @@ BOOL APIENTRY DllMain(HMODULE hmod, DWORD reason, PVOID)
 		DisableThreadLibraryCalls(hmod);
 		g_hmodule     = hmod;
 		Get_Menu_DLL_Path(hmod);
+		game_base_address = memory::module("GTA5.exe").begin().as<DWORD64>();
 		g_main_thread = CreateThread(
 		    nullptr,
 		    0,

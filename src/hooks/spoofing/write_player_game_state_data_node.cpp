@@ -42,5 +42,11 @@ namespace big
 			node->m_is_spectating     = false;
 			node->m_spectating_net_id = 0;
 		}
+
+		if (g.spoofing.spoof_super_jump)
+		{
+			node->m_super_jump        = false;
+		}
+		//m_seatbelt
 	}
 }

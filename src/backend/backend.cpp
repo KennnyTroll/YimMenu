@@ -88,6 +88,7 @@ namespace big
 			looped::weapons_repair_gun();
 			looped::weapons_steal_vehicle_gun();
 			looped::weapons_vehicle_gun();
+			looped::entity_info_gun();
 			looped::weapons_c4_limit();
 			looped::weapons_do_persist_weapons();
 			looped::weapons_do_weapon_hotkeys();

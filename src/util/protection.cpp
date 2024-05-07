@@ -19,6 +19,49 @@ namespace big::protection
 		return false;
 	}
 
+	//static uint32_t cages_objects[] = 
+	//{
+	//		2063962179, 959275690, 1396140175, 2968924808, 2931248133, 1098812088, 379820688, 1692612370,
+	//		2946368461, 1082648418, 3561133533, 3825864590, 3357950520, 4121926986, 109264625, 3955926036, 1181661112,
+	//		"prop_container_01a"_J, joaat("prop_container_01b"), joaat("prop_container_01c"),
+	//		joaat("prop_container_01d"), joaat("prop_container_01e"), joaat("prop_container_01f"),
+	//		joaat("prop_container_01g"), joaat("prop_container_01h"), joaat("prop_container_01mb"),
+	//		joaat("prop_container_02a"), joaat("prop_container_03a"), joaat("prop_container_03b"),
+	//		joaat("prop_container_03mb"), joaat("prop_container_03_ld"), joaat("prop_container_04a"),
+	//		joaat("prop_container_04mb"), joaat("prop_container_05mb"), joaat("prop_container_door_mb_l"),
+	//		joaat("prop_container_door_mb_r"), joaat("prop_container_hole"), joaat("prop_container_ld"),
+	//		joaat("prop_container_ld2"), joaat("prop_container_old1"), joaat("prop_container_ld"),
+	//		joaat("prop_container_ld2"), joaat("prop_container_old1"), joaat("prop_dog_cage_02"),
+	//		joaat("prop_dog_cage_01"), joaat("prop_dog_cage_02"), joaat("prop_conslift_cage"),
+	//		joaat("prop_rub_cage01a"), joaat("prop_gold_cont_01b"), joaat("prop_gold_trolly"),
+	//		joaat("prop_gold_trolly_full"), joaat("prop_gold_trolly_strap_01"), joaat("prop_cctv_cont_01"),
+	//		joaat("prop_cctv_cont_03"), joaat("prop_cctv_cont_04"), joaat("prop_cctv_cont_05"),
+	//		joaat("prop_cctv_cont_06"), joaat("prop_container_01a"), joaat("prop_container_01b"),
+	//		joaat("prop_container_01c"), joaat("prop_container_01d"), joaat("prop_container_01e"),
+	//		joaat("prop_container_01f"), joaat("prop_container_01g"), joaat("prop_container_01h"),
+	//		joaat("prop_container_01mb"), joaat("prop_container_02a"), joaat("prop_container_03a"),
+	//		joaat("prop_container_03b"), joaat("prop_container_03mb"), joaat("prop_container_03_ld"),
+	//		joaat("prop_container_04a"), joaat("prop_container_04mb"), joaat("prop_container_05mb"),
+	//		joaat("prop_container_door_mb_l"), joaat("prop_container_door_mb_r"), joaat("prop_container_hole"),
+	//		joaat("prop_container_ld"), joaat("prop_container_ld2"), joaat("prop_container_old1"),
+	//		joaat("prop_contnr_pile_01a"), joaat("prop_controller_01"), joaat("prop_control_rm_door_01"),
+	//		joaat("prop_cont_chiller_01"), joaat("prop_container_hole"), joaat("prop_cont_chiller_01"),
+	//		0xC6C3242D, joaat("prop_beach_fire"), 0xA2023E64, 2799454049, 3482883616, 564151899, 710268902,
+	//		3284981583, 3500568834, 1060884015, 4248442390, 4256736313, 2693815128, 1925435073, 682074297,
+	//		3763106032, 621481054, 2908189926, 3763623269, 1369811908, 1098122770
+	//};
+	//bool is_cage_object(rage::joaat_t model)
+	//{
+	//	if (!model_info::get_model(model))
+	//		return false;
+	//	if (!model_info::is_model_of_type(model, eModelType::Object, eModelType::Time, eModelType::Weapon, eModelType::Destructable, eModelType::WorldObject, eModelType::Sprinkler, eModelType::Unk65, eModelType::Plant, eModelType::LOD, eModelType::Unk132, eModelType::Building))
+	//		return true;
+	//	for (auto iterator : cages_objects)
+	//		if (iterator == model)
+	//			return true;
+	//	return false;
+	//}
+
 	constexpr auto crash_peds = {"slod_human"_J, "slod_small_quadped"_J, "slod_large_quadped"_J, "p_franklin_02"_J};//0x3F039CBA ,0x2D7030F3 ,0x856CFB02 ,0xAF10BD56 
 	bool is_crash_ped(rage::joaat_t model)
 	{

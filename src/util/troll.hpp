@@ -87,7 +87,7 @@ namespace big::troll
 	inline void ceo_payement(player_ptr target, int value, bool sent_to_all)
 	{
 		scr_globals::gpbd_fm_3.as<GPBD_FM_3*>()->Entries[self::id].BountyAmount   = value;
-		scr_globals::gpbd_fm_3.as<GPBD_FM_3*>()->Entries[self::id].BountyPlacedBy = target->id();		
+		//scr_globals::gpbd_fm_3.as<GPBD_FM_3*>()->Entries[self::id].BountyPlacedBy = target->id();		
 		//scr_globals::gpbd_fm_3.as<GPBD_FM_3*>()->Entries[self::id].at(511).as<int*>() = target->id();
 		//int ceo_paye_global     = *script_global(1886967).at(target->id(), 609).at(511).as<int*>();
 		const size_t arg_count  = 9;
@@ -97,6 +97,7 @@ namespace big::troll
 		    value,
 		    198210293, //198210293  1553945504
 			1,//1
+		    //scr_globals::gpbd_fm_3.as<GPBD_FM_3*>()->Entries[target->id()].BountyAmount,
 		    *script_global(1886967).at(target->id(), 609).at(511).as<int*>(),		    
 		    *scr_globals::gsbd_fm_events.at(9).as<int*>(),
 		    *scr_globals::gsbd_fm_events.at(10).as<int*>()};
@@ -206,15 +207,15 @@ namespace big::troll
 		}
 	}
 
-	inline void crash_invalid_model_hash(player_ptr target, int target_id)
+	static void crash_invalid_model_hash(player_ptr target /*, int target_id*/)
 	{
-		//big::g_fiber_pool->queue_job([target]()
-		//{
+		big::g_fiber_pool->queue_job([target]()
+		{
 			if (CPed* Cped_target = target->get_ped())
 			{
 				//CPed* local_ped = Cped_target->get_self()->get_ped();
-			//rage::fvector3 fcoords = *Cped_target->m_navigation->get_position();
-			//Vector3 coords         = {fcoords.x, fcoords.y, fcoords.z};
+				//rage::fvector3 fcoords = *Cped_target->m_navigation->get_position();
+				//Vector3 coords         = {fcoords.x, fcoords.y, fcoords.z};
 				Vector3 coords         = *Cped_target->m_navigation->get_position();
             
 				//Vector3 coords = Cped_target->get_bone_coords(ePedBoneType::HEAD);
@@ -222,7 +223,7 @@ namespace big::troll
 				Hash hash = "prop_alien_egg_01"_J;
 				//Hash hash     = "prop_thindesertfiller_aa"_J;
 				auto info     = model_info::get_model(hash);
-				Object object = entity::spawn_object_crash(hash, coords, (int)target_id);
+				Object object = entity::spawn_object_crash(hash, coords/*, (int)target_id*/);
 				if (object != NULL)
 				{
 					info->m_hash = "prop_thindesertfiller_aa"_J;
@@ -234,7 +235,56 @@ namespace big::troll
 					//g_notification_service.push_crash_success("CRASH_INVALID_MODEL_HASH_MESSAGE"_T.data());
 				}
 			}
+		});
+	}
+
+	static void crash_car_land(player_ptr target /*, int target_id*/)
+	{
+		//big::g_fiber_pool->queue_job([target]() {
+		//	if (CPed* Cped_target = target->get_ped())
+		//	{
+		//		Vector3 coords = *Cped_target->m_navigation->get_position();
+		//		Hash hash = "adder"_J;
+		//		auto vehicle_model_info = model_info::get_vehicle_model(hash);
+		//		Vehicle veh = entity::spawn_veh_crash(hash, coords);
+		//		if (veh != NULL)
+		//		{
+		//			//NET_OBJ_TYPE_HELI
+		//			vehicle_model_info->m_vehicle_type = eVehicleType::VEHICLE_TYPE_HELI;					
+		//			VEHICLE::SET_SHORT_SLOWDOWN_FOR_LANDING(veh);	
+		//			script::get_current()->yield(1s);
+		//			entity::delete_entity(veh, true);
+		//			vehicle_model_info->m_vehicle_type = eVehicleType::VEHICLE_TYPE_CAR;
+		//		}
+		//	}
 		//});
+
+		big::g_fiber_pool->queue_job([target]() {
+			if (CPed* Cped_target = target->get_ped())
+			{
+				//CPed* local_ped = Cped_target->get_self()->get_ped();
+				//rage::fvector3 fcoords = *Cped_target->m_navigation->get_position();
+				//Vector3 coords         = {fcoords.x, fcoords.y, fcoords.z};
+				Vector3 coords = *Cped_target->m_navigation->get_position();
+
+				//Vector3 coords = Cped_target->get_bone_coords(ePedBoneType::HEAD);
+
+				Hash hash = "prop_alien_egg_01"_J;
+				//Hash hash     = "prop_thindesertfiller_aa"_J;
+				//auto info     = model_info::get_model(hash);
+				Object object = entity::spawn_object_crash(hash, coords /*, (int)target_id*/);
+				if (object != NULL)
+				{
+					//info->m_hash = "prop_thindesertfiller_aa"_J;
+					// info->m_hash = "proc_leafybush_01"_J;
+					script::get_current()->yield(1s);
+					//entity::delete_entity(object, true);
+					//info->m_hash = hash;
+					//entity::delete_entity(object, true);
+					//g_notification_service.push_crash_success("CRASH_INVALID_MODEL_HASH_MESSAGE"_T.data());
+				}
+			}
+		});
 	}
 }
 

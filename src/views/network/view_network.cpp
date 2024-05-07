@@ -226,6 +226,8 @@ namespace big
 
 					ImGui::EndCombo();
 				}
+
+				ImGui::Checkbox("Gifted Vehicule For Player", &g.spawn_vehicle.spawn_gift_for_player);
 			}
 
 			ImGui::EndListBox();
@@ -244,7 +246,7 @@ namespace big
 			static int global_wanted_level = 0;
 			
 			ImGui::Checkbox("Block send clone sync all", &g.session.block_send_clone_sync_all);
-			ImGui::Checkbox("Block CAD receiv custom all", &g.session.block_cad_receiv_custom_all);
+			ImGui::Checkbox("Block receiv CAD all", &g.session.block_receiv_cad_all);
 			ImGui::Checkbox("OFF_THE_RADAR"_T.data(), &g.session.off_radar_all);
 			ImGui::Checkbox("NEVER_WANTED"_T.data(), &g.session.never_wanted_all);
 			ImGui::Checkbox("SEMI_GODMODE"_T.data(), &g.session.semi_godmode_all);

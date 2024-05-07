@@ -50,7 +50,7 @@ namespace big
 			ENTITY::FREEZE_ENTITY_POSITION(self::ped, false);
 			
 			g.session.block_send_clone_sync_all = true;
-			g.session.block_cad_receiv_custom_all = true;
+			g.session.block_receiv_cad_all = true;
 		}
 
 		virtual void on_tick() override
@@ -77,7 +77,7 @@ namespace big
 			savedpose.z = savedpose.z - 1.0f;
 			teleport::to_coords(savedpose);
 
-			//g.session.block_send_clone_sync_all = true;
+			g.session.block_receiv_cad_all = false;
 		}
 	};
 	teleport_to_safetypoint g_teleport_to_safetypoint("safetypointtp", "teleport to safety point", "props drop crash teleport to safety point for", g.self.safetypoint);

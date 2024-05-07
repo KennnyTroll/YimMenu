@@ -43,13 +43,31 @@ namespace big::vehicle
 		return ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(ped, 0.f, y_offset, 0.f);
 	}
 
+	//void set_mp_bitset(Vehicle veh)
+	//{
+	//	DECORATOR::DECOR_SET_INT(veh, "MPBitset", 0);
+	//	auto networkId = NETWORK::VEH_TO_NET(veh);
+	//	self::spawned_vehicles.insert(networkId);
+	//	if (NETWORK::NETWORK_GET_ENTITY_IS_NETWORKED(veh))
+	//		NETWORK::SET_NETWORK_ID_EXISTS_ON_ALL_MACHINES(networkId, TRUE);
+	//	VEHICLE::SET_VEHICLE_IS_STOLEN(veh, FALSE);
+	//}
+
 	void set_mp_bitset(Vehicle veh)
 	{
-		DECORATOR::DECOR_SET_INT(veh, "MPBitset", 0);
+		if (g.spawn_vehicle.spawn_gift_for_player)
+			DECORATOR::DECOR_SET_INT(veh, "MPBitset", 8);
+		else
+			DECORATOR::DECOR_SET_INT(veh, "MPBitset", g.spawn_vehicle.spawn_BitSet); //0
+
 		auto networkId = NETWORK::VEH_TO_NET(veh);
-		self::spawned_vehicles.insert(networkId);
+
+		if (!g.spawn_vehicle.spawn_gift_for_player)
+			self::spawned_vehicles.insert(networkId);
+
 		if (NETWORK::NETWORK_GET_ENTITY_IS_NETWORKED(veh))
 			NETWORK::SET_NETWORK_ID_EXISTS_ON_ALL_MACHINES(networkId, TRUE);
+
 		VEHICLE::SET_VEHICLE_IS_STOLEN(veh, FALSE);
 	}
 

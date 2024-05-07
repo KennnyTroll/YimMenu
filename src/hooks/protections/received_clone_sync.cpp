@@ -36,21 +36,24 @@ namespace big
 		return ret;
 	}
 
-	eAckCode hooks::send_clone_sync(CNetworkObjectMgr* mgr, CNetGamePlayer* player, rage::netObject* pObject, rage::datBitBuffer* msgBuffer, unsigned __int16* seqNum, bool sendImmediately)
+	eAckCode hooks::send_clone_sync(CNetworkObjectMgr* mgr, CNetGamePlayer* target_player, rage::netObject* pObject, rage::datBitBuffer* msgBuffer, unsigned __int16* seqNum, bool sendImmediately)
 	{
 		if (/*g.self.safetypoint &&*/ g.session.block_send_clone_sync_all)
 		{
 			return eAckCode::ACKCODE_FAIL;
 		}
 
-		auto plyr = g_player_service->get_by_id(player->m_player_id);
+		auto plyr = g_player_service->get_by_id(target_player->m_player_id);
 
-		if (plyr && plyr->block_send_clone_sync)
+		if (plyr && plyr->block_send_clone_sync) [[unlikely]]
 		{
+			//frezze
+			//pObject->m_object_type = (int16_t)eNetObjType::NET_OBJ_TYPE_HELI;
+
 			return eAckCode::ACKCODE_FAIL;
 		}
 
-		return g_hooking->get_original<send_clone_sync>()(mgr, player, pObject, msgBuffer, seqNum, sendImmediately);
+		return g_hooking->get_original<send_clone_sync>()(mgr, target_player, pObject, msgBuffer, seqNum, sendImmediately);
 
 	//	char* v10;                    // rsi
 	//	void** v11;                   // rdi

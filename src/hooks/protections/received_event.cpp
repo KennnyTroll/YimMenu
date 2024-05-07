@@ -378,6 +378,7 @@ namespace big
 
 	void hooks::received_event(rage::netEventMgr* event_manager, CNetGamePlayer* source_player, CNetGamePlayer* target_player, uint16_t event_id, int event_index, int event_handled_bitset, int buffer_size, rage::datBitBuffer* buffer)
 	{
+		//86u ?
 		if (event_id > 91u) [[unlikely]]
 		{
 			g_pointers->m_gta.m_send_event_ack(event_manager, source_player, target_player, event_index, event_handled_bitset);
@@ -645,6 +646,7 @@ namespace big
 			uint32_t timestamp                = buffer->Read<uint32_t>(32);
 			int count                         = buffer->Read<int>(2);
 			bool all_objects_migrate_together = buffer->Read<bool>(1);
+
 			eNetObjType sync_type;
 
 			if (count > 3)
@@ -657,6 +659,7 @@ namespace big
 				int net_id              = buffer->Read<int>(13);
 				eNetObjType object_type = buffer->Read<eNetObjType>(4);
 				int migration_type      = buffer->Read<int>(3);
+
 
 				if (object_type < eNetObjType::NET_OBJ_TYPE_AUTOMOBILE || object_type > eNetObjType::NET_OBJ_TYPE_TRAIN)
 				{

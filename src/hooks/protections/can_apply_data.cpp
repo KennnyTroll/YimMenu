@@ -1111,6 +1111,7 @@ namespace big
 	{
 		switch (type)
 		{
+		case eTaskTypeIndex::CTaskVehicleLand: return g.m_syncing_object_type != eNetObjType::NET_OBJ_TYPE_HELI;
 		case eTaskTypeIndex::CTaskVehicleGoToPlane:
 		case eTaskTypeIndex::CTaskVehicleLandPlane:
 		case eTaskTypeIndex::CTaskVehiclePlayerDrivePlane:
@@ -1130,6 +1131,7 @@ namespace big
 			return g.m_syncing_object_type != eNetObjType::NET_OBJ_TYPE_SUBMARINE;
 		case eTaskTypeIndex::CTaskVehicleFleeAirborne:
 			return g.m_syncing_object_type != eNetObjType::NET_OBJ_TYPE_HELI && g.m_syncing_object_type != eNetObjType::NET_OBJ_TYPE_PLANE;
+
 		}
 
 		return false;
@@ -1193,21 +1195,21 @@ namespace big
 			{
 				const auto creation_node = (CVehicleCreationDataNode*)(node);
 
-				if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
-				{
-					std::string mess = std::format("CVehicleCreationDataNode Vehicle model = 0x{:X}) | pop_type {} | random_seed {} | vehicle_status {} | max_health {} | creation_token {} | car_budget {} | needs_to_be_hotwired {} | tires_dont_burst {} => FROM {}",
-						creation_node->m_model,
-					    creation_node->m_pop_type,
-					    creation_node->m_random_seed,
-					    creation_node->m_vehicle_status,
-					    creation_node->m_max_health,
-					    creation_node->m_creation_token,
-					    creation_node->m_car_budget,
-					    creation_node->m_needs_to_be_hotwired,
-					    creation_node->m_tires_dont_burst,
-						sender->get_name());
-					LOG(INFO) << mess.c_str();
-				}
+				//if (sender_plyr->cad_log)
+				//{
+				//	std::string mess = std::format("CVehicleCreationDataNode Vehicle model = 0x{:X}) | pop_type {} | random_seed {} | vehicle_status {} | max_health {} | creation_token {} | car_budget {} | needs_to_be_hotwired {} | tires_dont_burst {} => FROM {}",
+				//		creation_node->m_model,
+				//	    creation_node->m_pop_type,
+				//	    creation_node->m_random_seed,
+				//	    creation_node->m_vehicle_status,
+				//	    creation_node->m_max_health,
+				//	    creation_node->m_creation_token,
+				//	    creation_node->m_car_budget,
+				//	    creation_node->m_needs_to_be_hotwired,
+				//	    creation_node->m_tires_dont_burst,
+				//		sender->get_name());
+				//	LOG(INFO) << mess.c_str();
+				//}
 				
 				if (protection::is_crash_vehicle(creation_node->m_model))
 				{
@@ -1224,29 +1226,29 @@ namespace big
 					}
 				}
 
-				if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
+				if (sender_plyr->block_cad || g.session.block_receiv_cad_all)
 					return true;	
 
-				veh_creation_model = creation_node->m_model;			
+				veh_creation_model = creation_node->m_model;					
 
 				break;
 			}
 			case sync_node_id("CDoorCreationDataNode"):
 			{
 				const auto creation_node = (CDoorCreationDataNode*)(node);
-				if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
-				{
-					std::string mess =
-					    std::format("CDoorCreationDataNode door object model = 0x{:X} | pos {} {} {} | is_script_door {} | m_player_wants_control {} => FROM {}",
-						creation_node->m_model,
-					    creation_node->m_pos.x,
-					    creation_node->m_pos.y,
-					    creation_node->m_pos.z,
-					    creation_node->m_is_script_door,
-					    creation_node->m_player_wants_control,
-						sender->get_name());
-					LOG(INFO) << mess.c_str();
-				}
+				//if (sender_plyr->cad_log)
+				//{
+				//	std::string mess =
+				//	    std::format("CDoorCreationDataNode door object model = 0x{:X} | pos {:.03f} {:.03f} {:.03f} | is_script_door {} | m_player_wants_control {} => FROM {}",
+				//		creation_node->m_model,
+				//	    creation_node->m_pos.x,
+				//	    creation_node->m_pos.y,
+				//	    creation_node->m_pos.z,
+				//	    creation_node->m_is_script_door,
+				//	    creation_node->m_player_wants_control,
+				//		sender->get_name());
+				//	LOG(INFO) << mess.c_str();
+				//}
 				
 				if (protection::is_crash_object(creation_node->m_model))
 				{
@@ -1254,7 +1256,7 @@ namespace big
 					return true;
 				}
 
-				if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
+				if (sender_plyr->block_cad || g.session.block_receiv_cad_all)
 					return true;	
 
 				break;
@@ -1263,18 +1265,23 @@ namespace big
 			{
 				const auto creation_node = (CPickupCreationDataNode*)(node);
 
-				if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
-				{
-					std::string mess = std::format("PickupCreationDataNode pickup hash 0x{:X} | amount {} | model 0x{:X} | life_time {} | num_weapon_components {} | tint_index {} => FROM {}",
-					    creation_node->m_pickup_hash,					    
-					    creation_node->m_amount,					   
-					    creation_node->m_custom_model,
-					    creation_node->m_life_time,
-					    creation_node->m_num_weapon_components,
-					    creation_node->m_tint_index,
-					    sender->get_name());
-					LOG(INFO) << mess.c_str();
-				}
+				//if (sender_plyr->cad_log)
+				//{
+				//	std::string mess = std::format("PickupCreationDataNode pickup hash 0x{:X} | has_placement {} | amount {} | model 0x{:X} | life_time {} | num_weapon_components {} | tint_index {} | player_gift {} | unk_015D {} | unk_0164 {} | unk_0168 {} => FROM {}",
+				//	    creation_node->m_pickup_hash,
+				//	    creation_node->m_has_placement,
+				//	    creation_node->m_amount,					   
+				//	    creation_node->m_custom_model,
+				//	    creation_node->m_life_time,
+				//	    creation_node->m_num_weapon_components,
+				//	    creation_node->m_tint_index,
+				//	    creation_node->m_player_gift,
+				//	    creation_node->unk_015D,
+				//	    creation_node->unk_0164,
+				//	    creation_node->unk_0168,
+				//	    sender->get_name());
+				//	LOG(INFO) << mess.c_str();
+				//}
 
 				if (creation_node->m_custom_model && protection::is_crash_object(creation_node->m_custom_model))
 				{
@@ -1289,18 +1296,18 @@ namespace big
 					{
 						notify::crash_blocked(sender, "invalid pickup weapon component hash");
 
-						if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
-						{
-							std::string mess = std::format("PickupCreationDataNode INVALIDE weapon_component hash 0x{:X} => FROM {}",
-							    creation_node->m_weapon_component[i],
-							    sender->get_name());
-							LOG(INFO) << mess.c_str();
-						}
+						//if (sender_plyr->cad_log)
+						//{
+						//	std::string mess = std::format("PickupCreationDataNode INVALIDE weapon_component hash 0x{:X} => FROM {}",
+						//	    creation_node->m_weapon_component[i],
+						//	    sender->get_name());
+						//	LOG(INFO) << mess.c_str();
+						//}
 						return true;
 					}
 				}
 
-				if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
+				if (sender_plyr->block_cad || g.session.block_receiv_cad_all)
 					return true;	
 
 				break;
@@ -1342,27 +1349,27 @@ namespace big
 			{
 				const auto creation_node = (CPedCreationDataNode*)(node);
 				
-				if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
-				{
-					std::string mes = std::format("PedCreationDataNode ped model = 0x{:X} | pop_type {} | random_seed {} | max_health {} | in_vehicle {} | vehicle_id {} | vehicle_seat {} | m_has_prop {} | m_prop_model 0x{:X}  | m_is_standing {} | m_is_respawn_object_id {} | m_is_respawn_flagged_for_removal {} | m_has_attr_damage_to_player {} | m_attribute_damage_to_player {} | m_voice_hash 0x{:X} => FROM {}",
-					    creation_node->m_model,
-					    creation_node->m_pop_type,
-					    creation_node->m_random_seed,
-					    creation_node->m_max_health,
-					    creation_node->m_in_vehicle,
-					    creation_node->m_vehicle_id,
-					    creation_node->m_vehicle_seat,
-					    creation_node->m_has_prop,
-					    creation_node->m_prop_model,
-					    creation_node->m_is_standing,
-					    creation_node->m_is_respawn_object_id,
-					    creation_node->m_is_respawn_flagged_for_removal,
-					    creation_node->m_has_attr_damage_to_player,					    
-						creation_node->m_attribute_damage_to_player,
-					    creation_node->m_voice_hash,
-					    sender->get_name());
-					LOG(INFO) << mes.c_str();
-				}
+				//if (sender_plyr->cad_log)
+				//{
+				//	std::string mes = std::format("PedCreationDataNode ped model = 0x{:X} | pop_type {} | random_seed {} | max_health {} | in_vehicle {} | vehicle_id {} | vehicle_seat {} | m_has_prop {} | m_prop_model 0x{:X}  | m_is_standing {} | m_is_respawn_object_id {} | m_is_respawn_flagged_for_removal {} | m_has_attr_damage_to_player {} | m_attribute_damage_to_player {} | m_voice_hash 0x{:X} => FROM {}",
+				//	    creation_node->m_model,
+				//	    creation_node->m_pop_type,
+				//	    creation_node->m_random_seed,
+				//	    creation_node->m_max_health,
+				//	    creation_node->m_in_vehicle,
+				//	    creation_node->m_vehicle_id,
+				//	    creation_node->m_vehicle_seat,
+				//	    creation_node->m_has_prop,
+				//	    creation_node->m_prop_model,
+				//	    creation_node->m_is_standing,
+				//	    creation_node->m_is_respawn_object_id,
+				//	    creation_node->m_is_respawn_flagged_for_removal,
+				//	    creation_node->m_has_attr_damage_to_player,					    
+				//		creation_node->m_attribute_damage_to_player,
+				//	    creation_node->m_voice_hash,
+				//	    sender->get_name());
+				//	LOG(INFO) << mes.c_str();
+				//}
 
 				if (protection::is_crash_ped(creation_node->m_model))
 				{
@@ -1375,7 +1382,7 @@ namespace big
 					return true;
 				}
 
-				if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
+				if (sender_plyr->block_cad || g.session.block_receiv_cad_all)
 					return true;	
 
 				break;
@@ -1402,16 +1409,16 @@ namespace big
 			case sync_node_id("CObjectCreationDataNode"):
 			{
 				const auto creation_node = (CObjectCreationDataNode*)(node);
-
-				if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
+				//CNetObjPlayer *this, CObjectCreationDataNode
+				if (sender_plyr->cad_log)
 				{
-					std::string mess = std::format("ObjectCreationDataNode object model = 0x{:X} | position {} {} {} | m_created_by {} | m_script_grab_radius {} | m_frag_group_index {} | m_ownership_token {} | m_no_reassign {} | m_player_wants_control {} | m_has_init_physics {} | m_script_grabbed_from_world {} | m_has_frag_group {} | m_is_broken {} | m_has_exploded {} | m_keep_registered {} | unk_0169 {} | unk_016A {} | unk_016B {} => FROM {}",
+					std::string mess = std::format("ObjectCreationDataNode object model = 0x{:X} | position {:.03f} {:.03f} {:.03f} | m_script_grab_radius {:.03f} | m_created_by {} | m_frag_group_index {} | m_ownership_token {} | m_no_reassign {} | m_player_wants_control {} | m_has_init_physics {} | m_script_grabbed_from_world {} | m_has_frag_group {} | m_is_broken {} | m_has_exploded {} | m_keep_registered {} | unk_0169 {} | unk_016A {} | unk_016B {} => FROM {}",
 						creation_node->m_model,
 					    creation_node->m_object_position.x,
 					    creation_node->m_object_position.y,
 					    creation_node->m_object_position.z,
-					    creation_node->m_created_by,
-						creation_node->m_script_grab_radius,
+					    creation_node->m_script_grab_radius,
+					    creation_node->m_created_by,				
 					    creation_node->m_frag_group_index,
 					    creation_node->m_ownership_token,
 					    creation_node->m_no_reassign,
@@ -1435,7 +1442,13 @@ namespace big
 					return true;
 				}
 
-				if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
+				if (protection::is_crash_object(creation_node->m_model))
+				{
+					notify::crash_blocked(sender, "invalid object model");
+					return true;
+				}
+
+				if (sender_plyr->block_cad || g.session.block_receiv_cad_all)
 					return true;	
 
 				break;
@@ -1443,13 +1456,13 @@ namespace big
 			case sync_node_id("CPlayerAppearanceDataNode"):
 			{
 				const auto player_appearance_node = (CPlayerAppearanceDataNode*)(node);
-				
-				if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
-				{
-					std::string mess =
-					    std::format("PlayerAppearanceDataNode player model = 0x{:X} FROM {})", player_appearance_node->m_model_hash, sender->get_name());
-					LOG(INFO) << mess.c_str();
-				}
+				//
+				//if (sender_plyr->cad_log)
+				//{
+				//	std::string mess =
+				//	    std::format("PlayerAppearanceDataNode player model = 0x{:X} FROM {})", player_appearance_node->m_model_hash, sender->get_name());
+				//	LOG(INFO) << mess.c_str();
+				//}
 
 				if (protection::is_crash_ped(player_appearance_node->m_model_hash))
 				{
@@ -1457,7 +1470,7 @@ namespace big
 					return true;
 				}
 
-				if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
+				if (g.session.block_receiv_cad_all)
 					return true;	
 
 				player_appearance_node->m_mobile_phone_gesture_active = false; // There is a crash with the anim dict index here, but it's difficult to detect. Phone gestures are unused and can be safely disabled
@@ -1469,11 +1482,11 @@ namespace big
 			{
 				const auto player_creation_node = (CPlayerCreationDataNode*)(node);
 
-				if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
-				{
-					std::string mess = std::format("PlayerCreationDataNode player model = 0x{:X} FROM {}", player_creation_node->m_model, sender->get_name());
-					LOG(INFO) << mess.c_str();
-				}
+				//if (sender_plyr->cad_log)
+				//{
+				//	std::string mess = std::format("PlayerCreationDataNode player model = 0x{:X} FROM {}", player_creation_node->m_model, sender->get_name());
+				//	LOG(INFO) << mess.c_str();
+				//}
 
 				if (protection::is_crash_ped(player_creation_node->m_model))
 				{
@@ -1481,7 +1494,7 @@ namespace big
 					return true;
 				}
 
-				if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
+				if (g.session.block_receiv_cad_all)
 					return true;	
 
 				check_player_model(sender_plyr, player_creation_node->m_model);
@@ -1700,11 +1713,11 @@ namespace big
 					{
 						if (auto model_info = static_cast<CVehicleModelInfo*>(vehicle->m_model_info))
 						{
-							if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
-							{
-								std::string mess = std::format("CVehicleControlDataNode object->GetGameObject Vehicle type = {} FROM {}", (int)model_info->m_vehicle_type, sender->get_name());
-								LOG(INFO) << mess.c_str();
-							}
+							//if (sender_plyr->cad_log)
+							//{
+							//	std::string mess = std::format("CVehicleControlDataNode object->GetGameObject Vehicle type = {} FROM {}", (int)model_info->m_vehicle_type, sender->get_name());
+							//	LOG(INFO) << mess.c_str();
+							//}
 
 							if (model_info->m_vehicle_type != eVehicleType::VEHICLE_TYPE_SUBMARINECAR)
 							{
@@ -1712,7 +1725,7 @@ namespace big
 								return true;
 							}
 
-							if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
+							if (sender_plyr->block_cad || g.session.block_receiv_cad_all)
 								return true;	
 						}
 					}
@@ -1721,14 +1734,14 @@ namespace big
 						// object hasn't been created yet, but we have the model hash from the creation node
 						if (auto model_info = model_info::get_vehicle_model(veh_creation_model.value()))
 						{
-							if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
-							{
-								std::string mess = std::format("CVehicleControlDataNode veh_creation_model Vehicle type = {} | veh_creation_model 0x{:X} FROM {}",
-								    (int)model_info->m_vehicle_type,
-								    veh_creation_model.value(),
-								    sender->get_name());
-								LOG(INFO) << mess.c_str();
-							}
+							//if (sender_plyr->cad_log)
+							//{
+							//	std::string mess = std::format("CVehicleControlDataNode veh_creation_model Vehicle type = {} | veh_creation_model 0x{:X} FROM {}",
+							//	    (int)model_info->m_vehicle_type,
+							//	    veh_creation_model.value(),
+							//	    sender->get_name());
+							//	LOG(INFO) << mess.c_str();
+							//}
 
 							if (model_info->m_vehicle_type != eVehicleType::VEHICLE_TYPE_SUBMARINECAR)
 							{
@@ -1738,7 +1751,7 @@ namespace big
 								return true;
 							}
 							
-							if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
+							if (sender_plyr->block_cad || g.session.block_receiv_cad_all)
 								return true;	
 						}
 					}
@@ -1747,30 +1760,161 @@ namespace big
 						control_node->m_is_submarine_car = false; // safe
 					}
 				}
-				else if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
+				else if (sender_plyr->block_cad || /*sender_plyr->cad_log ||*/ g.session.block_receiv_cad_all)
 				{
-					if (auto vehicle = (CVehicle*)object->GetGameObject())					
-						if (auto model_info = static_cast<CVehicleModelInfo*>(vehicle->m_model_info))
-						{
-							std::string mess = std::format("CVehicleControlDataNode object->GetGameObject Vehicle type = {} FROM {}",
-							    (int)model_info->m_vehicle_type,
-							    sender->get_name());
+					//if (sender_plyr->cad_log)		
+					//if (auto vehicle = (CVehicle*)object->GetGameObject())
+					//{
+					//	if (auto model_info = static_cast<CVehicleModelInfo*>(vehicle->m_model_info))
+					//	{
+					//		//std::string mess = std::format("CVehicleControlDataNode object->GetGameObject FROM {} | layout max_seats = {} | name = {} | manufacturer = {} | modkits = {} | modkits_count = {} | passenger_capacity = {} | vehicle_type = {} | unk_vehicle_type = {} | diffuse_tint = {} | max_seats = {} | seat_info->F_L->name = {} | seat_info->F_R->name = {} | seat_info->R_L->name = {} | seat_info->R_R->name = {} | pov_camera_vertical_adjustement_for_rollcage = {:.0f} | wheel_scale = {:.0f} |wheel_scale_rear = {:.0f} | default_health = {:.0f} | steer_wheel_multiplier = {:.0f} | vehicle_class = {} | min_seat_height = {:.0f}",								
+					//		//	sender->get_name(),
+					//		//	(int)model_info->m_vehicle_layout->m_max_seats,
+					//		//	//uint8_t m_primary_color_combinations[25]; //0x00F8
+					//		//	//uint8_t m_secondary_color_combinations[25]; //0x0111
+					//		//	//uint8_t m_unk_color_combos1[25]; //0x012A
+					//		//	//uint8_t m_unk_color_combos2[25]; //0x0143
+					//		//	//uint8_t m_interior_color_combinations[25]; //0x015C
+					//		//	//uint8_t m_dashboard_color_combinations[25]; //0x0175
+					//		//	(const char*)model_info->m_name,          //0x0298
+					//		//	(const char*)model_info->m_manufacturer, //0x02A4
+					//		//	*model_info->m_modkits,         //0x02B0
+					//		//	model_info->m_modkits_count, //0x02B8
+					//		//	model_info->m_passenger_capacity, //0x02D8
+					//		//	(int)model_info->m_vehicle_type, //0x0340
+					//		//	(int)model_info->m_unk_vehicle_type,     //0x0344
+					//		//	model_info->m_diffuse_tint, //0x0348
+					//		//	model_info->m_max_seats, //0x034A
+					//		//	//model_info->m_layout_metadata->m_seat_info->m_front_left->name, //CVehicleLayoutMetaData* m_layout_metadata, //0x0350	
+					//		//	model_info->m_layout_metadata->m_seat_info->m_front_left->m_drive_by_info->m_name, 
+					//		//	model_info->m_layout_metadata->m_seat_info->m_front_right->m_drive_by_info->m_name,
+					//		//	model_info->m_layout_metadata->m_seat_info->m_rear_left->m_drive_by_info->m_name,
+					//		//	model_info->m_layout_metadata->m_seat_info->m_rear_right->m_drive_by_info->m_name,
+					//		//	//model_info->m_layout_metadata->m_seat_info->m_front_left->m_drive_by_info->m_drive_by_anim_infos->m_weapon_groups->m_groups 
+					//		//	//model_info->m_layout_metadata->m_seat_info->m_front_left->m_drive_by_info->m_drive_by_anim_infos->->m_weapon_groups->m_weapons 
+					//		//				
+					//		//	//rage::fvector3 m_first_person_driveby_ik_offset, //0x0360						
+					//		//	//rage::fvector3 m_first_person_driveby_unarmed_ik_offset; //0x0370					
+					//		//	//rage::fvector3 m_first_person_driveby_right_passenger_ik_offset, //0x0390						
+					//		//	//rage::fvector3 m_first_person_driveby_right_passenger_unarmed_ik_offset, //0x03C0						
+					//		//	//rage::fvector3 m_first_person_projectile_driveby_ik_offset, //0x03D0							
+					//		//	//rage::fvector3 m_first_person_projectile_driveby_passenger_ik_offset, //0x03E0					
+					//		//	//rage::fvector3 m_first_person_mobile_phone_offset, //0x0420					
+					//		//	//rage::fvector3 m_first_person_passenger_mobile_phone_offset, //0x0430			
+					//		//	//rage::fvector3 m_pov_camera_offset, //0x0450				
+					//		//	model_info->m_pov_camera_vertical_adjustement_for_rollcage, //0x0480		
+					//		//	model_info->m_wheel_scale,                                  //0x048C
+					//		//	model_info->m_wheel_scale_rear,                             //0x0490
+					//		//	model_info->m_default_health,                               //0x0494			
+					//		//	model_info->m_steer_wheel_multiplier,                       //0x049C		
+					//		//	(int)model_info->m_vehicle_class, //eVehicleClass m_vehicle_class, //0x0548	
+					//		//	//uint32_t m_vehicle_model_flags[7], // 0x057C
+					//		//	model_info->m_min_seat_height    //0x0554
+					//		//	//uint32_t m_vehicle_model_flags[7] // 0x057C
+					//		//);
+					//		std::string mess_appendage{};
+					//		mess_appendage += std::format("CVehicleControlDataNode object->GetGameObject FROM {}", sender->get_name());
+					//		mess_appendage += std::format(" | layout max_seats = {}", (int)model_info->m_vehicle_layout->m_max_seats);
+					//		mess_appendage += std::format(" | name = {}", (const char*)model_info->m_name); //0x0298);
+					//		mess_appendage += std::format(" | manufacturer = {}", (const char*)model_info->m_manufacturer); //0x02A4);
+					//		mess_appendage += std::format(" | modkits = {}", *model_info->m_modkits);      //0x02B0);
+					//		mess_appendage += std::format(" | modkits_count = {}", model_info->m_modkits_count);     //0x02B8);
+					//		mess_appendage += std::format(" | passenger_capacity = {}", model_info->m_passenger_capacity); //0x02D8);
+					//		mess_appendage += std::format(" | vehicle_type = {}", (int)model_info->m_vehicle_type);  //0x0340);
+					//		mess_appendage += std::format(" | unk_vehicle_type = {}", (int)model_info->m_unk_vehicle_type); //0x0344);
+					//		mess_appendage += std::format(" | diffuse_tint = {}", model_info->m_diffuse_tint); //0x0348);
+					//		mess_appendage += std::format(" | max_seats = {}", model_info->m_max_seats);    //0x034A);
+					//		//mess_appendage += std::format(" | drive_by_info fl name = {}", model_info->m_layout_metadata->m_seat_info->m_front_left->m_drive_by_info->m_name );
+					//		//mess_appendage += std::format(" | drive_by_info fr name = {}", model_info->m_layout_metadata->m_seat_info->m_front_right->m_drive_by_info->m_name);
+					//		//mess_appendage += std::format(" | drive_by_info rl name = {}", model_info->m_layout_metadata->m_seat_info->m_rear_left->m_drive_by_info->m_name);
+					//		//mess_appendage += std::format(" | drive_by_info rr name = {}", model_info->m_layout_metadata->m_seat_info->m_rear_right->m_drive_by_info->m_name);
+					//		mess_appendage += std::format(" | camera_vertical_adjustement = {:.3f}", model_info->m_pov_camera_vertical_adjustement_for_rollcage); //0x0480		);
+					//		mess_appendage += std::format(" | wheel_scale = {:.3f}", model_info->m_wheel_scale); //0x048C);
+					//		mess_appendage += std::format(" | wheel_scale_rear = {:.3f}", model_info->m_wheel_scale_rear); //0x0490);
+					//		mess_appendage += std::format(" | default_health = {:.0f}", model_info->m_default_health);   //0x0494		);
+					//		mess_appendage += std::format(" | steer_wheel_multiplier = {:.3f}", model_info->m_steer_wheel_multiplier); //0x049C		);
+					//		mess_appendage += std::format(" | vehicle_class = {}", (int)model_info->m_vehicle_class); //eVehicleClass m_vehicle_class, //0x0548	);
+					//		mess_appendage += std::format(" | min_seat_height = {:.3f}", model_info->m_min_seat_height); //0x0554	
+					//		LOG(INFO) << mess_appendage.c_str();
+					//	}
+					//}
 
-							LOG(INFO) << mess.c_str();
-						}
+					//if (veh_creation_model != std::nullopt)
+					//{
+					//	// object hasn't been created yet, but we have the model hash from the creation node
+					//	if (auto model_info = model_info::get_vehicle_model(veh_creation_model.value()))
+					//	{
+					//		//std::string mess = std::format("CVehicleControlDataNode object->GetGameObject FROM {} | layout max_seats = {} | name = {} | manufacturer = {} | modkits = {} | modkits_count = {} | passenger_capacity = {} | vehicle_type = {} | unk_vehicle_type = {} | diffuse_tint = {} | max_seats = {} | seat_info->F_L->name = {} | seat_info->F_R->name = {} | seat_info->R_L->name = {} | seat_info->R_R->name = {} | pov_camera_vertical_adjustement_for_rollcage = {:.0f} | wheel_scale = {:.0f} |wheel_scale_rear = {:.0f} | default_health = {:.0f} | steer_wheel_multiplier = {:.0f} | vehicle_class = {} | min_seat_height = {:.0f}",								
+					//		//	sender->get_name(),
+					//		//	(int)model_info->m_vehicle_layout->m_max_seats,
+					//		//	//uint8_t m_primary_color_combinations[25]; //0x00F8
+					//		//	//uint8_t m_secondary_color_combinations[25]; //0x0111
+					//		//	//uint8_t m_unk_color_combos1[25]; //0x012A
+					//		//	//uint8_t m_unk_color_combos2[25]; //0x0143
+					//		//	//uint8_t m_interior_color_combinations[25]; //0x015C
+					//		//	//uint8_t m_dashboard_color_combinations[25]; //0x0175
+					//		//	(const char*)model_info->m_name,          //0x0298
+					//		//	(const char*)model_info->m_manufacturer, //0x02A4
+					//		//	*model_info->m_modkits, //0x02B0
+					//		//	model_info->m_modkits_count, //0x02B8
+					//		//	model_info->m_passenger_capacity, //0x02D8
+					//		//	(int)model_info->m_vehicle_type, //0x0340
+					//		//	model_info->m_unk_vehicle_type,     //0x0344
+					//		//	model_info->m_diffuse_tint,       //0x0348
+					//		//	model_info->m_max_seats,          //0x034A
+					//		//	//model_info->m_layout_metadata->m_seat_info->m_front_left->name, //CVehicleLayoutMetaData* m_layout_metadata, //0x0350
+					//		//	model_info->m_layout_metadata->m_seat_info->m_front_left->m_drive_by_info->m_name,
+					//		//	model_info->m_layout_metadata->m_seat_info->m_front_right->m_drive_by_info->m_name,
+					//		//	model_info->m_layout_metadata->m_seat_info->m_rear_left->m_drive_by_info->m_name,
+					//		//	model_info->m_layout_metadata->m_seat_info->m_rear_right->m_drive_by_info->m_name,
+					//		//	//model_info->m_layout_metadata->m_seat_info->m_front_left->m_drive_by_info->m_drive_by_anim_infos->m_weapon_groups->m_groups
+					//		//	//model_info->m_layout_metadata->m_seat_info->m_front_left->m_drive_by_info->m_drive_by_anim_infos->->m_weapon_groups->m_weapons
+					//		//	//rage::fvector3 m_first_person_driveby_ik_offset, //0x0360
+					//		//	//rage::fvector3 m_first_person_driveby_unarmed_ik_offset; //0x0370
+					//		//	//rage::fvector3 m_first_person_driveby_right_passenger_ik_offset, //0x0390
+					//		//	//rage::fvector3 m_first_person_driveby_right_passenger_unarmed_ik_offset, //0x03C0
+					//		//	//rage::fvector3 m_first_person_projectile_driveby_ik_offset, //0x03D0
+					//		//	//rage::fvector3 m_first_person_projectile_driveby_passenger_ik_offset, //0x03E0
+					//		//	//rage::fvector3 m_first_person_mobile_phone_offset, //0x0420
+					//		//	//rage::fvector3 m_first_person_passenger_mobile_phone_offset, //0x0430
+					//		//	//rage::fvector3 m_pov_camera_offset, //0x0450
+					//		//	model_info->m_pov_camera_vertical_adjustement_for_rollcage, //0x0480
+					//		//	model_info->m_wheel_scale,                                  //0x048C
+					//		//	model_info->m_wheel_scale_rear,                             //0x0490
+					//		//	model_info->m_default_health,                               //0x0494
+					//		//	model_info->m_steer_wheel_multiplier,                       //0x049C
+					//		//	(int)model_info->m_vehicle_class, //eVehicleClass m_vehicle_class, //0x0548
+					//		//	model_info->m_min_seat_height //0x0554
+					//		//	//uint32_t m_vehicle_model_flags[7] // 0x057C
+					//		//);
+					//		std::string mess_appendage{};
+					//		mess_appendage += std::format("CVehicleControlDataNode object->GetGameObject FROM {}", sender->get_name());
+					//		mess_appendage += std::format(" | layout max_seats = {}", (int)model_info->m_vehicle_layout->m_max_seats);
+					//		mess_appendage += std::format(" | name = {}", (const char*)model_info->m_name); //0x0298);
+					//		mess_appendage += std::format(" | manufacturer = {}", (const char*)model_info->m_manufacturer); //0x02A4);
+					//		mess_appendage += std::format(" | modkits = {}", *model_info->m_modkits); //0x02B0);
+					//		mess_appendage += std::format(" | modkits_count = {}", model_info->m_modkits_count);     //0x02B8);
+					//		mess_appendage += std::format(" | passenger_capacity = {}", model_info->m_passenger_capacity); //0x02D8);
+					//		mess_appendage += std::format(" | vehicle_type = {}", (int)model_info->m_vehicle_type);  //0x0340);
+					//		mess_appendage += std::format(" | unk_vehicle_type = {}", (int)model_info->m_unk_vehicle_type); //0x0344);
+					//		mess_appendage += std::format(" | diffuse_tint = {}", model_info->m_diffuse_tint); //0x0348);
+					//		mess_appendage += std::format(" | max_seats = {}", model_info->m_max_seats);    //0x034A);
+					//		//mess_appendage += std::format(" | drive_by_info fl name = {}", model_info->m_layout_metadata->m_seat_info->m_front_left->m_drive_by_info->m_name );
+					//		//mess_appendage += std::format(" | drive_by_info fr name = {}", model_info->m_layout_metadata->m_seat_info->m_front_right->m_drive_by_info->m_name);
+					//		//mess_appendage += std::format(" | drive_by_info rl name = {}", model_info->m_layout_metadata->m_seat_info->m_rear_left->m_drive_by_info->m_name);
+					//		//mess_appendage += std::format(" | drive_by_info rr name = {}", model_info->m_layout_metadata->m_seat_info->m_rear_right->m_drive_by_info->m_name);
+					//		mess_appendage += std::format(" | camera_vertical_adjustement = {:.3f}", model_info->m_pov_camera_vertical_adjustement_for_rollcage); //0x0480		);
+					//		mess_appendage += std::format(" | wheel_scale = {:.3f}", model_info->m_wheel_scale); //0x048C);
+					//		mess_appendage += std::format(" | wheel_scale_rear = {:.3f}", model_info->m_wheel_scale_rear); //0x0490);
+					//		mess_appendage += std::format(" | default_health = {:.0f}", model_info->m_default_health);   //0x0494		);
+					//		mess_appendage += std::format(" | steer_wheel_multiplier = {:.3f}", model_info->m_steer_wheel_multiplier); //0x049C		);
+					//		mess_appendage += std::format(" | vehicle_class = {}", (int)model_info->m_vehicle_class); //eVehicleClass m_vehicle_class, //0x0548	);
+					//		mess_appendage += std::format(" | min_seat_height = {:.3f}", model_info->m_min_seat_height); //0x0554	
+					//		LOG(INFO) << mess_appendage.c_str();
+					//	}
+					//}
 
-					if (veh_creation_model != std::nullopt)
-						// object hasn't been created yet, but we have the model hash from the creation node
-						if (auto model_info = model_info::get_vehicle_model(veh_creation_model.value()))
-						{
-							std::string mess = std::format("CVehicleControlDataNode veh_creation_model Vehicle type = {} | veh_creation_model 0x{:X} FROM {}",
-							    (int)model_info->m_vehicle_type,
-							    veh_creation_model.value(),
-							    sender->get_name());
-							LOG(INFO) << mess.c_str();
-						}
-
-					if (g.session.block_cad_receiv_custom_all || sender_plyr->log_test_events)
+					if (sender_plyr->block_cad || g.session.block_receiv_cad_all)
 						return true;	
 				}
 
@@ -1822,6 +1966,64 @@ namespace big
 			case sync_node_id("CVehicleTaskDataNode"):
 			{
 				const auto task_node = (CVehicleTaskDataNode*)(node);
+
+				//if (sender_plyr->cad_log)
+				//{
+				//	std::string message;
+				//	if (task_node->m_task_data_size < 0)
+				//	{
+				//		// message += std::format("invalid size={}\n", task_node->m_task_data_size);
+				//		task_node->m_task_data_size = 0;
+				//	}
+				//	else if (task_node->m_task_data_size > 255)
+				//	{
+				//		// message += std::format("invalid size={}\n", task_node->m_task_data_size);
+				//		task_node->m_task_data_size = 255;
+				//	}
+				//	message += std::format("m_task_type={}\n", task_node->m_task_type);
+				//	message += std::format("m_task_data_size={}\n", task_node->m_task_data_size);
+				//	for (size_t i = 0; i < task_node->m_task_data_size; i++)
+				//	{
+				//		message += std::format("\tm_task_data[{}]={}\n", i, (int)task_node->m_task_data[i]);
+				//	}
+				//	LOG(VERBOSE) << message.c_str();
+				//}
+
+
+
+
+
+				//TASK_PLANE_MISSION
+				//SET_SHORT_SLOWDOWN_FOR_LANDING
+				//if ((eTaskTypeIndex)task_node->m_task_type == eTaskTypeIndex::CTaskVehicleLand)				   
+				//{
+				//	if (g.m_syncing_object_type != eNetObjType::NET_OBJ_TYPE_HELI)
+				//	{
+				//	}
+				//	if (auto vehicle = (CVehicle*)object->GetGameObject())
+				//	{
+				//		if (auto model_info = static_cast<CVehicleModelInfo*>(vehicle->m_model_info))
+				//		{
+				//			if ((int)model_info->m_vehicle_type == 0) //0:TYPE_CAR 1:PLANE 2:VEHICLE_TYPE_HELI 9:VEHICLE_TYPE_BLIMP
+				//			{
+				//			LOG(VERBOSE) << "CVehicleTaskDataNode " << (int)g.m_syncing_object_type << " " << get_task_type_string(task_node->m_task_type) << "  object->GetGameObject";
+				//				return true;
+				//			}
+				//		}
+				//	}
+				//	else if (veh_creation_model != std::nullopt)
+				//	{
+				//		if (auto model_info = model_info::get_vehicle_model(veh_creation_model.value()))
+				//		{
+				//			if ((int)model_info->m_vehicle_type == 0) //0:TYPE_CAR 1:PLANE 2:VEHICLE_TYPE_HELI 9:VEHICLE_TYPE_BLIMP
+				//			{
+				//				LOG(VERBOSE) << (int)g.m_syncing_object_type << " " << get_task_type_string(task_node->m_task_type);
+				//				return true;
+				//			}
+				//		}
+				//	}
+				//}
+
 				if (is_crash_vehicle_task((eTaskTypeIndex)task_node->m_task_type))
 				{
 					notify::crash_blocked(sender, "invalid vehicle task");

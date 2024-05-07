@@ -117,7 +117,8 @@ namespace big
 		bool block_net_events   = false;
 		bool log_clones         = false;
 		bool log_network_events = false;
-		bool log_test_events      = false;
+		bool block_cad      = false;
+		bool cad_log        = false;
 
 		int spectating_player = -1;
 

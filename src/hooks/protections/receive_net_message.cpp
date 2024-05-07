@@ -101,7 +101,7 @@ namespace big
 		if (!get_msg_type(msgType, buffer))
 			return g_hooking->get_original<hooks::receive_net_message>()(netConnectionManager, a2, frame);
 
-		if (player)
+		if (player != nullptr)
 		{
 			switch (msgType)
 			{

@@ -25,6 +25,9 @@ namespace big
 		ImGui::SameLine();
 		components::command_checkbox<"spawnmaxed">();
 
+		ImGui::SetNextItemWidth(300.f);
+		ImGui::SliderInt("Set Flag BitSet", &g.spawn_vehicle.spawn_BitSet, 0, 16);
+
 		static char plate_buf[9] = {0};
 		strncpy(plate_buf, g.spawn_vehicle.plate.c_str(), 9);
 
@@ -142,6 +145,7 @@ namespace big
 								if (g.spawn_vehicle.spawn_inside)
 								{
 									vehicle::teleport_into_vehicle(veh);
+									AUDIO::SET_VEH_RADIO_STATION(veh, "OFF");
 								}
 							}
 						}
@@ -190,6 +194,7 @@ namespace big
 							if (g.spawn_vehicle.spawn_inside)
 							{
 								vehicle::teleport_into_vehicle(veh);
+								AUDIO::SET_VEH_RADIO_STATION(veh, "OFF");
 							}
 						}
 

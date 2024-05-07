@@ -19,7 +19,7 @@ namespace big
 
 	void reaction::process_common(player_ptr player)
 	{
-		if (add_to_player_db)
+		if (add_to_player_db && !player->is_friend())
 		{
 			auto entry = g_player_database_service->get_or_create_player(player);
 
@@ -30,21 +30,22 @@ namespace big
 			}
 		}
 
-		if (kick)
+		if (kick && !player->is_friend())
 		{
 			g_fiber_pool->queue_job([player] {
 				dynamic_cast<player_command*>(command::get("multikick"_J))->call(player, {});
 			});
 		}
 
-		if (timeout)
+		if (timeout && !player->is_friend())
 		{
 			player->block_explosions      = true;
 			player->block_wapons_damage   = true;
 			player->block_net_events   = true;
+			player->block_clone_create    = true;
 			player->block_clone_sync   = true;
-			player->block_send_clone_sync = true;
-			player->block_clone_create = true;
+			player->block_send_clone_sync = true;			
+			player->block_cad       = true;
 			LOGF(WARNING, "{} has been timed out", player->get_name());
 		}
 	}

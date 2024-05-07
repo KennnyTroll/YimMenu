@@ -38,7 +38,7 @@ namespace big
 			        hash, PLAYER::GET_PLAYER_PED_SCRIPT_INDEX(id));
 			const auto spawn_heading = ENTITY::GET_ENTITY_HEADING(PLAYER::GET_PLAYER_PED_SCRIPT_INDEX(id));
 
-			auto veh = vehicle::spawn(hash, spawn_location, spawn_heading);
+			auto veh = vehicle::spawn(hash, spawn_location, spawn_heading, true, g.spawn_vehicle.spawn_gift_for_player);
 
 			if (veh == 0)
 			{
@@ -51,11 +51,36 @@ namespace big
 					vehicle::max_vehicle(veh);
 				}
 
+				if (g.spawn_vehicle.spawn_gift_for_player)
+				{
+					Hash netHash = NETWORK::NETWORK_HASH_FROM_PLAYER_HANDLE(ctx->get_sender()->id());
+					//DECORATOR.DECOR_SET_INT(vehicle, "MPBitset", 8)
+					DECORATOR::DECOR_SET_INT(veh, "Previous_Owner", netHash);
+					DECORATOR::DECOR_SET_INT(veh, "Veh_Modded_By_Player", netHash);
+					DECORATOR::DECOR_SET_INT(veh, "Not_Allow_As_Saved_Veh", 0);
+					DECORATOR::DECOR_SET_INT(veh, "Player_Vehicle", netHash);
+				}
+				//DECORATOR::DECOR_SET_INT(iParam0,
+				//    "Veh_Modded_By_Player",
+				//    NETWORK::NETWORK_HASH_FROM_PLAYER_HANDLE(NETWORK::NETWORK_GET_PLAYER_FROM_GAMER_HANDLE(&(uParam1->f_81))));
+
+				//void giftifyVehicleForPlayer(Vehicle vehicle, Player player)
+				//{
+				//	SET_ENTITY_AS_MISSION_ENTITY(vehicle, TRUE, TRUE);
+				//	DECOR_REGISTER("PV_Slot", 3);
+				//	DECOR_REGISTER("Player_Vehicle", 3);
+				//	DECOR_SET_BOOL(vehicle, "IgnoredByQuickSave", FALSE);
+				//	DECOR_SET_INT(vehicle, "Player_Vehicle", NETWORK_HASH_FROM_PLAYER_HANDLE(player));
+				//	SET_VEHICLE_IS_STOLEN(vehicle, FALSE);
+				//}
+					
 				if (g.spawn_vehicle.spawn_inside && ctx->get_sender()->id() == self::id)
 				{
 					vehicle::teleport_into_vehicle(veh);
+					AUDIO::SET_VEH_RADIO_STATION(veh, "OFF");
 				}
-				ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&veh);
+				if (!g.spawn_vehicle.spawn_gift_for_player)
+					ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&veh);
 			}
 		}
 	};

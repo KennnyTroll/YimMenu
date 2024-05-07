@@ -1,6 +1,7 @@
 #include "entity.hpp"
 
 #include "model_info.hpp"
+#include "util/vehicle.hpp"
 
 namespace big::entity
 {
@@ -143,7 +144,7 @@ namespace big::entity
 
 		auto hnd = g_pointers->m_gta.m_handle_to_ptr(ent);
 
-		if (!hnd || !hnd->m_net_object || !*g_pointers->m_gta.m_is_session_started)
+		if (!hnd || !hnd->m_net_object)
 			return false;
 
 		if (network_has_control_of_entity(hnd->m_net_object))
@@ -350,7 +351,7 @@ namespace big::entity
 		return closest_entity;
 	}
 
-	Object spawn_object_crash(Hash hash, Vector3 coords, int player_id)
+	Object spawn_object_crash(Hash hash, Vector3 coords/*, int player_id*/)
 	{
 		if (big::entity::request_model(hash))
 		{
@@ -374,5 +375,23 @@ namespace big::entity
 		}
 		return NULL;
 	}
+		
+	Vehicle spawn_veh_crash(Hash hash, Vector3 coords )
+	{
+		if (big::entity::request_model(hash))
+		{
+			auto veh = VEHICLE::CREATE_VEHICLE(hash, coords.x, coords.y, coords.z + 1.0f, 0, true, false, false);
+			script::get_current()->yield();
 
+			STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(hash);
+
+			if (*g_pointers->m_gta.m_is_session_started)
+			{
+				vehicle::set_mp_bitset(veh);
+			}
+
+			return veh;
+		}
+		return NULL;
+	}
 }

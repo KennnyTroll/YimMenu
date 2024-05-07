@@ -143,7 +143,9 @@ namespace big
 				    ImGui::Checkbox("VIEW_PLAYER_SEND_INFO_BLOCK_CLONE_SYNC"_T.data(), &g_player_service->get_selected()->block_send_clone_sync);
 				    ImGui::Checkbox("VIEW_PLAYER_INFO_BLOCK_NETWORK_EVENTS"_T.data(), &g_player_service->get_selected()->block_net_events);
 				    ImGui::Checkbox("VIEW_PLAYER_INFO_LOG_CLONES"_T.data(), &g_player_service->get_selected()->log_clones);
-				    ImGui::Checkbox("Log CAD test", &g_player_service->get_selected()->log_test_events);
+				    ImGui::Checkbox("Block CAD", &g_player_service->get_selected()->block_cad);
+				    ImGui::Checkbox("Log CAD", &g_player_service->get_selected()->cad_log);
+
 
 				    ImGui::Separator();
 
