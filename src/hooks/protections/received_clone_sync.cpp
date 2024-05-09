@@ -2,6 +2,12 @@
 #include "services/players/player_service.hpp"
 #include "util/notify.hpp"
 
+#include "base/CObject.hpp"
+#include "core/data/task_types.hpp"
+#include "util/model_info.hpp"
+#include "services/gta_data/gta_data_service.hpp"
+#include <entities/CDynamicEntity.hpp>
+
 namespace big
 {
 	eAckCode hooks::received_clone_sync(CNetworkObjectMgr* mgr, CNetGamePlayer* src, CNetGamePlayer* dst, eNetObjType object_type, uint16_t object_id, rage::datBitBuffer* buffer, uint16_t unk, uint32_t timestamp)
@@ -45,13 +51,81 @@ namespace big
 
 		auto plyr = g_player_service->get_by_id(target_player->m_player_id);
 
-		if (plyr && plyr->block_send_clone_sync) [[unlikely]]
+		
+		if (plyr && plyr->frezz_game_sync) [[unlikely]]
+		{
+			if (pObject && pObject->m_object_id == plyr->frezz_game_sync_object_id)
+			{
+
+				auto net_obj = pObject;
+					
+
+				std::string mess = "Entity info: \n ";
+				CObject* game_obj = net_obj->GetGameObject();
+				auto net_obj = g_pointers->m_gta.m_get_net_object(*g_pointers->m_gta.m_network_object_mgr, netobj->m_object_id, false);
+				if (!net_obj)
+					mess += std::format("{}\n {}\n", pObject->m_object_id, net_object_type_strs[pObject->m_object_type]);
+				else
+				{
+					//mess += std::format("{}\n {}\n  {}\n",
+					//    netobj->m_object_id,
+					//    net_object_type_strs[net_obj->m_object_type],
+					//    get_model_hash_string(net_obj->GetGameObject()->m_model_info->m_hash));
+
+					mess += std::format("{}\n {}\n", pObject->m_object_id, net_object_type_strs[pObject->m_object_type]);
+					//get_model_hash_string(net_obj->GetGameObject()->m_model_info->m_hash));
+
+					uint32_t model = pObject->GetGameObject()->m_model_info->m_hash;
+					auto info      = model_info::get_model(model);
+					if (!info)
+						mess += std::format("0x{:X}\n", model);
+					else
+					{
+						mess += std::format("m_model_type {}\n", (int)info->m_model_type);
+						LOG(INFO) << "m_model_type " << (int)info->m_model_type;
+						const char* model_str = nullptr;
+						if (info->m_model_type == eModelType::Vehicle)
+						{
+							for (auto& [name, data] : g_gta_data_service->vehicles())
+							{
+								if (data.m_hash == model)
+								{
+									model_str = name.data();
+								}
+							}
+						}
+						else if (info->m_model_type == eModelType::Ped || info->m_model_type == eModelType::OnlineOnlyPed)
+						{
+							for (auto& [name, data] : g_gta_data_service->peds())
+							{
+								if (data.m_hash == model)
+								{
+									model_str = name.data();
+								}
+							}
+						}
+						if (!model_str)
+							mess += std::format("0x{:X}\n", model);
+						else
+						{
+							mess += std::format("{} (0x{:X})\n", model_str, model);
+						}
+					}
+				}
+
+				plyr->frezz_game_sync = false;
+			}
+
+			return g_hooking->get_original<send_clone_sync>()(mgr, target_player, pObject, msgBuffer, seqNum, sendImmediately);
+		}
+		else if (plyr && plyr->block_send_clone_sync) [[unlikely]]
 		{
 			//frezze
 			//pObject->m_object_type = (int16_t)eNetObjType::NET_OBJ_TYPE_HELI;
 
 			return eAckCode::ACKCODE_FAIL;
 		}
+
 
 		return g_hooking->get_original<send_clone_sync>()(mgr, target_player, pObject, msgBuffer, seqNum, sendImmediately);
 

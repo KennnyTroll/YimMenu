@@ -119,6 +119,8 @@ namespace big
 		bool log_network_events = false;
 		bool block_cad      = false;
 		bool cad_log        = false;
+		bool frezz_game_sync   = false;
+		int16_t frezz_game_sync_object_id = false;
 
 		int spectating_player = -1;
 

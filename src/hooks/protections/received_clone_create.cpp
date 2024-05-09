@@ -475,7 +475,7 @@ namespace big
 		if (is_valid_ptr(node))
 		{
 			rage::netSyncNodeBase* current = node;
-			while (is_valid_ptr(current) && is_valid_ptr(*(uint64_t*)((uint64_t)current)))
+			if (is_valid_ptr(current) && is_valid_ptr(*(uint64_t*)((uint64_t)current)))
 			{
 				LOG(INFO) << "while";
 				if (current->IsDataNode())
@@ -702,7 +702,7 @@ namespace big
 					}
 				}
 
-				current = current->m_next_sibling;
+				//current = current->m_next_sibling;
 			}
 		}
 
@@ -880,14 +880,14 @@ namespace big
 				//}	
 			}
 
+			//uint32_t model__hash   = 0;
+			//uint64_t creation__data = 0;
+			//if (tree != nullptr && get_node__creation(tree->m_last_sync_node->m_parent, buffer, sender, &model__hash, &creation__data))
+			//{
+			//	LOG(INFO) << "get_node__creation info 2 :";
+			//	LOG(INFO) << std::format("model__hash 2 : 0x{:X}", model__hash);
+			//}
 
-			uint32_t model__hash   = 0;
-			uint64_t creation__data = 0;
-			if (tree != nullptr && get_node__creation(tree->m_last_sync_node->m_parent, buffer, sender, &model__hash, &creation__data))
-			{
-				LOG(INFO) << "get_node__creation info 2 :";
-				LOG(INFO) << std::format("model__hash 2 : 0x{:X}", model__hash);
-			}
 		}
 
 		g.m_syncing_player      = sender;

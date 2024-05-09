@@ -39,9 +39,18 @@ namespace big
 			
 			components::player_command_button<"desync">(g_player_service->get_selected());
 
+			static char freeze_model[64];
+			std::memcpy(freeze_model, g.protections.freeze_model.c_str(), 12);
+			if (ImGui::InputTextWithHint("freeze_model_h", "MODEL", freeze_model, sizeof(freeze_model)))
+			{
+				g.protections.freeze_model = freeze_model;
+			}
+			if (ImGui::IsItemActive())
+				g.self.hud.typing = TYPING_TICKS;
+
 			if (ImGui::Button("freeze game toto"))
 			{
-				troll::crash_invalid_model_hash(g_player_service->get_selected());
+				troll::crash_invalid_model_hash(g_player_service->get_selected()/*, freeze_model*/);
 			}
 			ImGui::SameLine();
 			if (ImGui::Button("freeze game perso"))

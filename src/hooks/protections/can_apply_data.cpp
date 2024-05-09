@@ -1412,7 +1412,7 @@ namespace big
 				//CNetObjPlayer *this, CObjectCreationDataNode
 				if (sender_plyr->cad_log)
 				{
-					std::string mess = std::format("ObjectCreationDataNode object model = 0x{:X} | position {:.03f} {:.03f} {:.03f} | m_script_grab_radius {:.03f} | m_created_by {} | m_frag_group_index {} | m_ownership_token {} | m_no_reassign {} | m_player_wants_control {} | m_has_init_physics {} | m_script_grabbed_from_world {} | m_has_frag_group {} | m_is_broken {} | m_has_exploded {} | m_keep_registered {} | unk_0169 {} | unk_016A {} | unk_016B {} => FROM {}",
+					std::string mess1 = std::format("ObjectCreationDataNode object model = 0x{:X} | position {:.03f} {:.03f} {:.03f} | m_script_grab_radius {:.03f} | m_created_by {} | m_frag_group_index {} | m_ownership_token {} | m_no_reassign {} | m_hasGameObject {} | m_player_wants_control {} | m_has_init_physics {} | m_script_grabbed_from_world {} | m_has_frag_group {} | m_is_broken {} | m_has_exploded {} | m_keep_registered {} | unk_0169 {} | unk_016A {} | unk_016B {} => FROM {}",
 						creation_node->m_model,
 					    creation_node->m_object_position.x,
 					    creation_node->m_object_position.y,
@@ -1422,6 +1422,7 @@ namespace big
 					    creation_node->m_frag_group_index,
 					    creation_node->m_ownership_token,
 					    creation_node->m_no_reassign,
+					    creation_node->unk_0161,//m_hasGameObject
 					    creation_node->m_player_wants_control,
 					    creation_node->m_has_init_physics,
 					    creation_node->m_script_grabbed_from_world,
@@ -1433,13 +1434,56 @@ namespace big
 					    creation_node->unk_016A,
 					    creation_node->unk_016B,
 						sender->get_name());
-					LOG(INFO) << mess.c_str();
+					LOG(INFO) << mess1.c_str();
 				}
 
-				if (protection::is_crash_object(creation_node->m_model))
+
+				std::string mess = "model_info: \n ";
+				uint32_t model = creation_node->m_model;
+				auto info      = model_info::get_model(model);
+				if (!info)
+					mess += std::format("0x{:X}\n", model);
+				else
 				{
-					notify::crash_blocked(sender, "invalid object model");
-					return true;
+					mess += std::format("m_model_type {}\n", (int)info->m_model_type);
+					const char* model_str = nullptr;
+					if (info->m_model_type == eModelType::Vehicle)
+					{
+						for (auto& [name, data] : g_gta_data_service->vehicles())
+						{
+							if (data.m_hash == model)
+							{
+								model_str = name.data();
+							}
+						}
+					}
+					else if (info->m_model_type == eModelType::Ped || info->m_model_type == eModelType::OnlineOnlyPed)
+					{
+						for (auto& [name, data] : g_gta_data_service->peds())
+						{
+							if (data.m_hash == model)
+							{
+								model_str = name.data();
+							}
+						}
+					}
+					if (!model_str)
+						mess += std::format("0x{:X}\n", model);
+					else
+					{
+						mess += std::format("{} (0x{:X})\n", model_str, model);
+					}
+
+					if (sender_plyr->cad_log)
+					LOG(INFO) << mess.c_str();
+
+				
+					if (info->m_model_type == eModelType::Plant)
+					{
+						LOG(INFO) << mess.c_str();
+						//mess += std::format("{} (0x{:X})\n", model_str, model);
+						notify::crash_blocked(sender, "invalid object ModelType Plant");
+					}
 				}
 
 				if (protection::is_crash_object(creation_node->m_model))

