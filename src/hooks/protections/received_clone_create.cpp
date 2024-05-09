@@ -470,244 +470,244 @@ namespace big
 		return false;
 	}
 
-	bool get_node__creation(rage::netSyncNodeBase* node, rage::datBitBuffer* buffer, CNetGamePlayer* sender, uint32_t* hash, uint64_t* data)
-	{
-		if (is_valid_ptr(node))
-		{
-			rage::netSyncNodeBase* current = node;
-			if (is_valid_ptr(current) && is_valid_ptr(*(uint64_t*)((uint64_t)current)))
-			{
-				LOG(INFO) << "while";
-				if (current->IsDataNode())
-				{
-					LOG(INFO) << "IsDataNode";
-					//    (uint64_t)((CProjectBaseSyncDataNode*)node)->m_common_data_operations.m_buffer
-					if ((uint64_t)((CProjectBaseSyncDataNode*)current)->m_common_data_operations.m_buffer)
-					{
-						LOG(INFO) << "m_buffer";
-						if ((uint64_t)((CProjectBaseSyncDataNode*)current)->m_common_data_operations.m_buffer->m_data)
-						{
-							LOG(INFO) << "m_buffer->m_data";
-							std::string name = get_vtable_name(*(uint64_t*)((uint64_t)current));
-							if (!name.empty())
-							{
-								LOG(INFO) << name.empty();
-								if (strstr(name.c_str(), "CreationDataNode") && !strstr(name.c_str(), "CAutomobileCreation"))
-								{
-									LOG(INFO) << name.c_str();
-									*data = (uint64_t)((CProjectBaseSyncDataNode*)current)->m_common_data_operations.m_buffer->m_data;
-									switch (MISC::GET_HASH_KEY(name.c_str()))
-									{
-										LOG(INFO) << "GET_HASH_KEY";
+	//bool get_node__creation(rage::netSyncNodeBase* node, rage::datBitBuffer* buffer, CNetGamePlayer* sender, uint32_t* hash, uint64_t* data)
+	//{
+	//	if (is_valid_ptr(node))
+	//	{
+	//		rage::netSyncNodeBase* current = node;
+	//		if (is_valid_ptr(current) && is_valid_ptr(*(uint64_t*)((uint64_t)current)))
+	//		{
+	//			LOG(INFO) << "while";
+	//			if (current->IsDataNode())
+	//			{
+	//				LOG(INFO) << "IsDataNode";
+	//				//    (uint64_t)((CProjectBaseSyncDataNode*)node)->m_common_data_operations.m_buffer
+	//				if ((uint64_t)((CProjectBaseSyncDataNode*)current)->m_common_data_operations.m_buffer)
+	//				{
+	//					LOG(INFO) << "m_buffer";
+	//					if ((uint64_t)((CProjectBaseSyncDataNode*)current)->m_common_data_operations.m_buffer->m_data)
+	//					{
+	//						LOG(INFO) << "m_buffer->m_data";
+	//						std::string name = get_vtable_name(*(uint64_t*)((uint64_t)current));
+	//						if (!name.empty())
+	//						{
+	//							LOG(INFO) << name.empty();
+	//							if (strstr(name.c_str(), "CreationDataNode") && !strstr(name.c_str(), "CAutomobileCreation"))
+	//							{
+	//								LOG(INFO) << name.c_str();
+	//								*data = (uint64_t)((CProjectBaseSyncDataNode*)current)->m_common_data_operations.m_buffer->m_data;
+	//								switch (MISC::GET_HASH_KEY(name.c_str()))
+	//								{
+	//									LOG(INFO) << "GET_HASH_KEY";
 
-									case rage::joaat("CDoorCreationDataNode") :
-									case rage::joaat("CPlayerCreationDataNode"):
-									case rage::joaat("CVehicleCreationDataNode"): 
-									{
-										const auto creation_node = (CVehicleCreationDataNode*)(current);
-										std::string mess = std::format("CVehicleCreationDataNode Vehicle model = 0x{:X}) | pop_type {} | random_seed {} | vehicle_status {} | max_health {} | creation_token {} | car_budget {} | needs_to_be_hotwired {} | tires_dont_burst {} => FROM {}",
-										    creation_node->m_model,
-										    creation_node->m_pop_type,
-										    creation_node->m_random_seed,
-										    creation_node->m_vehicle_status,
-										    creation_node->m_max_health,
-										    creation_node->m_creation_token,
-										    creation_node->m_car_budget,
-										    creation_node->m_needs_to_be_hotwired,
-										    creation_node->m_tires_dont_burst,
-										    sender->get_name());
-										LOG(INFO) << mess.c_str();
+	//								case rage::joaat("CDoorCreationDataNode") :
+	//								case rage::joaat("CPlayerCreationDataNode"):
+	//								case rage::joaat("CVehicleCreationDataNode"): 
+	//								{
+	//									const auto creation_node = (CVehicleCreationDataNode*)(current);
+	//									std::string mess = std::format("CVehicleCreationDataNode Vehicle model = 0x{:X}) | pop_type {} | random_seed {} | vehicle_status {} | max_health {} | creation_token {} | car_budget {} | needs_to_be_hotwired {} | tires_dont_burst {} => FROM {}",
+	//									    creation_node->m_model,
+	//									    creation_node->m_pop_type,
+	//									    creation_node->m_random_seed,
+	//									    creation_node->m_vehicle_status,
+	//									    creation_node->m_max_health,
+	//									    creation_node->m_creation_token,
+	//									    creation_node->m_car_budget,
+	//									    creation_node->m_needs_to_be_hotwired,
+	//									    creation_node->m_tires_dont_burst,
+	//									    sender->get_name());
+	//									LOG(INFO) << mess.c_str();
 
-										*hash = creation_node->m_model;	
-										//return buffer->read_uint(hash, 0x20);
-										return true;
-									}
-										
+	//									*hash = creation_node->m_model;	
+	//									//return buffer->read_uint(hash, 0x20);
+	//									return true;
+	//								}
+	//									
 
-									case rage::joaat("CObjectCreationDataNode"):
-									{
-										//uint32_t unk = 0;
-										//if (buffer->read_uint(&unk, 5))
-										//{
-										//	if ((unk & 0xFFFFFFFD) != 0)
-										//	{
-										//		return buffer->read_uint(hash, 0x20);
-										//	}
-										//}
-										//return false;
+	//								case rage::joaat("CObjectCreationDataNode"):
+	//								{
+	//									//uint32_t unk = 0;
+	//									//if (buffer->read_uint(&unk, 5))
+	//									//{
+	//									//	if ((unk & 0xFFFFFFFD) != 0)
+	//									//	{
+	//									//		return buffer->read_uint(hash, 0x20);
+	//									//	}
+	//									//}
+	//									//return false;
 
-										const auto creation_node = (CObjectCreationDataNode*)(current);
+	//									const auto creation_node = (CObjectCreationDataNode*)(current);
 
-										std::string mess = std::format("ObjectCreationDataNode object model = 0x{:X} | position {:.03f} {:.03f} {:.03f} | m_script_grab_radius {:.03f} | m_created_by {} | m_frag_group_index {} | m_ownership_token {} | m_no_reassign {} | m_player_wants_control {} | m_has_init_physics {} | m_script_grabbed_from_world {} | m_has_frag_group {} | m_is_broken {} | m_has_exploded {} | m_keep_registered {} | unk_0169 {} | unk_016A {} | unk_016B {} => FROM {}",
-										    creation_node->m_model,
-										    creation_node->m_object_position.x,
-										    creation_node->m_object_position.y,
-										    creation_node->m_object_position.z,
-										    creation_node->m_script_grab_radius,
-										    creation_node->m_created_by,
-										    creation_node->m_frag_group_index,
-										    creation_node->m_ownership_token,
-										    creation_node->m_no_reassign,
-										    creation_node->m_player_wants_control,
-										    creation_node->m_has_init_physics,
-										    creation_node->m_script_grabbed_from_world,
-										    creation_node->m_has_frag_group,
-										    creation_node->m_is_broken,
-										    creation_node->m_has_exploded,
-										    creation_node->m_keep_registered,
-										    creation_node->unk_0169,
-										    creation_node->unk_016A,
-										    creation_node->unk_016B,
-										    sender->get_name());
-										LOG(INFO) << mess.c_str();
+	//									std::string mess = std::format("ObjectCreationDataNode object model = 0x{:X} | position {:.03f} {:.03f} {:.03f} | m_script_grab_radius {:.03f} | m_created_by {} | m_frag_group_index {} | m_ownership_token {} | m_no_reassign {} | m_player_wants_control {} | m_has_init_physics {} | m_script_grabbed_from_world {} | m_has_frag_group {} | m_is_broken {} | m_has_exploded {} | m_keep_registered {} | unk_0169 {} | unk_016A {} | unk_016B {} => FROM {}",
+	//									    creation_node->m_model,
+	//									    creation_node->m_object_position.x,
+	//									    creation_node->m_object_position.y,
+	//									    creation_node->m_object_position.z,
+	//									    creation_node->m_script_grab_radius,
+	//									    creation_node->m_created_by,
+	//									    creation_node->m_frag_group_index,
+	//									    creation_node->m_ownership_token,
+	//									    creation_node->m_no_reassign,
+	//									    creation_node->m_player_wants_control,
+	//									    creation_node->m_has_init_physics,
+	//									    creation_node->m_script_grabbed_from_world,
+	//									    creation_node->m_has_frag_group,
+	//									    creation_node->m_is_broken,
+	//									    creation_node->m_has_exploded,
+	//									    creation_node->m_keep_registered,
+	//									    creation_node->unk_0169,
+	//									    creation_node->unk_016A,
+	//									    creation_node->unk_016B,
+	//									    sender->get_name());
+	//									LOG(INFO) << mess.c_str();
 
-										*hash = creation_node->m_model;
+	//									*hash = creation_node->m_model;
 
-										return true;
-									}
+	//									return true;
+	//								}
 
-									case rage::joaat("CPedCreationDataNode"):
-									{
-										//bool temp = false;
-										//if (buffer->read_bool(&temp))
-										//{
-										//	if (buffer->read_bool(&temp))
-										//	{
-										//		if (buffer->read_uint(hash, 4))
-										//		{
-										//			return buffer->read_uint(hash, 0x20);
-										//		}
-										//	}
-										//}
-										//return false;
+	//								case rage::joaat("CPedCreationDataNode"):
+	//								{
+	//									//bool temp = false;
+	//									//if (buffer->read_bool(&temp))
+	//									//{
+	//									//	if (buffer->read_bool(&temp))
+	//									//	{
+	//									//		if (buffer->read_uint(hash, 4))
+	//									//		{
+	//									//			return buffer->read_uint(hash, 0x20);
+	//									//		}
+	//									//	}
+	//									//}
+	//									//return false;
 
-										const auto creation_node = (CPedCreationDataNode*)(current);
-										std::string mes = std::format("PedCreationDataNode ped model = 0x{:X} | pop_type {} | random_seed {} | max_health {} | in_vehicle {} | vehicle_id {} | vehicle_seat {} | m_has_prop {} | m_prop_model 0x{:X}  | m_is_standing {} | m_is_respawn_object_id {} | m_is_respawn_flagged_for_removal {} | m_has_attr_damage_to_player {} | m_attribute_damage_to_player {} | m_voice_hash 0x{:X} => FROM {}",
-										    creation_node->m_model,
-										    creation_node->m_pop_type,
-										    creation_node->m_random_seed,
-										    creation_node->m_max_health,
-										    creation_node->m_in_vehicle,
-										    creation_node->m_vehicle_id,
-										    creation_node->m_vehicle_seat,
-										    creation_node->m_has_prop,
-										    creation_node->m_prop_model,
-										    creation_node->m_is_standing,
-										    creation_node->m_is_respawn_object_id,
-										    creation_node->m_is_respawn_flagged_for_removal,
-										    creation_node->m_has_attr_damage_to_player,
-										    creation_node->m_attribute_damage_to_player,
-										    creation_node->m_voice_hash,
-										    sender->get_name());
-										LOG(INFO) << mes.c_str();
+	//									const auto creation_node = (CPedCreationDataNode*)(current);
+	//									std::string mes = std::format("PedCreationDataNode ped model = 0x{:X} | pop_type {} | random_seed {} | max_health {} | in_vehicle {} | vehicle_id {} | vehicle_seat {} | m_has_prop {} | m_prop_model 0x{:X}  | m_is_standing {} | m_is_respawn_object_id {} | m_is_respawn_flagged_for_removal {} | m_has_attr_damage_to_player {} | m_attribute_damage_to_player {} | m_voice_hash 0x{:X} => FROM {}",
+	//									    creation_node->m_model,
+	//									    creation_node->m_pop_type,
+	//									    creation_node->m_random_seed,
+	//									    creation_node->m_max_health,
+	//									    creation_node->m_in_vehicle,
+	//									    creation_node->m_vehicle_id,
+	//									    creation_node->m_vehicle_seat,
+	//									    creation_node->m_has_prop,
+	//									    creation_node->m_prop_model,
+	//									    creation_node->m_is_standing,
+	//									    creation_node->m_is_respawn_object_id,
+	//									    creation_node->m_is_respawn_flagged_for_removal,
+	//									    creation_node->m_has_attr_damage_to_player,
+	//									    creation_node->m_attribute_damage_to_player,
+	//									    creation_node->m_voice_hash,
+	//									    sender->get_name());
+	//									LOG(INFO) << mes.c_str();
 
-										*hash = creation_node->m_model;
+	//									*hash = creation_node->m_model;
 
-										return true;
-									}
+	//									return true;
+	//								}
 
-									case rage::joaat("CPickupCreationDataNode"):
-									{
-										//rage::bit_buffer_sync_instance sync_reader = buffer->create_reader();
-										//bool unk = false;
-										//if (buffer->read_bool(&unk))
-										//{
-										//	bool success         = false;
-										//	uint32_t pickup_hash = 0;
-										//	uint32_t hash2       = 0;
-										//	uint8_t unk_data[0x200];
-										//	if (unk)
-										//	{
-										//		success = caller::call<bool>(global::vars::g_read_pickup_from_bit_buffer, unk_data, &sync_reader);
-										//		pickup_hash = *(uint32_t*)&unk_data[0x8];
-										//	}
-										//	else
-										//	{
-										//		success = buffer->read_uint(&pickup_hash, 0x20);
-										//	}
-										//	if (success)
-										//	{
-										//		unk = *(uint32_t*)(&unk_data[84]) > 0;
-										//		if (buffer->read_bool(&unk))
-										//		{
-										//			if (unk)
-										//			{
-										//				success = buffer->read_uint(&hash2, 0x20);
-										//			}
-										//			if (success)
-										//			{
-										//				*hash = *(uint32_t*)(&unk_data[88]);
-										//				unk = *(uint32_t*)(&unk_data[88]) != 0;
-										//				if (buffer->read_bool(&unk))
-										//				{
-										//					if (unk)
-										//					{
-										//						return buffer->read_uint(hash, 0x20);
-										//					}
-										//				}
-										//			}
-										//		}
-										//	}
-										//}
-										//return false;
+	//								case rage::joaat("CPickupCreationDataNode"):
+	//								{
+	//									//rage::bit_buffer_sync_instance sync_reader = buffer->create_reader();
+	//									//bool unk = false;
+	//									//if (buffer->read_bool(&unk))
+	//									//{
+	//									//	bool success         = false;
+	//									//	uint32_t pickup_hash = 0;
+	//									//	uint32_t hash2       = 0;
+	//									//	uint8_t unk_data[0x200];
+	//									//	if (unk)
+	//									//	{
+	//									//		success = caller::call<bool>(global::vars::g_read_pickup_from_bit_buffer, unk_data, &sync_reader);
+	//									//		pickup_hash = *(uint32_t*)&unk_data[0x8];
+	//									//	}
+	//									//	else
+	//									//	{
+	//									//		success = buffer->read_uint(&pickup_hash, 0x20);
+	//									//	}
+	//									//	if (success)
+	//									//	{
+	//									//		unk = *(uint32_t*)(&unk_data[84]) > 0;
+	//									//		if (buffer->read_bool(&unk))
+	//									//		{
+	//									//			if (unk)
+	//									//			{
+	//									//				success = buffer->read_uint(&hash2, 0x20);
+	//									//			}
+	//									//			if (success)
+	//									//			{
+	//									//				*hash = *(uint32_t*)(&unk_data[88]);
+	//									//				unk = *(uint32_t*)(&unk_data[88]) != 0;
+	//									//				if (buffer->read_bool(&unk))
+	//									//				{
+	//									//					if (unk)
+	//									//					{
+	//									//						return buffer->read_uint(hash, 0x20);
+	//									//					}
+	//									//				}
+	//									//			}
+	//									//		}
+	//									//	}
+	//									//}
+	//									//return false;
 
-										const auto creation_node = (CPickupCreationDataNode*)(node);
-										std::string mess = std::format("PickupCreationDataNode pickup hash 0x{:X} | has_placement {} | amount {} | model 0x{:X} | life_time {} | num_weapon_components {} | tint_index {} | player_gift {} | unk_015D {} | unk_0164 {} | unk_0168 {} => FROM {}",
-										    creation_node->m_pickup_hash,
-										    creation_node->m_has_placement,
-										    creation_node->m_amount,
-										    creation_node->m_custom_model,
-										    creation_node->m_life_time,
-										    creation_node->m_num_weapon_components,
-										    creation_node->m_tint_index,
-										    creation_node->m_player_gift,
-										    creation_node->unk_015D,
-										    creation_node->unk_0164,
-										    creation_node->unk_0168,
-										    sender->get_name());
-										LOG(INFO) << mess.c_str();
+	//									const auto creation_node = (CPickupCreationDataNode*)(node);
+	//									std::string mess = std::format("PickupCreationDataNode pickup hash 0x{:X} | has_placement {} | amount {} | model 0x{:X} | life_time {} | num_weapon_components {} | tint_index {} | player_gift {} | unk_015D {} | unk_0164 {} | unk_0168 {} => FROM {}",
+	//									    creation_node->m_pickup_hash,
+	//									    creation_node->m_has_placement,
+	//									    creation_node->m_amount,
+	//									    creation_node->m_custom_model,
+	//									    creation_node->m_life_time,
+	//									    creation_node->m_num_weapon_components,
+	//									    creation_node->m_tint_index,
+	//									    creation_node->m_player_gift,
+	//									    creation_node->unk_015D,
+	//									    creation_node->unk_0164,
+	//									    creation_node->unk_0168,
+	//									    sender->get_name());
+	//									LOG(INFO) << mess.c_str();
 
-										*hash = creation_node->m_pickup_hash;
+	//									*hash = creation_node->m_pickup_hash;
 
-										return true;
+	//									return true;
 
-									}
-									}
-								}
-							}
-						}
-					}
-				}
+	//								}
+	//								}
+	//							}
+	//						}
+	//					}
+	//				}
+	//			}
 
-				if (current->IsParentNode())
-				{
-					LOG(INFO) << "IsParentNode";
-					//   if (current->m_child_count > 0)
-					//   {
-					//rage::network::data_node* children = current->m_first_child;
-					//if (is_valid_ptr(children))
-					//{
-					//	if (get_node_creation(children, buffer, hash, data))
-					//	{
-					//		return true;
-					//	}
-					//}
-					//   }
+	//			if (current->IsParentNode())
+	//			{
+	//				LOG(INFO) << "IsParentNode";
+	//				//   if (current->m_child_count > 0)
+	//				//   {
+	//				//rage::network::data_node* children = current->m_first_child;
+	//				//if (is_valid_ptr(children))
+	//				//{
+	//				//	if (get_node_creation(children, buffer, hash, data))
+	//				//	{
+	//				//		return true;
+	//				//	}
+	//				//}
+	//				//   }
 
-					for (auto child = node->m_first_child; child; child = child->m_next_sibling)
-					{
-						//if (get_node_creation(child, sender, object))
-						if (get_node__creation(child, buffer, sender, hash , data))
-							return true;
-					}
-				}
+	//				for (auto child = node->m_first_child; child; child = child->m_next_sibling)
+	//				{
+	//					//if (get_node_creation(child, sender, object))
+	//					if (get_node__creation(child, buffer, sender, hash , data))
+	//						return true;
+	//				}
+	//			}
 
-				//current = current->m_next_sibling;
-			}
-		}
+	//			//current = current->m_next_sibling;
+	//		}
+	//	}
 
-		return false;
-	}
+	//	return false;
+	//}
 
 
 	inline std::string get_task_type_string(int type)
