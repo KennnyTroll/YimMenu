@@ -833,23 +833,11 @@ namespace big
 			return;
 		}
 
-	//https: //www.unknowncheats.me/forum/grand-theft-auto-v/620962-yimmenu-vehicle-gifting-3.html
-	//function RequestControl(entity)
-   // local tick = 0 
-   // local netID = NETWORK.NETWORK_GET_NETWORK_ID_FROM_ENTITY(entity) 
-   // NETWORK.SET_NETWORK_ID_CAN_MIGRATE(netID, true)
-   // while not NETWORK.NETWORK_HAS_CONTROL_OF_ENTITY(entity) and tick < 50 do
-   //     NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(entity)
-   //     tick = tick + 1
-   // end 
-   // return NETWORK.NETWORK_HAS_CONTROL_OF_ENTITY(entity)
-   // end 
-
-
 		auto sender_plyr = g_player_service->get_by_id(sender->m_player_id);
 
 		if (sender_plyr && sender_plyr->block_clone_create) [[unlikely]]
 			return;
+
 
 		uint32_t model_hash = 0;
 		if (sender_plyr && sender_plyr->cad_log) [[unlikely]]
@@ -889,6 +877,12 @@ namespace big
 			//}
 
 		}
+
+		if (sender_plyr && sender_plyr->recev_log) [[unlikely]]
+		{
+			LOG(INFO) << std::format("received_clone_create plyr.recev_log {} != {} g.m_syncing_object_type", sender_plyr->get_name(), (int)object_type);
+		}
+
 
 		g.m_syncing_player      = sender;
 		g.m_syncing_object_type = object_type;

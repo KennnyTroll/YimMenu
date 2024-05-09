@@ -1221,6 +1221,18 @@ namespace big
 				{
 					if (vehicle_type_to_object_type(info->m_vehicle_type) != g.m_syncing_object_type)
 					{
+
+						//auto plyr = g_player_service->get_by_id(sender->m_player_id);
+						//if (plyr && plyr->recev_log) [[unlikely]]
+						//{
+						//	LOG(INFO) << std::format("received_clone_create plyr.recev_log {} != {} g.m_syncing_object_type", plyr->get_name(),
+						//	    (int)info->m_vehicle_type);
+						//}
+						LOG(INFO) << std::format("can_apply_data CVehicleCreationDataNode info->m_vehicle_type {} != {} g.m_syncing_object_type ::: {}",
+						    (int)info->m_vehicle_type,
+						    (int)g.m_syncing_object_type,
+						    sender_plyr->get_name());
+
 						notify::crash_blocked(sender, "vehicle model mismatch");
 						return true;
 					}

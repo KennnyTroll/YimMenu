@@ -145,6 +145,8 @@ namespace big
 				    ImGui::Checkbox("VIEW_PLAYER_INFO_LOG_CLONES"_T.data(), &g_player_service->get_selected()->log_clones);
 				    ImGui::Checkbox("Block CAD", &g_player_service->get_selected()->block_cad);
 				    ImGui::Checkbox("Log CAD", &g_player_service->get_selected()->cad_log);
+				    ImGui::Checkbox("Recev Type Log", &g_player_service->get_selected()->recev_log);
+				    
 
 
 				    ImGui::Separator();

@@ -120,7 +120,9 @@ namespace big
 		bool block_cad      = false;
 		bool cad_log        = false;
 		bool frezz_game_sync   = false;
-		int16_t frezz_game_sync_object_id = false;
+		bool recev_log                 = false;
+		//int16_t frezz_game_sync_object_id = false;
+		std::int32_t frezz_game_sync_object_id = 0;
 
 		int spectating_player = -1;
 

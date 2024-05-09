@@ -923,7 +923,7 @@ namespace big
 			ImU32 button_color     = 2947901213;
 			ImU32 frame_color      = 2942518340;
 			float gui_scale        = 1.f;
-			float blip_size		   = 18.0f;
+			float blip_size		   = 19.0f;
 
 			ImFont* font_title     = nullptr;
 			ImFont* font_sub_title = nullptr;

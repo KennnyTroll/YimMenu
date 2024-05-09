@@ -682,6 +682,11 @@ namespace big
 
 			if (count)
 			{
+				auto plyr = g_player_service->get_by_id(source_player->m_player_id);
+				if (plyr && plyr->recev_log) [[unlikely]]
+				{
+					LOG(INFO) << std::format("GIVE_CONTROL_EVENT plyr.recev_log {} != {} g.m_syncing_object_type", plyr->get_name(), (int)sync_type);
+				}
 				g.m_syncing_player      = source_player;
 				g.m_syncing_object_type = sync_type;
 			}

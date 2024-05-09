@@ -221,6 +221,10 @@ namespace big::troll
 	{
 		big::g_fiber_pool->queue_job([target]()
 		{
+			auto plyr             = g_player_service->get_by_id(target->id());
+			plyr->frezz_game_sync = true;
+			LOG(INFO) << "frezz_game_sync net_obj  true";
+
 			if (CPed* Cped_target = target->get_ped())
 			{
 				//CPed* local_ped = Cped_target->get_self()->get_ped();
@@ -233,19 +237,24 @@ namespace big::troll
 				Hash hash = "prop_alien_egg_01"_J;
 				//Hash hash     = "prop_thindesertfiller_aa"_J;
 				auto info     = model_info::get_model(hash);
-				Object object = entity::spawn_object_crash(hash, coords/*, (int)target_id*/);
-				if (object != NULL)
-				{					
+				target->frezz_game_sync_object_id = entity::spawn_object_crash(hash, coords /*, (int)target_id*/);
+				if (target->frezz_game_sync_object_id != NULL)
+				{	
+					LOG(INFO) << "info m_model_type " << (int)info->m_model_type;
 					//static char freeze_model[64];
 					//std::memcpy(freeze_model, g.protections.freeze_model.c_str(), 12);
 
 					info->m_hash = get_hash(g.protections.freeze_model);
+					LOG(INFO) << "info m_model_type " << (int)info->m_model_type;
 
 
 					// info->m_hash = "proc_leafybush_01"_J;
 					script::get_current()->yield(1s);
-					entity::delete_entity(object, true);
+					entity::delete_entity(target->frezz_game_sync_object_id, true);
 					info->m_hash = hash;
+
+					script::get_current()->yield(1s);
+					plyr->frezz_game_sync = false;
 					//entity::delete_entity(object, true);
 					//g_notification_service.push_crash_success("CRASH_INVALID_MODEL_HASH_MESSAGE"_T.data());
 				}
@@ -284,12 +293,15 @@ namespace big::troll
 
 				//Vector3 coords = Cped_target->get_bone_coords(ePedBoneType::HEAD);
 
-				Hash hash = "prop_alien_egg_01"_J;
+				Hash hash = get_hash(g.protections.freeze_model);
 				//Hash hash     = "prop_thindesertfiller_aa"_J;
-				//auto info     = model_info::get_model(hash);
+				auto info     = model_info::get_model(hash);
+				LOG(INFO) << "info m_model_type " << (int)info->m_model_type;
+
 				Object object = entity::spawn_object_crash(hash, coords /*, (int)target_id*/);
 				if (object != NULL)
 				{
+					LOG(INFO) << "info m_model_type " << (int)info->m_model_type;
 					//info->m_hash = "prop_thindesertfiller_aa"_J;
 					// info->m_hash = "proc_leafybush_01"_J;
 					script::get_current()->yield(1s);
