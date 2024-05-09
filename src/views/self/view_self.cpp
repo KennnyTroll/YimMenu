@@ -210,6 +210,8 @@ namespace big
 			}
 		});
 
+		components::command_checkbox<"safetypointtp">();
+
 		ImGui::EndGroup();
 
 		ImGui::SeparatorText("WANTED_LEVEL"_T.data());
