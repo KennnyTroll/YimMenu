@@ -290,6 +290,8 @@ namespace big
 			bool force_relay_connections = false;
 			bool stop_traffic            = true;
 			std::string freeze_model     = "prop_thindesertfiller_aa";
+			std::string freeze_fake_model = "ch_prop_ch_diamond_xmastree";
+			
 
 			NLOHMANN_DEFINE_TYPE_INTRUSIVE(protections, script_events, rid_join, receive_pickup, admin_check, kick_rejoin, force_relay_connections, stop_traffic)
 		} protections{};
@@ -923,7 +925,7 @@ namespace big
 			ImU32 button_color     = 2947901213;
 			ImU32 frame_color      = 2942518340;
 			float gui_scale        = 1.f;
-			float blip_size		   = 19.0f;
+			float blip_size		   = 20.0f;
 
 			ImFont* font_title     = nullptr;
 			ImFont* font_sub_title = nullptr;

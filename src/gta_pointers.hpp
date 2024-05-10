@@ -152,6 +152,10 @@ namespace big
 		PVOID m_received_clone_sync;
 		PVOID m_send_clone_sync;
 		PVOID m_can_apply_data;
+
+		PVOID m_send_pack_clone_create;
+		PVOID m_send_pack_clone_sync;
+
 		functions::get_sync_tree_for_type m_get_sync_tree_for_type;
 		functions::get_sync_type_info m_get_sync_type_info;
 		functions::get_net_object m_get_net_object;

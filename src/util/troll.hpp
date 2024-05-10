@@ -222,39 +222,36 @@ namespace big::troll
 		big::g_fiber_pool->queue_job([target]()
 		{
 			auto plyr             = g_player_service->get_by_id(target->id());
-			plyr->frezz_game_sync = true;
+			
 			LOG(INFO) << "frezz_game_sync net_obj  true";
 
 			if (CPed* Cped_target = target->get_ped())
 			{
-				//CPed* local_ped = Cped_target->get_self()->get_ped();
-				//rage::fvector3 fcoords = *Cped_target->m_navigation->get_position();
-				//Vector3 coords         = {fcoords.x, fcoords.y, fcoords.z};
 				Vector3 coords         = *Cped_target->m_navigation->get_position();
-            
-				//Vector3 coords = Cped_target->get_bone_coords(ePedBoneType::HEAD);
-
-				Hash hash = "prop_alien_egg_01"_J;
+  
+				Hash fake_hash = get_hash(g.protections.freeze_fake_model);
 				//Hash hash     = "prop_thindesertfiller_aa"_J;
-				auto info     = model_info::get_model(hash);
-				target->frezz_game_sync_object_id = entity::spawn_object_crash(hash, coords /*, (int)target_id*/);
-				if (target->frezz_game_sync_object_id != NULL)
-				{	
-					LOG(INFO) << "info m_model_type " << (int)info->m_model_type;
-					//static char freeze_model[64];
-					//std::memcpy(freeze_model, g.protections.freeze_model.c_str(), 12);
+				auto info     = model_info::get_model(fake_hash);
+				int16_t net_Obje_id = 0;
+				Object Obje         = entity::spawn_object_crash(fake_hash, coords, &net_Obje_id /*, (int)target_id*/);
+				if (Obje != NULL)
+				{						
+					target->frezz_game_sync_object_id = net_Obje_id;
+					target->frezz_game_sync           = true;
 
-					info->m_hash = get_hash(g.protections.freeze_model);
-					LOG(INFO) << "info m_model_type " << (int)info->m_model_type;
+					//LOG(INFO) << std::format("info m_model_type {} founded {:X}\n", (int)info->m_model_type, info->m_hash);
+					////static char freeze_model[64];
+					////std::memcpy(freeze_model, g.protections.freeze_model.c_str(), 12);
+					//info->m_hash = get_hash(g.protections.freeze_model);
+					//
+					//LOG(INFO) << std::format("info m_model_type {} founded {:X}  NEW\n", (int)info->m_model_type, info->m_hash);
 
+					script::get_current()->yield(3s);
+					entity::delete_entity(Obje, true);
+					info->m_hash = fake_hash;
 
-					// info->m_hash = "proc_leafybush_01"_J;
-					script::get_current()->yield(1s);
-					entity::delete_entity(target->frezz_game_sync_object_id, true);
-					info->m_hash = hash;
-
-					script::get_current()->yield(1s);
-					plyr->frezz_game_sync = false;
+					//script::get_current()->yield(2s);
+					target->frezz_game_sync = false;
 					//entity::delete_entity(object, true);
 					//g_notification_service.push_crash_success("CRASH_INVALID_MODEL_HASH_MESSAGE"_T.data());
 				}
@@ -298,7 +295,8 @@ namespace big::troll
 				auto info     = model_info::get_model(hash);
 				LOG(INFO) << "info m_model_type " << (int)info->m_model_type;
 
-				Object object = entity::spawn_object_crash(hash, coords /*, (int)target_id*/);
+				int16_t Obje_id = 0;
+				Object object   = entity::spawn_object_crash(hash, coords, &Obje_id /*, (int)target_id*/);
 				if (object != NULL)
 				{
 					LOG(INFO) << "info m_model_type " << (int)info->m_model_type;

@@ -7,6 +7,15 @@
 #include <gta/enums.hpp>
 #include <network/netConnection.hpp> // cannot stub this
 
+//#include "base/CObject.hpp"
+//#include "core/data/task_types.hpp"
+//#include "util/model_info.hpp"
+//#include "services/gta_data/gta_data_service.hpp"
+//#include <entities/CDynamicEntity.hpp>
+
+#include <gta/fwddec.hpp>
+
+
 class CPlayerGamerDataNode;
 class CPlayerGameStateDataNode;
 class CPedInventoryDataNode;
@@ -38,6 +47,7 @@ class Network;
 class GtaThread;
 class CNetworkPlayerMgr;
 class CNetworkObjectMgr;
+
 
 enum class eAckCode : uint32_t;
 
@@ -96,10 +106,16 @@ namespace big
 		static void* assign_physical_index(CNetworkPlayerMgr* netPlayerMgr, CNetGamePlayer* player, uint8_t new_index);
 
 		//SYNC
-		static void received_clone_create(CNetworkObjectMgr* mgr, CNetGamePlayer* src, CNetGamePlayer* dst, eNetObjType object_type, int32_t object_id, int32_t object_flag, rage::datBitBuffer* buffer, int32_t timestamp);
+		static void received_clone_create(CNetworkObjectMgr* mgr, CNetGamePlayer* src, CNetGamePlayer* dst, eNetObjType object_type, uint16_t object_id, uint16_t object_flag, rage::datBitBuffer* buffer, int32_t timestamp);
 		static eAckCode received_clone_sync(CNetworkObjectMgr* mgr, CNetGamePlayer* src, CNetGamePlayer* dst, eNetObjType object_type, uint16_t object_id, rage::datBitBuffer* bufer, uint16_t unk, uint32_t timestamp);
 		static eAckCode send_clone_sync(CNetworkObjectMgr* mgr, CNetGamePlayer* player, rage::netObject* pObject, rage::datBitBuffer* msgBuffer, unsigned __int16* seqNum, bool sendImmediately);
 		static bool can_apply_data(rage::netSyncTree* tree, rage::netObject* object);
+
+		//rage::netObjectMgrBase::CloneObject PACKING_CLONE_CREATE
+		static void pack_clone_create(rage::netObjectMgrBase* mgr, rage::netObject* pnObject, rage::netPlayer* netPlayer, rage::datBitBuffer* msgBuffer);
+		//rage::netObjectMgrBase::SyncClone
+		static bool pack_clone_sync(rage::netObjectMgrBase* mgr, rage::netObject* pnObject, rage::netPlayer* netPlayer);
+		
 
 		static void write_player_gamer_data_node(rage::netObject* player, CPlayerGamerDataNode* node);
 		static void write_player_game_state_data_node(rage::netObject* player, CPlayerGameStateDataNode* node);

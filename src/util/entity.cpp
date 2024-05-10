@@ -351,8 +351,10 @@ namespace big::entity
 		return closest_entity;
 	}
 
-	Object spawn_object_crash(Hash hash, Vector3 coords/*, int player_id*/)
+	Object spawn_object_crash(Hash hash, Vector3 coords, int16_t *object_network_id /*, int player_id*/)
 	{
+
+
 		if (big::entity::request_model(hash))
 		{
 			//auto info     = model_info::get_model(hash);
@@ -362,15 +364,15 @@ namespace big::entity
 
 			//if (ENTITY::DOES_ENTITY_EXIST(object))
 			//{
-				int network_id = NETWORK::OBJ_TO_NET(object);
-
-				if (NETWORK::NETWORK_GET_ENTITY_IS_NETWORKED(object))
-					NETWORK::SET_NETWORK_ID_EXISTS_ON_ALL_MACHINES(network_id, true);
+			int network_id = NETWORK::OBJ_TO_NET(object);
+			*object_network_id = network_id;
+			if (NETWORK::NETWORK_GET_ENTITY_IS_NETWORKED(object))
+				NETWORK::SET_NETWORK_ID_EXISTS_ON_ALL_MACHINES(network_id, true);
 				//NETWORK::SET_NETWORK_ID_ALWAYS_EXISTS_FOR_PLAYER(network_id, player_id, true);
 
 				//big::script::get_current()->yield();
-				STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(hash);
-				return object;
+			STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(hash);
+			return object;
 			//}
 		}
 		return NULL;

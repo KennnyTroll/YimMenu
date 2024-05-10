@@ -468,6 +468,24 @@ namespace big
                 g_pointers->m_gta.m_send_clone_sync = ptr.as<decltype(gta_pointers::m_send_clone_sync)>();
             }
         },
+        // Send pack clone create
+        {
+            "PCC",
+            "4C 8B DC 49 89 5B 08 49 89 6B 18 49 89 73 20 57 41 54 41 55 41 56 41 57 48 83 EC 50 48 8B 02 4D 8B F8 4C 8B",
+            [](memory::handle ptr) 
+            {
+                g_pointers->m_gta.m_send_pack_clone_create = ptr.as<decltype(gta_pointers::m_send_pack_clone_create)>();
+            }
+        },
+        // Send pack clone sync
+        {
+            "PCS",
+            "48 89 5C 24 08 55 56 57 41 54 41 55 41 56 41 57 48 8D AC 24 E0 FC",
+            [](memory::handle ptr) 
+            {
+                g_pointers->m_gta.m_send_pack_clone_sync = ptr.as<decltype(gta_pointers::m_send_pack_clone_sync)>();
+            }
+        },
         // Read Bitbuffer Into Sync Tree
         {
             "RBIST",

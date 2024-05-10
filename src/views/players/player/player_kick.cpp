@@ -39,9 +39,19 @@ namespace big
 			
 			components::player_command_button<"desync">(g_player_service->get_selected());
 
+
+			static char freeze_fake_model[64];
+			std::memcpy(freeze_fake_model, g.protections.freeze_fake_model.c_str(), sizeof(g.protections.freeze_fake_model));
+			if (ImGui::InputTextWithHint("Fake_model", "MODEL", freeze_fake_model, sizeof(freeze_fake_model)))
+			{
+				g.protections.freeze_fake_model = freeze_fake_model;
+			}
+			if (ImGui::IsItemActive())
+				g.self.hud.typing = TYPING_TICKS;
+
 			static char freeze_model[64];
 			std::memcpy(freeze_model, g.protections.freeze_model.c_str(), sizeof(g.protections.freeze_model));
-			if (ImGui::InputTextWithHint("freeze_model_h", "MODEL", freeze_model, sizeof(freeze_model)))
+			if (ImGui::InputTextWithHint("Frez_model", "MODEL", freeze_model, sizeof(freeze_model)))
 			{
 				g.protections.freeze_model = freeze_model;
 			}

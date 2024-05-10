@@ -118,7 +118,7 @@ namespace big
 		bool frezz_game_sync   = false;
 		bool recev_log                 = false;
 		//int16_t frezz_game_sync_object_id = false;
-		std::int32_t frezz_game_sync_object_id = 0;
+		std::int16_t frezz_game_sync_object_id = 0;
 
 		bool trigger_desync_kick = false;
 		bool trigger_end_session_kick = false;

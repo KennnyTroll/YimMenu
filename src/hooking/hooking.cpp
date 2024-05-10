@@ -62,6 +62,9 @@ namespace big
 		detour_hook_helper::add<hooks::received_clone_sync>("RCS", g_pointers->m_gta.m_received_clone_sync);
 		detour_hook_helper::add<hooks::send_clone_sync>("SCS", g_pointers->m_gta.m_send_clone_sync);
 		detour_hook_helper::add<hooks::can_apply_data>("CAD", g_pointers->m_gta.m_can_apply_data);
+	
+		detour_hook_helper::add<hooks::pack_clone_create>("PCC", g_pointers->m_gta.m_send_pack_clone_create);
+		detour_hook_helper::add<hooks::pack_clone_sync>("PCS", g_pointers->m_gta.m_send_pack_clone_sync);
 
 		detour_hook_helper::add<hooks::get_network_event_data>("GNED", g_pointers->m_gta.m_get_network_event_data);
 		detour_hook_helper::add<hooks::write_player_gamer_data_node>("WPGDN", g_pointers->m_gta.m_write_player_gamer_data_node);
