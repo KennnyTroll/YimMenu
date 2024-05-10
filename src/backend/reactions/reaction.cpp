@@ -33,7 +33,7 @@ namespace big
 		if (kick && !player->is_friend())
 		{
 			g_fiber_pool->queue_job([player] {
-				dynamic_cast<player_command*>(command::get("multikick"_J))->call(player, {});
+				dynamic_cast<player_command*>(command::get("smartkick"_J))->call(player, {});
 			});
 		}
 
@@ -60,8 +60,7 @@ namespace big
 
 		if (log)
 		{
-			uint64_t rockstar_id = player->get_net_data() == nullptr ? 0 : player->get_net_data()->m_gamer_handle.m_rockstar_id;
-			LOGF(WARNING, "Received {} from {} ({})", m_event_name, player->get_name(), rockstar_id);
+			LOGF(WARNING, "Received {} from {} ({})", m_event_name, player->get_name(), player->get_rockstar_id());
 		}
 
 		if (announce_in_chat && !g.self.safetypoint)
@@ -93,8 +92,7 @@ namespace big
 
 		if (log)
 		{
-			uint64_t rockstar_id = player->get_net_data() == nullptr ? 0 : player->get_net_data()->m_gamer_handle.m_rockstar_id;
-			LOGF(WARNING, "Received {} from {} ({})", m_event_name, player->get_name(), rockstar_id);
+			LOGF(WARNING, "Received {} from {} ({})", m_event_name, player->get_name(), player->get_rockstar_id());
 		}
 
 		if (notify)

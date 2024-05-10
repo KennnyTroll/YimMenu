@@ -5,13 +5,14 @@
 #include "hooking/hooking.hpp"
 #include "lua/lua_manager.hpp"
 #include "util/math.hpp"
-#include "util/session.hpp"
 #include "util/script_database.hpp"
+#include "util/session.hpp"
 
 #include <network/CNetGamePlayer.hpp>
 #include <network/Network.hpp>
 #include <script/globals/GPBD_FM_3.hpp>
 #include <script/globals/GlobalPlayerBD.hpp>
+
 
 namespace big
 {
@@ -85,71 +86,78 @@ namespace big
 
 		switch (hash)
 		{
-			case eRemoteEvent::Bounty:
-				if (g.protections.script_events.bounty && args[3] == self::id)
-				{
-					g.reactions.bounty.process(plyr);
-					return true;
-				}
-				break;
-			case eRemoteEvent::CeoKick:
-				if (player->m_player_id != scr_globals::gpbd_fm_3.as<GPBD_FM_3*>()->Entries[self::id].BossGoon.Boss)
-				{
-					g.reactions.ceo_kick.process(plyr);
-					return true;
-				}
-				break;
-			case eRemoteEvent::CeoMoney:
-				if (g.protections.script_events.ceo_money
-					&& player->m_player_id != scr_globals::gpbd_fm_3.as<GPBD_FM_3*>()->Entries[self::id].BossGoon.Boss)
-				{
-					g.reactions.ceo_money.process(plyr);
-					return true;
-				}
-				break;
-			case eRemoteEvent::ClearWantedLevel:
-				if (g.protections.script_events.clear_wanted_level && !is_player_driver_of_local_vehicle(player->m_player_id))
-				{
-					g.reactions.clear_wanted_level.process(plyr);
-					return true;
-				}
-				break;
-			case eRemoteEvent::Crash: g.reactions.crash.process(plyr); return true;
-			case eRemoteEvent::Crash2:
-				if (args[3] > 32) // actual crash condition is if args[2] is above 255
-				{
-					g.reactions.crash.process(plyr);
-					return true;
-				}
-				break;
-			case eRemoteEvent::Crash3:
+		case eRemoteEvent::Bounty:
+			if (g.protections.script_events.bounty && args[3] == self::id)
 			{
-				if (isnan(*(float*)&args[4]) || isnan(*(float*)&args[5]))
+				g.reactions.bounty.process(plyr);
+				return true;
+			}
+			break;
+		case eRemoteEvent::CeoKick:
+			if (player->m_player_id != scr_globals::gpbd_fm_3.as<GPBD_FM_3*>()->Entries[self::id].BossGoon.Boss)
+			{
+				g.reactions.ceo_kick.process(plyr);
+				return true;
+			}
+			break;
+		case eRemoteEvent::CeoMoney:
+			if (g.protections.script_events.ceo_money
+			    && player->m_player_id != scr_globals::gpbd_fm_3.as<GPBD_FM_3*>()->Entries[self::id].BossGoon.Boss)
+			{
+				g.reactions.ceo_money.process(plyr);
+				return true;
+			}
+			break;
+		case eRemoteEvent::ClearWantedLevel:
+			if (g.protections.script_events.clear_wanted_level && !is_player_driver_of_local_vehicle(player->m_player_id))
+			{
+				g.reactions.clear_wanted_level.process(plyr);
+				return true;
+			}
+			break;
+		case eRemoteEvent::Crash: g.reactions.crash.process(plyr); return true;
+		case eRemoteEvent::Crash2:
+			if (args[3] > 32) // actual crash condition is if args[2] is above 255
+			{
+				g.reactions.crash.process(plyr);
+				return true;
+			}
+			break;
+		case eRemoteEvent::Crash3:
+		{
+			if (isnan(*(float*)&args[4]) || isnan(*(float*)&args[5]))
+			{
+				g.reactions.crash.process(plyr);
+				return true;
+			}
+			if (args[3] == -4640169 && args[7] == -36565476 && args[8] == -53105203)
+			{
+				session::add_infraction(plyr, Infraction::TRIED_CRASH_PLAYER);
+				g.reactions.crash.process(plyr);
+
+				return true;
+			}
+			break;
+		}
+		case eRemoteEvent::Notification:
+		{
+			switch (static_cast<eRemoteEvent>(args[3]))
+			{
+			case eRemoteEvent::NotificationMoneyBanked: // never used
+			case eRemoteEvent::NotificationMoneyRemoved:
+			case eRemoteEvent::NotificationMoneyStolen: g.reactions.fake_deposit.process(plyr); return true;
+			case eRemoteEvent::NotificationCrash1:                             // this isn't used by the game
+				session::add_infraction(plyr, Infraction::TRIED_CRASH_PLAYER); // stand user detected
+				return true;
+			case eRemoteEvent::NotificationCrash2:
+				if (!gta_util::find_script_thread("gb_salvage"_J))
 				{
-					g.reactions.crash.process(plyr);
+					// This looks like it's meant to trigger a sound crash by spamming too many notifications. We've already patched it, but the notifications are still annoying
+					session::add_infraction(plyr, Infraction::TRIED_CRASH_PLAYER); // stand user detected
 					return true;
 				}
 				break;
 			}
-			case eRemoteEvent::Notification:
-			{
-				switch (static_cast<eRemoteEvent>(args[3]))
-				{
-				case eRemoteEvent::NotificationMoneyBanked: // never used
-				case eRemoteEvent::NotificationMoneyRemoved:
-				case eRemoteEvent::NotificationMoneyStolen: g.reactions.fake_deposit.process(plyr); return true;
-				case eRemoteEvent::NotificationCrash1:                             // this isn't used by the game
-					session::add_infraction(plyr, Infraction::TRIED_CRASH_PLAYER); // stand user detected
-					return true;
-				case eRemoteEvent::NotificationCrash2:
-					if (!gta_util::find_script_thread("gb_salvage"_J))
-					{
-						// This looks like it's meant to trigger a sound crash by spamming too many notifications. We've already patched it, but the notifications are still annoying
-						session::add_infraction(plyr, Infraction::TRIED_CRASH_PLAYER); // stand user detected
-						return true;
-					}
-					break;
-				}
 
 				break;
 			}
@@ -382,28 +390,26 @@ namespace big
 					return true; // this is fine, the game will reject our false positives anyway
 				}
 
-				break;
-			}
-			case eRemoteEvent::DestroyPersonalVehicle:
-				g.reactions.destroy_personal_vehicle.process(plyr);
-				return true;
-			case eRemoteEvent::KickFromInterior:
-				if (scr_globals::globalplayer_bd.as<GlobalPlayerBD*>()->Entries[self::id].SimpleInteriorData.Owner != plyr->id())
-				{
-					g.reactions.kick_from_interior.process(plyr);
-					return true;
-				}
-				break;
-			case eRemoteEvent::TriggerCEORaid:
+			break;
+		}
+		case eRemoteEvent::DestroyPersonalVehicle: g.reactions.destroy_personal_vehicle.process(plyr); return true;
+		case eRemoteEvent::KickFromInterior:
+			if (scr_globals::globalplayer_bd.as<GlobalPlayerBD*>()->Entries[self::id].SimpleInteriorData.Owner != plyr->id())
 			{
-				if (auto script = gta_util::find_script_thread("freemode"_J))
+				g.reactions.kick_from_interior.process(plyr);
+				return true;
+			}
+			break;
+		case eRemoteEvent::TriggerCEORaid:
+		{
+			if (auto script = gta_util::find_script_thread("freemode"_J))
+			{
+				if (script->m_net_component && ((CGameScriptHandlerNetComponent*)script->m_net_component)->m_host
+				    && ((CGameScriptHandlerNetComponent*)script->m_net_component)->m_host->m_net_game_player != player)
 				{
-					if (script->m_net_component && ((CGameScriptHandlerNetComponent*)script->m_net_component)->m_host
-						&& ((CGameScriptHandlerNetComponent*)script->m_net_component)->m_host->m_net_game_player != player)
-					{
-						g.reactions.trigger_business_raid.process(plyr);
-					}
+					g.reactions.trigger_business_raid.process(plyr);
 				}
+			}
 
 			return true;
 		}
@@ -443,7 +449,6 @@ namespace big
 			{
 				g.reactions.start_script.only_notify(plyr);
 			}
-
 		}
 		}
 
@@ -460,7 +465,7 @@ namespace big
 		    && (!g.debug.logs.script_event.filter_player || g.debug.logs.script_event.player_id == player->m_player_id)) [[unlikely]]
 		{
 			std::stringstream output;
-			output << "Script Event From: " << player->get_name() << " (" << player->get_net_data()->m_gamer_handle.m_rockstar_id << ") Args: { ";
+			output << "Script Event From: " << player->get_name() << " (" << plyr->get_rockstar_id() << ") Args: { ";
 			for (int i = 0; i < args_count; i++)
 			{
 				if (i)
@@ -476,7 +481,8 @@ namespace big
 			auto local_time = *std::localtime(&timer);
 
 			static std::ofstream log(g_file_manager.get_project_file("./script_events.log").get_path(), std::ios::app);
-			log << "[" << std::put_time(&local_time, "%m/%d/%Y %I:%M:%S") << ":" << std::setfill('0') << std::setw(3) << ms.count() << " " << std::put_time(&local_time, "%p") << "] " << output.str() << std::endl;
+			log << "[" << std::put_time(&local_time, "%m/%d/%Y %I:%M:%S") << ":" << std::setfill('0') << std::setw(3) << ms.count() << " " << std::put_time(&local_time, "%p") << "] "
+			    << output.str() << std::endl;
 			log.flush();
 		}
 
