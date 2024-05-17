@@ -159,86 +159,102 @@ namespace big
 				break;
 			}
 
-				break;
+			break;
+		}
+		case eRemoteEvent::ForceMission:
+			if (g.protections.script_events.force_mission)
+			{
+				g.reactions.force_mission.process(plyr);
+				return true;
 			}
-			case eRemoteEvent::ForceMission:
-				if (g.protections.script_events.force_mission)
+			break;
+		case eRemoteEvent::GiveCollectible:
+			if (g.protections.script_events.give_collectible)
+			{
+				g.reactions.give_collectible.process(plyr);
+				return true;
+			}
+			break;
+		case eRemoteEvent::GtaBanner:
+			if (g.protections.script_events.gta_banner)
+			{
+				g.reactions.gta_banner.process(plyr);
+				return true;
+			}
+			break;
+		case eRemoteEvent::MCTeleport:
+			if (g.protections.script_events.mc_teleport && args[4] <= 32 && !is_player_our_boss(plyr->id()))
+			{
+				for (int i = 0; i < 32; i++)
 				{
-					g.reactions.force_mission.process(plyr);
-					return true;
-				}
-				break;
-			case eRemoteEvent::GiveCollectible:
-				if (g.protections.script_events.give_collectible)
-				{
-					g.reactions.give_collectible.process(plyr);
-					return true;
-				}
-				break;
-			case eRemoteEvent::GtaBanner:
-				if (g.protections.script_events.gta_banner)
-				{
-					g.reactions.gta_banner.process(plyr);
-					return true;
-				}
-				break;
-			case eRemoteEvent::MCTeleport:
-				if (g.protections.script_events.mc_teleport && args[4] <= 32 && !is_player_our_boss(plyr->id()))
-				{
-					for (int i = 0; i < 32; i++)
+					if (args[5 + i] == NETWORK::NETWORK_HASH_FROM_PLAYER_HANDLE(self::id))
 					{
-						if (args[5 + i] == NETWORK::NETWORK_HASH_FROM_PLAYER_HANDLE(self::id))
-						{
-							g.reactions.mc_teleport.process(plyr);
-							return true;
-						}
+						g.reactions.mc_teleport.process(plyr);
+						return true;
 					}
 				}
-				else if (args[4] > 32)
-				{
-					g.reactions.crash.process(plyr);
-					return true;
-				}
-				break;
-			case eRemoteEvent::PersonalVehicleDestroyed:
-				if (g.protections.script_events.personal_vehicle_destroyed)
-				{
-					g.reactions.personal_vehicle_destroyed.process(plyr);
-					return true;
-				}
-				break;
-			case eRemoteEvent::RemoteOffradar:
-				if (g.protections.script_events.remote_off_radar && !is_player_our_boss(plyr->id()) && !is_player_driver_of_local_vehicle(plyr->id()))
-				{
-					g.reactions.remote_off_radar.process(plyr);
-					return true;
-				}
-				break;
-			case eRemoteEvent::TSECommand:
-				if (g.protections.script_events.rotate_cam && static_cast<eRemoteEvent>(args[3]) == eRemoteEvent::TSECommandRotateCam && !NETWORK::NETWORK_IS_ACTIVITY_SESSION())
-				{
-					g.reactions.rotate_cam.process(plyr);
-					return true;
-				}
-				break;
-			case eRemoteEvent::SendToCayoPerico:
-				if (g.protections.script_events.send_to_location && args[4] == 0)
-				{
-					g.reactions.send_to_location.process(plyr);
-					return true;
-				}
-				break;
-			case eRemoteEvent::SendToCutscene:
-				if (g.protections.script_events.send_to_cutscene && !is_player_our_boss(plyr->id()))
-				{
-					g.reactions.send_to_cutscene.process(plyr);
-					return true;
-				}
-				break;
-			case eRemoteEvent::SendToLocation:
+			}
+			else if (args[4] > 32)
 			{
-				if (is_player_our_boss(plyr->id()))
-					break;
+				g.reactions.crash.process(plyr);
+				return true;
+			}
+			break;
+		case eRemoteEvent::PersonalVehicleDestroyed:
+			if (g.protections.script_events.personal_vehicle_destroyed)
+			{
+				g.reactions.personal_vehicle_destroyed.process(plyr);
+				return true;
+			}
+			break;
+		case eRemoteEvent::RemoteOffradar:
+			if (g.protections.script_events.remote_off_radar && !is_player_our_boss(plyr->id()) && !is_player_driver_of_local_vehicle(plyr->id()))
+			{
+				g.reactions.remote_off_radar.process(plyr);
+				return true;
+			}
+			break;
+		case eRemoteEvent::TSECommand:
+		{
+			if (NETWORK::NETWORK_IS_ACTIVITY_SESSION())
+				break;
+
+			if (g.protections.script_events.rotate_cam && static_cast<eRemoteEvent>(args[3]) == eRemoteEvent::TSECommandRotateCam)
+			{
+				g.reactions.rotate_cam.process(plyr);
+				return true;
+			}
+
+			if (g.protections.script_events.sound_spam && static_cast<eRemoteEvent>(args[3]) == eRemoteEvent::TSECommandSound)
+			{
+				if (!plyr || plyr->m_play_sound_rate_limit_tse.process())
+				{
+					if (plyr->m_play_sound_rate_limit_tse.exceeded_last_process())
+						g.reactions.sound_spam.process(plyr);
+					return true;
+				}
+			}
+
+			break;
+		}
+		case eRemoteEvent::SendToCayoPerico:
+			if (g.protections.script_events.send_to_location && args[4] == 0)
+			{
+				g.reactions.send_to_location.process(plyr);
+				return true;
+			}
+			break;
+		case eRemoteEvent::SendToCutscene:
+			if (g.protections.script_events.send_to_cutscene && !is_player_our_boss(plyr->id()))
+			{
+				g.reactions.send_to_cutscene.process(plyr);
+				return true;
+			}
+			break;
+		case eRemoteEvent::SendToLocation:
+		{
+			if (is_player_our_boss(plyr->id()))
+				break;
 
 				bool known_location = false;
 

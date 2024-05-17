@@ -1,6 +1,7 @@
 #include "hooking/hooking.hpp"
 #include "services/players/player_service.hpp"
 #include "util/notify.hpp"
+#include "gta/pools.hpp"
 
 #include "base/CObject.hpp"
 #include "core/data/task_types.hpp"
@@ -818,6 +819,14 @@ namespace big
 			return;
 		}
 
+		if (*g_pointers->m_gta.m_clone_create_pool && (*g_pointers->m_gta.m_clone_create_pool)->m_size < 2)
+		{
+			// We don't have enough memory to handle this
+			g_notification_service.push_warning("Protections", "Low net object pool size");
+			return;
+		}
+
+		auto plyr = g_player_service->get_by_id(src->m_player_id);
 		auto sender_plyr = g_player_service->get_by_id(sender->m_player_id);
 
 		if (sender_plyr && sender_plyr->block_clone_create) [[unlikely]]
