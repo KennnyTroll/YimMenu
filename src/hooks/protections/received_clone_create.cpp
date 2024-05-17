@@ -826,7 +826,7 @@ namespace big
 			return;
 		}
 
-		auto plyr = g_player_service->get_by_id(src->m_player_id);
+		//auto plyr = g_player_service->get_by_id(src->m_player_id);
 		auto sender_plyr = g_player_service->get_by_id(sender->m_player_id);
 
 		if (sender_plyr && sender_plyr->block_clone_create) [[unlikely]]
