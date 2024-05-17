@@ -20,8 +20,6 @@ namespace big
 	{
 		if (!attacker->is_valid() || !victim->is_valid())
 			return;
-		if ((attacker->is_friend() && g.session.trust_friends) || attacker->is_trusted || g.session.trust_session)
-			return;
 
 		if (log)
 		{
@@ -32,6 +30,9 @@ namespace big
 			    attacker->get_rockstar_id(),
 			    victim->get_name());
 		}
+
+		if ((attacker->is_friend() && g.session.trust_friends) || attacker->is_trusted || g.session.trust_session)
+			return;
 
 		if (announce_in_chat)
 		{

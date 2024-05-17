@@ -204,6 +204,14 @@ namespace big
 					}
 				}
 			}
+
+			//if (CPed* Cped_p = entry.second->get_ped())
+			//if (Cped_p->m_weapon_manager != nullptr)
+			//{
+			//	int64_t pwm    = reinterpret_cast<int64_t>(g_local_player->m_weapon_manager);
+			//	Vector3 imppoz = *reinterpret_cast<Vector3*>(pwm + 432);
+			//}
+
 		});
 	}
 }

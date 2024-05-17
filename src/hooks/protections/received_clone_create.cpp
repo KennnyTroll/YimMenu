@@ -64,6 +64,10 @@
 #include "netsync/nodes/vehicle/CVehicleProximityMigrationDataNode.hpp"
 #include "netsync/nodes/vehicle/CVehicleTaskDataNode.hpp"
 
+#include "pointers.hpp"
+#include "gta/net_object_mgr.hpp"
+#include "util/entity.hpp"
+
 namespace big
 {
 	template<typename T>
@@ -760,7 +764,7 @@ namespace big
 			return std::format("{}", net_id);
 
 		if (auto game_obj = net_obj->GetGameObject(); !game_obj || !game_obj->m_model_info)
-			return std::format("{} ({})", net_id, net_object_type_strs[net_obj->m_object_type]);
+			return std::format("{} ({})", net_id, net_obj->m_object_type < 13 ? net_object_type_strs[net_obj->m_object_type] : "");
 
 		return std::format("{} ({}, {})",
 		    net_id,
@@ -807,6 +811,7 @@ namespace big
 
 	void hooks::received_clone_create(CNetworkObjectMgr* mgr, CNetGamePlayer* sender, CNetGamePlayer* toPlayer, eNetObjType object_type, uint16_t object_id, uint16_t object_flag, rage::datBitBuffer* buffer, int32_t timestamp)
 	{
+		if (sender->m_player_id != self::id) [[unlikely]]
 		if (object_type < eNetObjType::NET_OBJ_TYPE_AUTOMOBILE || object_type > eNetObjType::NET_OBJ_TYPE_TRAIN) [[unlikely]]
 		{
 			notify::crash_blocked(sender, "out of bounds object type");
@@ -815,12 +820,16 @@ namespace big
 
 		auto sender_plyr = g_player_service->get_by_id(sender->m_player_id);
 
+		if (sender_plyr && sender_plyr->block_clone_create) [[unlikely]]
+			return;
+
+
 		uint32_t model_hash = 0;
 		if (sender_plyr && sender_plyr->cad_log) [[unlikely]]
 		{
 			LOG(INFO) << "received_clone_create sender_plyr " << sender_plyr->get_name();
 
-			LOG(INFO) << "id " << (int)object_id << "  flag " << (int)object_flag << "  type " << (int)object_type << "  " << net_object_type_strs[(int)object_type];
+			LOG(INFO) << "id " << (int)object_id << "  flag " << (int)object_flag << "  type " << (int)object_type /*<< "  " << net_object_type_strs[(int)object_type]*/;
 
 
 			LOG(INFO) << "string info : " << get_network_id_string(object_id);
@@ -828,7 +837,7 @@ namespace big
 			rage::netSyncTree* tree = g_pointers->m_gta.m_get_sync_tree_for_type(mgr, (uint16_t)object_type);
 
 			//uint64_t creation_data  = 0;
-			if (tree != nullptr && get_node_creation(tree->m_last_sync_node->m_parent, object_type, buffer, sender, &model_hash /*, &creation_data*/))
+			if (tree != nullptr && get_node_creation(tree->m_last_sync_node, object_type, buffer, sender, &model_hash /*, &creation_data*/))
 			{
 				LOG(INFO) << "get_tree_node_creation info :";
 				LOG(INFO) << std::format("model_hash : 0x{:X}", model_hash);
@@ -860,22 +869,32 @@ namespace big
 			    (int)object_type,
 			    (int)object_id);
 
-			std::string mess = "Entity info: \n ";
+			std::string mess = "Entity info: ";
 			//mess += std::format("{}\n", get_network_id_string(netobj->m_object_id));
-			auto net_obj = g_pointers->m_gta.m_get_net_object(*g_pointers->m_gta.m_network_object_mgr, object_id, false);
+			auto net_obj = g_pointers->m_gta.m_get_net_object(mgr, object_id, true);
+			if (!net_obj)
+			{
+				net_obj = g_pointers->m_gta.m_get_net_object(mgr, object_id, false);
+				LOG(INFO) << std::format("m_get_net_object mgr, object_id, false");
+			}
+
 			if (!net_obj)
 				mess += std::format("{}\n", (int)object_id);
 			else
 			{
 				if (auto game_obj = net_obj->GetGameObject(); !game_obj || !game_obj->m_model_info)
-					mess += std::format("{}\n {}\n", (int)object_id, net_object_type_strs[net_obj->m_object_type]);
+					mess += std::format("{}\n {}\n",
+					    (int)object_id,
+					    net_obj->m_object_type < 13 ? net_object_type_strs[net_obj->m_object_type] : "");
 				else
 				{
 					//mess += std::format("{}\n {}\n  {}\n",
 					//    netobj->m_object_id,
 					//    net_object_type_strs[net_obj->m_object_type],
 					//    get_model_hash_string(net_obj->GetGameObject()->m_model_info->m_hash));
-					mess += std::format("{}\n {}\n", (int)object_id, net_object_type_strs[net_obj->m_object_type]);
+					mess += std::format("{}\n {}\n",
+					    (int)object_id,
+					    net_obj->m_object_type < 13 ? net_object_type_strs[net_obj->m_object_type] : "");
 					//get_model_hash_string(net_obj->GetGameObject()->m_model_info->m_hash));
 					uint32_t model = net_obj->GetGameObject()->m_model_info->m_hash;
 					auto info      = model_info::get_model(model);
@@ -911,79 +930,44 @@ namespace big
 						else
 						{
 							mess += std::format("{} (0x{:X})\n", model_str, model);
-						}
-
-
-
-
-						
-
+						}	
 					}
+
+
+					Vector3 coords = *game_obj->m_navigation->get_position();
+					mess += std::format("position {:.03f} {:.03f} {:.03f}\n",
+					    (float)coords.x,
+					    (float)coords.y,
+					    (float)coords.z);
 				}
-
-
-				//				//CObject* Obj = reinterpret_cast<CObject*>(g_pointers->m_gta.m_handle_to_ptr(entity));
-				//CObject* Obj = (CObject*)g_pointers->m_gta.m_handle_to_ptr(entity);
-				//if (Obj != nullptr && Obj->m_model_info != nullptr)
-				//	mess += std::format("Obj m_hash: 0x{:X} \n", Obj->m_model_info->m_hash);
-
-				//CObject* Obj2 = reinterpret_cast<CObject*>(g_pointers->m_gta.m_handle_to_ptr(entity));
-				////CObject* Obj = (CObject*)g_pointers->m_gta.m_handle_to_ptr(entity);
-				//if (Obj2 != nullptr && Obj2->m_model_info != nullptr)
-				//	mess += std::format("Obj2 m_hash: 0x{:X} \n", Obj2->m_model_info->m_hash);
-
-				////mess += std::format("m_object_type :{} {}\t", (int)netobj->m_object_type, net_object_type_strs[netobj->m_object_type]);
-				//mess += std::format("m_object_type: {} \n", (int)netobj->m_object_type);
-
-				//mess += std::format("m_object_id: {}\n", (int)netobj->m_object_id);
-
-				//if (auto owner_plyr = g_player_service->get_by_id((uint32_t)netobj->m_owner_id))
-				//	mess += std::format("m_owner_id: {} {}\n", (int)netobj->m_owner_id, owner_plyr->get_name());
-				//else
-				//	mess += std::format("m_owner_id: {}\n", (int)netobj->m_owner_id);
-
-				//if (auto control_plyr = g_player_service->get_by_id((uint32_t)netobj->m_control_id))
-				//	mess += std::format("m_control_id: {} {}\n", (int)netobj->m_control_id, control_plyr->get_name());
-				//else
-				//	mess += std::format("m_control_id: {}\n", (int)netobj->m_control_id);
-
-				//if (auto next_owner_plyr = g_player_service->get_by_id((uint32_t)netobj->m_next_owner_id))
-				//	mess += std::format("m_next_owner_id: {} {}\n", (int)netobj->m_next_owner_id, next_owner_plyr->get_name());
-				//else
-				//	mess += std::format("m_next_owner_id: {}\n", (int)netobj->m_next_owner_id);
-
-				//mess += std::format("m_is_remote: {}\n", (int)netobj->m_is_remote);
-				//mess += std::format("m_wants_to_delete: {}\n", (int)netobj->m_wants_to_delete);
-				//mess += std::format("m_should_not_be_delete: {}\n", (int)netobj->m_should_not_be_delete);
-
-				//Vector3 coords = *netobj->GetGameObject()->m_navigation->get_position();
-				//mess +=
-				//    std::format("position {:.03f} {:.03f} {:.03f}\n", (float)coords.x, (float)coords.y, (float)coords.z);
-
-
-				//LOG(INFO) << mess.c_str();
-
-
-
-
-
-
-
-
-
 			}	
-
 			LOG(INFO) << mess.c_str();
-
-
 		}
 
-		if (sender_plyr && sender_plyr->block_clone_create) [[unlikely]]
-			return;
+		//if (sender_plyr && object_id == sender_plyr->target_object_id && sender_plyr->target_object_id != -1) [[unlikely]]
+		//{
+		//	LOG(INFO) << std::format("===> RECEIVED CLONE CREAT - object id {} type {} =>  FROM  {}",
+		//	    (int)object_id,
+		//	    (int)object_type,
+		//		sender_plyr->get_name());
+		//	entity::entity_info_mgr(mgr, (int)object_id);		
+		//}
+
+		if (sender_plyr && object_id == sender_plyr->target_object_id && (sender_plyr->target_object_id != -1)) [[unlikely]]
+		{				
+			//LOG(INFO) << std::format("RECEIVED CLONE CREAT - ACKCODE_TOO_MANY_OBJECTS - object id {} => FROM {}", (int)object_id, sender->get_name());
+			//(rage::netObjectMgrMessageHandler::AddCreateAck)(v35->m_MessageHandler, fromPlayer, toPlayer, objectID, v11);
+			//(*g_pointers->m_gta.m_network_object_mgr)->HandleCloneCreateAck(sender, toPlayer, object_id, eAckCode::ACKCODE_TOO_MANY_OBJECTS);
+			//sender_plyr->target_object_id = -1;	
+			//mgr->HandleCloneCreateAck(sender, toPlayer, object_id, eAckCode::ACKCODE_TOO_MANY_OBJECTS); //ACKCODE_SUCCESS	
+			//entity::spawn_redirect_object(sender_plyr);
+			//
+			//return;
+		}
 
 		g.m_syncing_player      = sender;
 		g.m_syncing_object_type = object_type;
-		g.m_syncing_model_hash  = model_hash;
+		//g.m_syncing_model_hash  = model_hash;
 
 		g.debug.fuzzer.thread_id = GetCurrentThreadId();
 		if (g.debug.fuzzer.enabled_object_types[(int)object_type]) [[unlikely]]
@@ -991,6 +975,9 @@ namespace big
 		g.debug.fuzzer.syncing_object_id = object_id;
 		g_hooking->get_original<hooks::received_clone_create>()(mgr, sender, toPlayer, object_type, object_id, object_flag, buffer, timestamp);
 		g.debug.fuzzer.active = false;
+
+		if (sender_plyr && object_id == sender_plyr->target_object_id && (sender_plyr->target_object_id != -1)) [[unlikely]]
+			LOG(INFO) << std::format("RECEIVED CLONE CREAT END !");
 	}
 
 }

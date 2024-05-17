@@ -4,6 +4,15 @@
 
 namespace big::protection
 {
+	constexpr auto cage_objects = {"prop_gold_cont_01"_J, "prop_gold_cont_01b"_J, "prop_container_01a"_J, "prop_container_01b"_J, "prop_container_01c"_J, "prop_container_01d"_J, "prop_container_01e"_J, "prop_container_01f"_J, "prop_container_01g"_J, "prop_container_01h"_J, "prop_container_01mb"_J, "prop_container_02a"_J, "prop_container_03a"_J, "prop_container_03b"_J, "prop_container_03mb"_J, "prop_container_03_ld"_J, "prop_container_04a"_J, "prop_container_04mb"_J, "prop_container_05mb"_J, "prop_container_door_mb_l"_J, "prop_container_door_mb_r"_J, "prop_container_hole"_J, "prop_container_ld"_J, "prop_container_ld2"_J, "prop_container_old1"_J, "prop_container_ld"_J, "prop_container_ld2"_J, "prop_container_old1"_J, "prop_dog_cage_02"_J, "prop_dog_cage_01"_J, "prop_dog_cage_02"_J, "prop_conslift_cage"_J, "prop_rub_cage01a"_J, "prop_gold_trolly"_J, "prop_gold_trolly_full"_J, "prop_gold_trolly_strap_01"_J, "prop_cctv_cont_01"_J, "prop_cctv_cont_03"_J, "prop_cctv_cont_04"_J, "prop_cctv_cont_05"_J, "prop_cctv_cont_06"_J, "prop_container_01a"_J, "prop_container_01b"_J, "prop_container_01c"_J, "prop_container_01d"_J, "prop_container_01e"_J, "prop_container_01f"_J, "prop_container_01g"_J, "prop_container_01h"_J, "prop_container_01mb"_J, "prop_container_02a"_J, "prop_container_03a"_J, "prop_container_03b"_J, "prop_container_03mb"_J, "prop_container_03_ld"_J, "prop_container_04a"_J, "prop_container_04mb"_J, "prop_container_05mb"_J, "prop_container_door_mb_l"_J, "prop_container_door_mb_r"_J, "prop_container_hole"_J, "prop_container_ld"_J, "prop_container_ld2"_J, "prop_container_old1"_J, "prop_contnr_pile_01a"_J, "prop_controller_01"_J, "prop_control_rm_door_01"_J, "prop_cont_chiller_01"_J, "prop_container_hole"_J, "prop_cont_chiller_01"_J};
+
+	bool is_cage_object(rage::joaat_t model)
+	{
+		for (auto iterator : cage_objects)
+			if (iterator == model)
+				return true;
+		return false;
+	}
 
 	constexpr auto crash_objects = {"prop_thindesertfiller_aa"_J, "prop_dummy_01"_J, "prop_dummy_car"_J, "prop_dummy_light"_J, "prop_dummy_plane"_J, "prop_distantcar_night"_J, "prop_distantcar_day"_J, "hei_bh1_08_details4_em_night"_J, "dt1_18_sq_night_slod"_J, "ss1_12_night_slod"_J, "hash_b334b5e2_qyquzxq_collision"_J, "h4_prop_bush_bgnvla_med_01"_J, "h4_prop_bush_bgnvla_lrg_01"_J, "h4_prop_bush_buddleia_low_01"_J, "h4_prop_bush_ear_aa"_J, "h4_prop_bush_ear_ab"_J, "h4_prop_bush_fern_low_01"_J, "h4_prop_bush_fern_tall_cc"_J, "h4_prop_bush_mang_ad"_J, "h4_prop_bush_mang_low_aa"_J, "h4_prop_bush_mang_low_ab"_J, "h4_prop_bush_seagrape_low_01"_J, "prop_h4_ground_cover"_J, "h4_prop_weed_groundcover_01"_J, "h4_prop_grass_med_01"_J, "h4_prop_grass_tropical_lush_01"_J, "h4_prop_grass_wiregrass_01"_J, "h4_prop_weed_01_plant"_J, "h4_prop_weed_01_row"_J, "urbanweeds02_l1"_J, "proc_forest_grass01"_J, "prop_small_bushyba"_J, "v_res_d_dildo_a"_J, "v_res_d_dildo_b"_J, "v_res_d_dildo_c"_J, "v_res_d_dildo_d"_J, "v_res_d_dildo_e"_J, "v_res_d_dildo_f"_J, "v_res_skateboard"_J, "prop_battery_01"_J, "prop_barbell_01"_J, "prop_barbell_02"_J, "prop_bandsaw_01"_J, "prop_bbq_3"_J, "v_med_curtainsnewcloth2"_J, "bh1_07_flagpoles"_J, "hash_058a7eb5_deihiws_collision"_J, "proc_dry_plants_01"_J, "proc_leafyplant_01"_J, "proc_grassplantmix_02"_J, "proc_dryplantsgrass_01"_J, "proc_dryplantsgrass_02"_J, "proc_dryplantsgrass_02"_J, "proc_grasses01"_J, "prop_dryweed_002_a"_J, "prop_fernba"_J, "prop_weed_001_aa"_J, "urbangrnfrnds_01"_J, "urbanweeds01"_J, "prop_dandy_b"_J, "v_proc2_temp"_J, "prop_fernbb"_J, "proc_drygrassfronds01"_J, "prop_log_ae"_J, "prop_grass_da"_J, "prop_fragtest_cnst_04"_J};
 
@@ -16,6 +25,26 @@ namespace big::protection
 		for (auto iterator : crash_objects)
 			if (iterator == model)
 				return true;
+		return false;
+	}
+
+	constexpr auto crash_objects_list_original_Complet = {"ng_proc_temp"_J, "proc_brittlebush_01"_J, "proc_desert_sage_01"_J, "proc_dry_plants_01"_J, "proc_drygrasses01"_J, "proc_drygrasses01b"_J, "proc_drygrassfronds01"_J, "proc_dryplantsgrass_01"_J, "proc_dryplantsgrass_02"_J, "proc_forest_grass_01"_J, "proc_forest_ivy_01"_J, "proc_grassdandelion01"_J, "proc_grasses01"_J, "proc_grasses01b"_J, "proc_grassfronds01"_J, "proc_grassplantmix_01"_J, "proc_grassplantmix_02"_J, "proc_indian_pbrush_01"_J, "proc_leafybush_01"_J, "proc_leafyplant_01"_J, "proc_lizardtail_01"_J, "proc_lupins_01"_J, "proc_meadowmix_01"_J, "proc_meadowpoppy_01"_J, "proc_sage_01"_J, "proc_scrub_bush01"_J, "proc_sml_reeds_01"_J, "proc_sml_reeds_01b"_J, "proc_sml_reeds_01c"_J, "proc_stones_01"_J, "proc_stones_02"_J, "proc_stones_03"_J, "proc_stones_04"_J, "proc_stones_05"_J, "proc_stones_06"_J, "proc_wildquinine"_J, "prop_dandy_b"_J, "prop_dryweed_001_a"_J, "prop_dryweed_002_a"_J, "prop_fern_01"_J, "prop_fernba"_J, "prop_fernbb"_J, "prop_flowerweed_005_a"_J, "prop_grass_001_a"_J, "prop_grass_ca"_J, "prop_grass_da"_J, "prop_log_aa"_J, "prop_log_ab"_J, "prop_log_ac"_J, "prop_log_ad"_J, "prop_log_ae"_J, "prop_log_af"_J, "prop_saplin_001_b"_J, "prop_saplin_001_c"_J, "prop_saplin_002_b"_J, "prop_saplin_002_c"_J, "prop_small_bushyba"_J, "prop_tall_drygrass_aa"_J, "prop_thindesertfiller_aa"_J, "prop_weed_001_aa"_J, "prop_weed_002_ba"_J, "urbandryfrnds_01"_J, "urbandrygrass_01"_J, "urbangrnfrnds_01"_J, "urbangrngrass_01"_J, "urbanweeds01"_J, "urbanweeds01_l1"_J, "urbanweeds02"_J, "urbanweeds02_l2"_J, "v_proc2_temp"_J, "barracks"_J, "barracks3"_J, "dune"_J, "marquis"_J, "marshall"_J, "monster"_J, "tug"_J};
+	constexpr auto crash_objects_list2 = {"proc_brittlebush_01"_J, "proc_desert_sage_01"_J, "proc_drygrasses01"_J, "proc_drygrasses01b"_J, "proc_drygrassfronds01"_J, "proc_forest_grass_01"_J, "proc_forest_ivy_01"_J, "proc_grassdandelion01"_J, "proc_grasses01b"_J, "proc_grassfronds01"_J, "proc_grassplantmix_01"_J, "proc_indian_pbrush_01"_J, "proc_leafybush_01"_J, "proc_lizardtail_01"_J, "proc_lupins_01"_J, "proc_meadowmix_01"_J, "proc_meadowpoppy_01"_J, "proc_sage_01"_J, "proc_scrub_bush01"_J, "proc_sml_reeds_01"_J, "proc_sml_reeds_01b"_J, "proc_sml_reeds_01c"_J, "proc_stones_01"_J, "proc_stones_02"_J, "proc_stones_03"_J, "proc_stones_04"_J, "proc_stones_05"_J, "proc_stones_06"_J, "proc_wildquinine"_J, "prop_dryweed_001_a"_J, "prop_fern_01"_J, "prop_fernbb"_J, "prop_flowerweed_005_a"_J, "prop_grass_001_a"_J, "prop_grass_ca"_J, "prop_grass_da"_J, "prop_log_aa"_J, "prop_log_ab"_J, "prop_log_ac"_J, "prop_log_ad"_J, "prop_log_ae"_J, "prop_log_af"_J, "prop_saplin_001_b"_J, "prop_saplin_001_c"_J, "prop_saplin_002_b"_J, "prop_saplin_002_c"_J, "prop_tall_drygrass_aa"_J, "prop_thindesertfiller_aa"_J, "prop_weed_002_ba"_J, "urbandryfrnds_01"_J, "urbandrygrass_01"_J, "urbangrngrass_01"_J, "urbanweeds01_l1"_J, "urbanweeds02"_J, "urbanweeds02_l2"_J, "barracks"_J, "barracks3"_J, "dune"_J, "marquis"_J, "marshall"_J, "monster"_J, "tug"_J};
+
+	bool is_crash_object_list2(rage::joaat_t model)
+	{
+		if (!model_info::get_model(model))
+			return false;
+		if (!model_info::is_model_of_type(model, eModelType::Object, eModelType::Time, eModelType::Weapon, eModelType::Destructable, eModelType::WorldObject, eModelType::Sprinkler, eModelType::Unk65, eModelType::Plant, eModelType::LOD, eModelType::Unk132, eModelType::Building))
+			return true;
+
+		for (auto iterator : crash_objects_list2)
+			if (iterator == model)
+				return true;
+
+		//https: //gist.github.com/Randolio/c2d46eaf0ab48fd4420d333daa80a424
+		//LOG(INFO) << std::format("model  0x{:X}  {}", (int32_t)model, (int32_t)model);
+
 		return false;
 	}
 

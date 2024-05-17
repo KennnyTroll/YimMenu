@@ -104,8 +104,10 @@ namespace big
 			if (ImGui::IsItemHovered())
 				ImGui::SetTooltip("PLAYER_TOXIC_BRING_PLAYER_OUT_GOD"_T.data());
 
+			ImGui::Checkbox("Redirect cage object to player pos", &g_player_service->get_selected()->redirect_cage_object);
+
 			static int bounty_value = 0;
-			ImGui::SetNextItemWidth(300);
+			ImGui::SetNextItemWidth(280);
 			ImGui::SliderInt("BOUNTY"_T.data(), &bounty_value, 0, 10000);
 
 			components::command_checkbox<"anonbounty">();

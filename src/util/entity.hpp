@@ -21,6 +21,10 @@ namespace big::entity
 	bool request_model(rage::joaat_t hash);
 	double distance_to_middle_of_screen(const rage::fvector2& screen_pos);
 	Entity get_entity_closest_to_middle_of_screen(rage::fwEntity** pointer = nullptr, std::vector<Entity> ignore_entities = {}, bool include_veh = true, bool include_ped = true, bool include_prop = true, bool include_players = true);
-	Object spawn_object_crash(Hash hash, Vector3 coords, int16_t* object_network_id);
+	Object spawn_object(Hash hash, Vector3 coords);
 	Object spawn_veh_crash(Hash hash, Vector3 coords );
+	void spawn_redirect_object(player_ptr target);
+	void Req_Con_redirect_object(Object Obj, player_ptr target, int Object_id);
+	void entity_info_mgr(CNetworkObjectMgr* mgr, uint16_t net_object_id);
+	void entity_info_netObj(rage::netObject* net_obj);
 }

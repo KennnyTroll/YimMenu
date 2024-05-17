@@ -5,6 +5,12 @@
 #include "util/misc.hpp"
 #include "util/toxic.hpp"
 
+#include "pointers.hpp"
+#include "gta/net_object_mgr.hpp"
+#include "util/entity.hpp"
+
+#include "base/CObject.hpp"
+
 namespace big
 {
 	void looped::player_toxic_options()
@@ -55,5 +61,58 @@ namespace big
 				g_pointers->m_gta.m_trigger_script_event(1, args, arg_count, rotate_cam_bits, (int)eRemoteEvent::TSECommand);
 			}
 		});
+
+		g_player_service->iterate([](const player_entry& entry) 
+		{	
+			if (g.protections.redirect_cage_object && entry.second->redirect_cage_object)
+			{
+				if (entry.second->get_ped() && entry.second->redirect_cage_object_Obj != -1) [[unlikely]]
+				{	
+					//rage::netObject* net_obj =
+					//    g_pointers->m_gta.m_get_net_object(*g_pointers->m_gta.m_network_object_mgr, entry.second->target_object_id, false);
+					//if (net_obj)
+					//{
+						//CObject* cobj = net_obj->GetGameObject();
+						CObject* cobj = reinterpret_cast<CObject*>(g_pointers->m_gta.m_handle_to_ptr(entry.second->redirect_cage_object_Obj));				
+
+						if (cobj)
+						{
+
+							entry.second->redirect_cage_object_time_now = std::chrono::steady_clock::now();
+							entry.second->redirect_cage_object_time_in_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+							    entry.second->redirect_cage_object_time_now - entry.second->redirect_cage_object_last_time);
+
+							CPed* tar          = entry.second->get_ped();
+							Vector3 tar_pz     = *tar->m_navigation->get_position();
+							Vector3 tar_pz_sav = tar_pz;
+							Vector3 net_obj_pz = *cobj->m_navigation->get_position();
+
+							net_obj_pz.z = 0;
+							tar_pz.z     = 0;
+
+							Vector3 min, max, result;
+						    MISC::GET_MODEL_DIMENSIONS(cobj->m_model_info->m_hash, &min, &max);
+						    result   = max - min;
+						    float y_offset = result.y;
+
+							if ((math::distance_between_vectors(tar_pz, net_obj_pz) > (y_offset * 1.5f)) && (entry.second->redirect_cage_object_time_in_ms >= 2000ms))
+							{
+								//LOG(INFO) << std::format("===> REDIRECT CAGE OBJECT - object id {} => FROM {} To New Position",
+								//    (int)entry.second->target_object_id,
+								//    entry.second->get_name());
+
+								//Object Obj = g_pointers->m_gta.m_ptr_to_handle(cobj);
+							    //ENTITY::SET_ENTITY_COORDS(Obj, tar_pz_sav.x, tar_pz_sav.y, tar_pz_sav.z + entry.second->redirect_cage_object_z_dist, 0, 0, 0, 0);
+							    if (entity::take_control_of(entry.second->redirect_cage_object_Obj,500))
+									ENTITY::SET_ENTITY_COORDS(entry.second->redirect_cage_object_Obj, tar_pz_sav.x, tar_pz_sav.y, tar_pz_sav.z + entry.second->redirect_cage_object_z_dist, 0, 0, 0, 0);
+								
+								entry.second->redirect_cage_object_last_time = entry.second->redirect_cage_object_time_now;
+							}							
+						}
+					//}
+				}
+			}		
+		});
+
 	}
 }

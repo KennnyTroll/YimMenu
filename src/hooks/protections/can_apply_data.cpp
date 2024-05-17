@@ -72,7 +72,9 @@
 #include "vehicle/CTrainConfig.hpp"
 #include "vehicle/CVehicleModelInfo.hpp"
 
-
+#include "util/math.hpp"
+//#include "model_info.hpp"
+#include "util/entity.hpp"
 
 namespace big
 {
@@ -1106,6 +1108,13 @@ namespace big
 
 		return false;
 	}
+	bool is_ctaskmelee_ped_task(eTaskTypeIndex type)
+	{
+		if (type == eTaskTypeIndex::CTaskMelee && g.m_syncing_object_type == eNetObjType::NET_OBJ_TYPE_PLAYER)
+			return true;
+
+		return false;
+	}
 
 	bool is_crash_vehicle_task(eTaskTypeIndex type)
 	{
@@ -1267,6 +1276,12 @@ namespace big
 					notify::crash_blocked(sender, "invalid door model");
 					return true;
 				}
+				if (protection::is_crash_object_list2(creation_node->m_model))
+				{
+					notify::crash_blocked(sender, "invalid door model list2");
+					return true;
+				}
+				
 
 				if (sender_plyr->block_cad || g.session.block_receiv_cad_all)
 					return true;	
@@ -1298,6 +1313,11 @@ namespace big
 				if (creation_node->m_custom_model && protection::is_crash_object(creation_node->m_custom_model))
 				{
 					notify::crash_blocked(sender, "invalid pickup model");
+					return true;
+				}
+				else if (creation_node->m_custom_model && protection::is_crash_object_list2(creation_node->m_custom_model))
+				{
+					notify::crash_blocked(sender, "invalid pickup model list2");
 					return true;
 				}
 
@@ -1393,6 +1413,11 @@ namespace big
 					notify::crash_blocked(sender, "invalid ped prop model");
 					return true;
 				}
+				else if (creation_node->m_has_prop && protection::is_crash_object_list2(creation_node->m_prop_model))
+				{
+					notify::crash_blocked(sender, "invalid ped prop list2");
+					return true;
+				}
 
 				if (sender_plyr->block_cad || g.session.block_receiv_cad_all)
 					return true;	
@@ -1425,7 +1450,7 @@ namespace big
 				if (sender_plyr->cad_log)
 				{
 					std::string mess1 = std::format("ObjectCreationDataNode object model = 0x{:X} | position {:.03f} {:.03f} {:.03f} | m_script_grab_radius {:.03f} | m_created_by {} | m_frag_group_index {} | m_ownership_token {} | m_no_reassign {} | m_hasGameObject {} | m_player_wants_control {} | m_has_init_physics {} | m_script_grabbed_from_world {} | m_has_frag_group {} | m_is_broken {} | m_has_exploded {} | m_keep_registered {} | unk_0169 {} | unk_016A {} | unk_016B {} => FROM {}",
-						creation_node->m_model,
+					    creation_node->m_model,
 					    creation_node->m_object_position.x,
 					    creation_node->m_object_position.y,
 					    creation_node->m_object_position.z,
@@ -1449,58 +1474,95 @@ namespace big
 					LOG(INFO) << mess1.c_str();
 				}
 
-
-				std::string mess = "model_info: \n ";
-				uint32_t model = creation_node->m_model;
-				auto info      = model_info::get_model(model);
-				if (!info)
-					mess += std::format("0x{:X}\n", model);
-				else
+				if (protection::is_cage_object(creation_node->m_model))
 				{
-					mess += std::format("m_model_type {}\n", (int)info->m_model_type);
-					const char* model_str = nullptr;
-					if (info->m_model_type == eModelType::Vehicle)
-					{
-						for (auto& [name, data] : g_gta_data_service->vehicles())
-						{
-							if (data.m_hash == model)
-							{
-								model_str = name.data();
-							}
-						}
-					}
-					else if (info->m_model_type == eModelType::Ped || info->m_model_type == eModelType::OnlineOnlyPed)
-					{
-						for (auto& [name, data] : g_gta_data_service->peds())
-						{
-							if (data.m_hash == model)
-							{
-								model_str = name.data();
-							}
-						}
-					}
-					if (!model_str)
-						mess += std::format("0x{:X}\n", model);
-					else
-					{
-						mess += std::format("{} (0x{:X})\n", model_str, model);
-					}
+					LOG(INFO) << "===> ----------CAN APP DATA: RECEIVED CAGE OBJECT ----------";
 
-					if (sender_plyr->cad_log)
+					entity::entity_info_netObj(object);
+
+					Vector3 m_dummy_position       = creation_node->m_dummy_position;
+					Vector3 m_object_position      = creation_node->m_object_position;
+					Vector3 m_script_grab_position = creation_node->m_script_grab_position;
+					
+					std::string mess1 = std::format("ObjectCreationDataNode object model = 0x{:X} \nposition {:.03f} {:.03f} {:.03f} \nposition {:.03f} {:.03f} {:.03f} \nposition {:.03f} {:.03f} {:.03f} \nposition {:.03f} {:.03f} {:.03f} \nposition {:.03f} {:.03f} {:.03f} \nposition {:.03f} {:.03f} {:.03f} \nm_script_grab_radius {:.03f} \nm_created_by {} \nm_frag_group_index {} \nm_ownership_token {} \nm_no_reassign {} \nm_hasGameObject {} \nm_player_wants_control {} \nm_has_init_physics {} \nm_script_grabbed_from_world {} \nm_has_frag_group {} \nm_is_broken {} \nm_has_exploded {} \nm_keep_registered {} \nm_DestroyFrags {} \nm_lodOrphanHd {} \nm_CanBlendWhenFixed {} \n=> FROM {}",
+					    creation_node->m_model,
+					    m_dummy_position.x,
+					    m_dummy_position.y,
+					    m_dummy_position.z,
+					    m_object_position.x,
+					    m_object_position.y,
+					    m_object_position.z,
+					    m_script_grab_position.x,
+					    m_script_grab_position.y,
+					    m_script_grab_position.z,
+					    creation_node->m_dummy_position.x,
+					    creation_node->m_dummy_position.y,
+					    creation_node->m_dummy_position.z,
+					    creation_node->m_object_position.x,
+					    creation_node->m_object_position.y,
+					    creation_node->m_object_position.z,
+					    creation_node->m_script_grab_position.x,
+					    creation_node->m_script_grab_position.y,
+					    creation_node->m_script_grab_position.z,
+					    creation_node->m_script_grab_radius,
+					    creation_node->m_created_by,
+					    creation_node->m_frag_group_index,
+					    creation_node->m_ownership_token,
+					    creation_node->m_no_reassign,
+					    creation_node->unk_0161, //m_hasGameObject
+					    creation_node->m_player_wants_control,
+					    creation_node->m_has_init_physics,
+					    creation_node->m_script_grabbed_from_world,
+					    creation_node->m_has_frag_group,
+					    creation_node->m_is_broken,
+					    creation_node->m_has_exploded,
+					    creation_node->m_keep_registered,
+					    creation_node->unk_0169, //m_hasGameObject
+					    creation_node->unk_016A, //m_hasGameObject
+					    creation_node->unk_016B, //m_hasGameObject
+					    sender->get_name());
+					LOG(INFO) << mess1.c_str();
+					
+					sender_plyr->target_object_id = object->m_object_id;
+					sender_plyr->target_object_id_model = creation_node->m_model;
+
+
+
+
+					//std::string mess = std::format("Received cage object id {}\n0x{:X} From {}\nposition {:.03f} {:.03f} {:.03f}\nposition D {:.03f} {:.03f} {:.03f}\nposition O {:.03f} {:.03f} {:.03f}\nposition S {:.03f} {:.03f} {:.03f}",
+					std::string mess = std::format("RECEIVED CAGE OBJECT - object id {} => From {} (0x{:X})",
+					    object->m_object_id,
+					    sender->get_name(),
+						creation_node->m_model
+					    
+					 //   creation_node->m_dummy_position.x,
+					 //   creation_node->m_dummy_position.y,
+					 //   creation_node->m_dummy_position.z,
+
+						//creation_node->m_object_position.x,
+					 //   creation_node->m_object_position.y,
+					 //   creation_node->m_object_position.z,
+
+					 //   creation_node->m_script_grab_position.x,
+					 //   creation_node->m_script_grab_position.y,
+					 //   creation_node->m_script_grab_position.z
+					);
+
 					LOG(INFO) << mess.c_str();
 
-				
-					if (info->m_model_type == eModelType::Plant)
-					{
-						LOG(INFO) << mess.c_str();
-						//mess += std::format("{} (0x{:X})\n", model_str, model);
-						notify::crash_blocked(sender, "invalid object ModelType Plant");
-					}
 				}
+
 
 				if (protection::is_crash_object(creation_node->m_model))
 				{
-					notify::crash_blocked(sender, "invalid object model");
+					std::string ms = std::format("Ocdn invalid object model 0x{:X}", creation_node->m_model);
+					notify::crash_blocked(sender, ms.c_str());
+					return true;
+				}
+				else if (protection::is_crash_object_list2(creation_node->m_model))
+				{
+					std::string ms = std::format("Ocdn invalid object model 0x{:X} list2", creation_node->m_model);
+					notify::crash_blocked(sender, ms.c_str());
 					return true;
 				}
 
@@ -2014,6 +2076,17 @@ namespace big
 							notify::crash_blocked(sender, "invalid ped task");
 							return true;
 						}
+						//CPed
+						//CNetObjPed
+						//427
+						//if (is_ctaskmelee_ped_task((eTaskTypeIndex)task_node->m_tasks[i].m_task_type))
+						//{
+						//	std::string mess = "m_task_bitset";
+						//	mess += std::format(" {}\n", i);
+						//	LOG(INFO) << mess;
+						//	//notify::crash_blocked(sender, "invalid ped task");
+						//	return true;
+						//}
 					}
 				}
 

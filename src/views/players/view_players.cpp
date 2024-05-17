@@ -174,17 +174,17 @@ namespace big
 			{
 				if (dist_p < 100.0f)
 				{
-					ImVec4 border_color = ImVec4(255 * (1.0f / 255.0f), 0 * (1.0f / 255.0f), 0 * (1.0f / 255.0f), 1); // Rouge vif (RGBA)
+					ImVec4 border_color = ImVec4(180 * (1.0f / 255.0f), 0 * (1.0f / 255.0f), 0 * (1.0f / 255.0f), 1); // Rouge vif (RGBA)
 					ImGui::PushStyleColor(ImGuiCol_Text, border_color);
 				}
 				else if (dist_p < 500.0f)
 				{
-					ImVec4 border_color = ImVec4(255 * (1.0f / 255.0f), 255 * (1.0f / 255.0f), 0 * (1.0f / 255.0f), 1); // Jaune vif (RGBA)
+					ImVec4 border_color = ImVec4(180 * (1.0f / 255.0f), 180 * (1.0f / 255.0f), 0 * (1.0f / 255.0f), 1); // Jaune vif (RGBA)
 					ImGui::PushStyleColor(ImGuiCol_Text, border_color);
 				}
 				else
 				{
-					ImVec4 border_color = ImVec4(0 * (1.0f / 255.0f), 255 * (1.0f / 255.0f), 0 * (1.0f / 255.0f), 1); // Vert vif (RGBA)
+					ImVec4 border_color = ImVec4(0 * (1.0f / 255.0f), 180 * (1.0f / 255.0f), 0 * (1.0f / 255.0f), 1); // Vert vif (RGBA)
 					ImGui::PushStyleColor(ImGuiCol_Text, border_color);
 				}
 			}

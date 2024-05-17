@@ -146,8 +146,7 @@ namespace big
 				    ImGui::Checkbox("Block CAD", &g_player_service->get_selected()->block_cad);
 				    ImGui::Checkbox("Log CAD", &g_player_service->get_selected()->cad_log);
 				    ImGui::Checkbox("Recev Type Log", &g_player_service->get_selected()->recev_log);
-				    
-
+				    ImGui::Checkbox("Redirect Cage Object", &g_player_service->get_selected()->redirect_cage_object);
 
 				    ImGui::Separator();
 

@@ -120,6 +120,15 @@ namespace big
 		bool recev_log                 = false;
 		//int16_t frezz_game_sync_object_id = false;
 		std::int16_t frezz_game_sync_object_id = 0;
+		std::int16_t target_object_id          = -1;
+		uint32_t target_object_id_model;
+		bool redirect_cage_object = false;
+		float redirect_cage_object_z_dist = 0.0f;
+		std::chrono::time_point<std::chrono::steady_clock> redirect_cage_object_time_now;
+		std::chrono::time_point<std::chrono::steady_clock> redirect_cage_object_last_time;
+		std::chrono::milliseconds redirect_cage_object_time_in_ms;
+		Object redirect_cage_object_Obj = -1;
+		
 
 		bool trigger_desync_kick = false;
 		bool trigger_end_session_kick = false;

@@ -10,6 +10,9 @@
 #include "util/entity.hpp"
 #include "fiber_pool.hpp"
 
+#include "base/CObject.hpp"
+#include <entities/CDynamicEntity.hpp>
+
 namespace big::troll
 {
 	inline void set_bounty_on_player(player_ptr target, int value, bool anonymous)
@@ -232,29 +235,54 @@ namespace big::troll
 				Hash fake_hash = get_hash(g.protections.freeze_fake_model);
 				//Hash hash     = "prop_thindesertfiller_aa"_J;
 				auto info     = model_info::get_model(fake_hash);
-				int16_t net_Obje_id = 0;
-				Object Obje         = entity::spawn_object_crash(fake_hash, coords, &net_Obje_id /*, (int)target_id*/);
+				if (info)
+				{
+					LOG(INFO) << "info m_model_type " << (int)info->m_model_type;
+				}
+				
+				Object Obje         = entity::spawn_object(fake_hash, coords);
 				if (Obje != NULL)
-				{						
-					target->frezz_game_sync_object_id = net_Obje_id;
+				{
+					ENTITY::SET_ENTITY_COLLISION(Obje, 0, 1);
+					
+					////target->frezz_game_sync_object_id = net_Obje_id;
 					target->frezz_game_sync           = true;
 
-					//LOG(INFO) << std::format("info m_model_type {} founded {:X}\n", (int)info->m_model_type, info->m_hash);
+					////LOG(INFO) << std::format("frezz_game_sync net_obj  id {}", (int)net_Obje_id);
 					////static char freeze_model[64];
 					////std::memcpy(freeze_model, g.protections.freeze_model.c_str(), 12);
-					//info->m_hash = get_hash(g.protections.freeze_model);
-					//
-					//LOG(INFO) << std::format("info m_model_type {} founded {:X}  NEW\n", (int)info->m_model_type, info->m_hash);
+
+					auto ptr = (rage::CDynamicEntity*)g_pointers->m_gta.m_handle_to_ptr(Obje);
+					//LOG(INFO) << "ptr ?";
+					if (ptr != nullptr && ptr->m_net_object != nullptr)
+					{
+						target->frezz_game_sync_object_id = ptr->m_net_object->m_object_id;
+						LOG(INFO) << std::format("frezz_game_sync net_obj  id {}", (int)ptr->m_net_object->m_object_id);		
+					}					
+
+					////info->m_hash = get_hash(g.protections.freeze_model);
+					CObject* Obj = (CObject*)g_pointers->m_gta.m_handle_to_ptr(Obje);	
+					//if (Obj != nullptr && Obj->m_model_info != nullptr)
+					//	Obj->m_model_info->m_hash = get_hash(g.protections.freeze_model);		
+
+
+					//LOG(INFO) << std::format("info m_model_type {} founded {:X}  NEW\n",
+					//    (int)info->m_model_type,
+					//    Obj->m_model_info->m_hash);
 
 					script::get_current()->yield(3s);
+					target->frezz_game_sync   = false;
+					Obj->m_model_info->m_hash = fake_hash;
 					entity::delete_entity(Obje, true);
-					info->m_hash = fake_hash;
+					////info->m_hash = fake_hash;
+					
 
-					//script::get_current()->yield(2s);
-					target->frezz_game_sync = false;
-					//entity::delete_entity(object, true);
-					//g_notification_service.push_crash_success("CRASH_INVALID_MODEL_HASH_MESSAGE"_T.data());
+					
+
+					LOG(INFO) << "frezz_game_sync net_obj  false";
 				}
+				else
+					LOG(INFO) << "frezz_game_sync net_obj Failed to creat net_obj";
 			}
 		});
 	}
@@ -290,24 +318,29 @@ namespace big::troll
 
 				//Vector3 coords = Cped_target->get_bone_coords(ePedBoneType::HEAD);
 
-				Hash hash = get_hash(g.protections.freeze_model);
+				Hash hash = get_hash(g.protections.freeze_fake_model);
 				//Hash hash     = "prop_thindesertfiller_aa"_J;
 				auto info     = model_info::get_model(hash);
-				LOG(INFO) << "info m_model_type " << (int)info->m_model_type;
+				if (info)
+				{
+					LOG(INFO) << "info m_model_type " << (int)info->m_model_type;
+				}
 
 				int16_t Obje_id = 0;
-				Object object   = entity::spawn_object_crash(hash, coords, &Obje_id /*, (int)target_id*/);
+				Object object   = entity::spawn_object(hash, coords);
 				if (object != NULL)
 				{
 					LOG(INFO) << "info m_model_type " << (int)info->m_model_type;
 					//info->m_hash = "prop_thindesertfiller_aa"_J;
 					// info->m_hash = "proc_leafybush_01"_J;
-					script::get_current()->yield(1s);
+					//script::get_current()->yield(1s);
 					//entity::delete_entity(object, true);
 					//info->m_hash = hash;
 					//entity::delete_entity(object, true);
 					//g_notification_service.push_crash_success("CRASH_INVALID_MODEL_HASH_MESSAGE"_T.data());
 				}
+				else
+					LOG(INFO) << "info " << g.protections.freeze_fake_model << " model " << hash << " type " << (int)info->m_model_type << "   NOT Spawned ";
 			}
 		});
 	}

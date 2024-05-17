@@ -6606,7 +6606,7 @@ namespace big::system
 
 		file_ << std::format("{}: {}", "VIEW_OVERLAY_GAME_VERSION"_T, g_pointers->m_gta.m_game_version).c_str() << std::endl;
 		file_ << std::format("{}: {}", "VIEW_OVERLAY_GAME_VERSION"_T, g_pointers->m_gta.m_online_version).c_str() << std::endl;
-		file_ << std::format("Base_address = {}", base_address).c_str() << std::endl;
+		file_ << std::format("Base_address = {:X}", base_address).c_str() << std::endl;
 
 		for (int i = 0; i < g_crossmap.size(); i++)
 		{

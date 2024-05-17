@@ -24,16 +24,16 @@ namespace big::notify
 	{
 		if (player && g_player_service->get_by_id(player->m_player_id))
 		{
-			if ((g_player_service->get_by_id(player->m_player_id)->is_friend() && g.session.trust_friends)
-			    || g_player_service->get_by_id(player->m_player_id)->is_trusted || g.session.trust_session)
-				return;
-
 			if (g.reactions.crash.notify)
 				g_notification_service.push_error("Protections", std::format("Blocked {} crash from {}", crash, player->get_name()));
 
 			if (g.reactions.crash.log)
 				LOG(WARNING) << "Blocked " << crash << " crash from " << player->get_name() << " ("
 				             << (player->get_net_data() ? player->get_net_data()->m_gamer_handle.m_rockstar_id : 0) << ")";
+
+			if ((g_player_service->get_by_id(player->m_player_id)->is_friend() && g.session.trust_friends)
+			    || g_player_service->get_by_id(player->m_player_id)->is_trusted || g.session.trust_session)
+				return;
 
 			if (g.reactions.crash.announce_in_chat && !g.self.safetypoint)
 			{
